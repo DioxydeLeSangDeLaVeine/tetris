@@ -8,6 +8,7 @@ typedef struct {
 } rgb;
 
 typedef struct {
+    int action_type;
     int top;
     int left;
     int width;
@@ -16,7 +17,7 @@ typedef struct {
     rgb bg_color;
 } ButtonComponent;
 
-void addComponent(ButtonComponent components[], int size, int top, int left, int width, int height, int radius, rgb color);
+void addComponent(ButtonComponent components[], int components_size, int action_type, int top, int left, int width, int height, int radius, rgb color);
 int menu(int width, int height, ButtonComponent components[]);
 
 #endif

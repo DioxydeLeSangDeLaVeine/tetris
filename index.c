@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
+#include <math.h>
 
 #include "./modules/ui/ui.h"
 
@@ -34,17 +35,55 @@
 
 
 
+ButtonComponent buttonHovered(ButtonComponent components[], int components_size, int x, int y)
+{
+    int i = 0, found = 0, dx, dy;
+    ButtonComponent button;
+
+    while(i < components_size && found == 0)
+    {
+        button = components[i];
+
+        if(button.top <= y
+        && button.top + button.height >= y
+        && button.left + button.radius <= x
+        && button.left + button.width - (2 * button.radius) >= x) found = 1;
+        if(button.top + button.radius <= y
+        && button.top + button.height - (2 * button.radius) >= y
+        && button.left <= x
+        && button.left + button.width >= x) found = 1;
+
+        dx = x - (button.left+button.radius);
+        dy = y - (button.top+button.radius-1);
+        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        dx = x - (button.left+button.radius);
+        dy = y - (button.top+button.height-button.radius);
+        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        dx = x - (button.left+button.width-button.radius-1);
+        dy = y - (button.top+button.radius-1);
+        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        dx = x - (button.left+button.width-button.radius-1);
+        dy = y - (button.top+button.height-button.radius);
+        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+
+        i++;
+    }
+    if(!found) button.action_type = -1;
+    return button;
+}
+
 int main()
 {
     MLV_Event event = MLV_NONE;
     MLV_Keyboard_button sym = MLV_KEYBOARD_NONE;
     MLV_Keyboard_modifier mod = MLV_KEYBOARD_KMOD_NONE;
+    MLV_Mouse_button mouse;
     MLV_Button_state state;
     ButtonComponent components[100];
-    int x = 0, y = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), componentsSize = 0;
+    int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0;
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    componentsSize = menu(width, height, components);
+    components_size = menu(width, height, components);
 
     MLV_actualise_window();
     do
@@ -52,7 +91,7 @@ int main()
         event = MLV_get_event( 
             &sym, &mod, NULL,
             NULL, NULL, &x,
-            &y, NULL, &state
+            &y, &mouse, &state
         );
         switch(event)
         {
@@ -65,9 +104,17 @@ int main()
                 }
                 break;
             case MLV_MOUSE_BUTTON: 
-                if(state == MLV_PRESSED)
+                if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                 {
-
+                    ButtonComponent button = buttonHovered(components, components_size, x, y);
+                    switch(button.action_type)
+                    {
+                        case 0:
+                            quit = 1;
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 break;
             case MLV_MOUSE_MOTION:
@@ -75,7 +122,7 @@ int main()
             default:
                 break;
         }
-    } while(1);
+    } while(!quit);
     MLV_free_window();
     
     exit(EXIT_SUCCESS);
