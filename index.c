@@ -55,16 +55,16 @@ ButtonComponent buttonHovered(ButtonComponent components[], int components_size,
 
         dx = x - (button.left+button.radius);
         dy = y - (button.top+button.radius-1);
-        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
         dx = x - (button.left+button.radius);
         dy = y - (button.top+button.height-button.radius);
-        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
         dx = x - (button.left+button.width-button.radius-1);
         dy = y - (button.top+button.radius-1);
-        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
         dx = x - (button.left+button.width-button.radius-1);
         dy = y - (button.top+button.height-button.radius);
-        if((dx*dx+dy*dy)<=((button.radius-1)*(button.radius-1))) found = 1;
+        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
 
         i++;
     }
