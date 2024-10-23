@@ -34,13 +34,13 @@
 
 
 
-int main(int argc, char *argv[])
+int main()
 {
     MLV_Event event = MLV_NONE;
     MLV_Keyboard_button sym = MLV_KEYBOARD_NONE;
     MLV_Keyboard_modifier mod = MLV_KEYBOARD_KMOD_NONE;
     MLV_Button_state state;
-    int x = 0, y = 0, quit = 0, width = 640, height = 480;
+    int x = 0, y = 0, width = 640, height = 480;
 
     MLV_create_window("Tetris", "tetris", width, height);
     menu(width, height);

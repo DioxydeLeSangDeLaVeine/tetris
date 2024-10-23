@@ -24,6 +24,10 @@ int menu(int width, int height)
      * @returns {int}
      */
 
+    (void)width;
+    (void)height;
+    /* Anti-Unused warning ( width and height can be useful in the future ) */
+
     MLV_draw_filled_rectangle(0, 0, 150, height, MLV_rgba(0,0,255,255));
 
     return 1;
