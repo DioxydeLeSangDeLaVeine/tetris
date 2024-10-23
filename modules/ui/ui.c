@@ -13,6 +13,8 @@
  * return 1 anyway.
  */
 
+
+
 int menu(int width, int height)
 {
     /**
@@ -24,10 +26,7 @@ int menu(int width, int height)
      * @returns {int}
      */
 
-    (void)width;
-    (void)height;
-    /* Anti-Unused warning ( width and height can be useful in the future ) */
-
+    MLV_draw_filled_rectangle(0, 0, width, height, MLV_rgba(255, 255, 255, 255));
     MLV_draw_filled_rectangle(0, 0, 150, height, MLV_rgba(0,0,255,255));
 
     return 1;

@@ -58,12 +58,14 @@ int main()
             case MLV_NONE:
                 break;
             case MLV_KEY:
-                if(state == MLV_PRESSED) {
+                if(state == MLV_PRESSED)
+                {
 
                 }
                 break;
             case MLV_MOUSE_BUTTON: 
-                if(state == MLV_PRESSED) {
+                if(state == MLV_PRESSED)
+                {
 
                 }
                 break;
