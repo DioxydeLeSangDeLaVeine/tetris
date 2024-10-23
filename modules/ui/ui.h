@@ -1,6 +1,22 @@
 #ifndef H_UI_MODULE
 #define H_UI_MODULE
 
-int menu(int width, int height);
+typedef struct {
+    int r;
+    int g;
+    int b;
+} rgb;
+
+typedef struct {
+    int top;
+    int left;
+    int width;
+    int height;
+    int radius;
+    rgb bg_color;
+} ButtonComponent;
+
+void addComponent(ButtonComponent components[], int size, int top, int left, int width, int height, int radius, rgb color);
+int menu(int width, int height, ButtonComponent components[]);
 
 #endif

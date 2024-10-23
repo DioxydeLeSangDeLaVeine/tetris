@@ -40,11 +40,11 @@ int main()
     MLV_Keyboard_button sym = MLV_KEYBOARD_NONE;
     MLV_Keyboard_modifier mod = MLV_KEYBOARD_KMOD_NONE;
     MLV_Button_state state;
-    int x = 0, y = 0, width = 640, height = 480;
+    ButtonComponent components[100];
+    int x = 0, y = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), componentsSize = 0;
 
-    MLV_create_window("Tetris", "tetris", width, height);
-    MLV_enable_full_screen();
-    menu(width, height);
+    MLV_create_full_screen_window("Tetris", "tetris", width, height);
+    componentsSize = menu(width, height, components);
 
     MLV_actualise_window();
     do
