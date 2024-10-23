@@ -43,6 +43,7 @@ int main()
     int x = 0, y = 0, width = 640, height = 480;
 
     MLV_create_window("Tetris", "tetris", width, height);
+    MLV_enable_full_screen();
     menu(width, height);
 
     MLV_actualise_window();
