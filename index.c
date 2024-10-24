@@ -39,7 +39,6 @@ ButtonComponent buttonHovered(ButtonComponent components[], int components_size,
 {
     int i = 0, found = 0, dx, dy;
     ButtonComponent button;
-
     while(i < components_size && found == 0)
     {
         button = components[i];
@@ -68,21 +67,25 @@ ButtonComponent buttonHovered(ButtonComponent components[], int components_size,
 
         i++;
     }
-    if(!found) button.action_type = -1;
+    if(!found) button.id = 0;
     return button;
 }
 
 int main()
 {
     MLV_Event event = MLV_NONE;
-    MLV_Keyboard_button sym = MLV_KEYBOARD_NONE;
-    MLV_Keyboard_modifier mod = MLV_KEYBOARD_KMOD_NONE;
+    MLV_Keyboard_button sym;
+    MLV_Keyboard_modifier mod;
     MLV_Mouse_button mouse;
     MLV_Button_state state;
+    ButtonComponent lastButton, button;
     ButtonComponent components[100];
     int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0;
 
-    float framerate = 1000/120;
+    float framerate = 1000/60;
+    
+    lastButton.id = 0;
+    button.id = 0;
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
     components_size = menu(width, height, components);
@@ -105,21 +108,30 @@ int main()
 
                 }
                 break;
-            case MLV_MOUSE_BUTTON: 
+            case MLV_MOUSE_BUTTON:
                 if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                 {
-                    ButtonComponent button = buttonHovered(components, components_size, x, y);
-                    switch(button.action_type)
+                    button = buttonHovered(components, components_size, x, y);
+                    if(button.exist == 1)
                     {
-                        case 0:
-                            quit = 1;
-                            break;
-                        default:
-                            break;
+                        if(button.action_type == 0) quit=1;
                     }
                 }
                 break;
             case MLV_MOUSE_MOTION:
+                button = buttonHovered(components, components_size, x, y);
+                printf("%d\n", button.id);
+                if(button.id != lastButton.id) {
+                    if(lastButton.id != 0) {
+                        if(button.hoverable==1) drawButton(button, 0);
+                        lastButton.id = 0;
+                    }
+                    if(button.id != 0)
+                    {
+                        if(button.hoverable==1) drawButton(button, 1);
+                        lastButton = button;
+                    }
+                }
                 break;
             default:
                 break;
