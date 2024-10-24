@@ -82,6 +82,8 @@ int main()
     ButtonComponent components[100];
     int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0;
 
+    float framerate = 1000/120;
+
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
     components_size = menu(width, height, components);
 
@@ -122,6 +124,7 @@ int main()
             default:
                 break;
         }
+        MLV_wait_milliseconds(framerate);
     } while(!quit);
     MLV_free_window();
     
