@@ -82,8 +82,6 @@ int main()
     ButtonComponent components[100];
     int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0;
 
-    float framerate = 1000/60;
-    
     lastButton.id = 0;
     button.id = 0;
 
@@ -112,7 +110,7 @@ int main()
                 if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                 {
                     button = buttonHovered(components, components_size, x, y);
-                    if(button.exist == 1)
+                    if(button.id != 0)
                     {
                         if(button.action_type == 0) quit=1;
                     }
@@ -120,23 +118,21 @@ int main()
                 break;
             case MLV_MOUSE_MOTION:
                 button = buttonHovered(components, components_size, x, y);
-                printf("%d\n", button.id);
                 if(button.id != lastButton.id) {
                     if(lastButton.id != 0) {
-                        if(button.hoverable==1) drawButton(button, 0);
-                        lastButton.id = 0;
+                        if(lastButton.hoverable==1) drawButton(lastButton, 0);
                     }
                     if(button.id != 0)
                     {
                         if(button.hoverable==1) drawButton(button, 1);
-                        lastButton = button;
                     }
+                    lastButton = button;
+                    MLV_actualise_window();
                 }
                 break;
             default:
                 break;
         }
-        MLV_wait_milliseconds(framerate);
     } while(!quit);
     MLV_free_window();
     

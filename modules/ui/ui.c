@@ -126,9 +126,9 @@ int menu(int width, int height, ButtonComponent components[])
     white_color.g = 245;
     white_color.b = 255;
 
-    danger_color.r = 234;
-    danger_color.g = 10;
-    danger_color.b = 42;
+    danger_color.r = 254;
+    danger_color.g = 30;
+    danger_color.b = 62;
 
     /*
         RESIZE LOGO
@@ -156,9 +156,9 @@ int menu(int width, int height, ButtonComponent components[])
         MLV_free_image(logo);
     }
 
-    addComponent(components, components_size++, 1, 1, sidebar_frame_padding+(0*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, primary_color, black_color, "Jouer", POPPINS_MEDIUM, 20, white_color, white_color);
-    addComponent(components, components_size++, -1, 0, sidebar_frame_padding+(1*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, button_color, "Paramètres", POPPINS_MEDIUM, 20, white_color, white_color);
-    addComponent(components, components_size++, -1, 0, sidebar_frame_padding+(2*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, button_color, "Scoreboard", POPPINS_MEDIUM, 20, white_color, white_color);
+    addComponent(components, components_size++, 1, 1, sidebar_frame_padding+(0*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Jouer", POPPINS_MEDIUM, 20, white_color, white_color);
+    addComponent(components, components_size++, -1, 1, sidebar_frame_padding+(1*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Paramètres", POPPINS_MEDIUM, 20, white_color, white_color);
+    addComponent(components, components_size++, -1, 1, sidebar_frame_padding+(2*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Scoreboard", POPPINS_MEDIUM, 20, white_color, white_color);
     
     addComponent(components, components_size++, 0, 0, height-sidebar_frame_padding-button_height, sidebar_frame_padding, button_width, button_height, 16, danger_color, danger_color, "Quitter", POPPINS_MEDIUM, 20, white_color, white_color);
     
