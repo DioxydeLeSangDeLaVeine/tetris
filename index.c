@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
 #include <math.h>
+#include <time.h>
 
 #include "./modules/ui/ui.h"
 
@@ -80,8 +81,8 @@ int main()
     MLV_Button_state state;
     ButtonComponent lastButton, button;
     ButtonComponent components[100];
-    int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0;
-
+    int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0, actualise = 0;
+    struct timespec debut, fin;
     lastButton.id = 0;
     button.id = 0;
 
@@ -89,51 +90,62 @@ int main()
     components_size = menu(width, height, components);
 
     MLV_actualise_window();
-    do
+    while(!quit)
     {
-        event = MLV_get_event( 
-            &sym, &mod, NULL,
-            NULL, NULL, &x,
-            &y, &mouse, &state
-        );
-        switch(event)
+        actualise = 0;
+        clock_gettime(CLOCK_REALTIME, &debut);
+        do
         {
-            case MLV_NONE:
-                break;
-            case MLV_KEY:
-                if(state == MLV_PRESSED)
-                {
-
-                }
-                break;
-            case MLV_MOUSE_BUTTON:
-                if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
-                {
+            event = MLV_get_event( 
+                &sym, &mod, NULL,
+                NULL, NULL, &x,
+                &y, &mouse, &state
+            );
+            switch(event)
+            {
+                case MLV_NONE:
+                    break;
+                case MLV_KEY:
+                    if(state == MLV_PRESSED)
+                    {
+                        if(MLV_KEYBOARD_x==sym) {
+                            quit=1;
+                        }
+                    }
+                    break;
+                case MLV_MOUSE_BUTTON:
+                    if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
+                    {
+                        button = buttonHovered(components, components_size, x, y);
+                        if(button.id != 0)
+                        {
+                            if(button.action_type == 0) quit=1;
+                        }
+                    }
+                    break;
+                case MLV_MOUSE_MOTION:
                     button = buttonHovered(components, components_size, x, y);
-                    if(button.id != 0)
-                    {
-                        if(button.action_type == 0) quit=1;
+                    if(button.id != lastButton.id) {
+                        if(lastButton.id != 0) {
+                            if(lastButton.hoverable==1) drawButton(lastButton, 0);
+                            actualise = 1;
+                        }
+                        if(button.id != 0)
+                        {
+                            if(button.hoverable==1) drawButton(button, 1);
+                            actualise = 1;
+                        }
+                        lastButton = button;
                     }
-                }
-                break;
-            case MLV_MOUSE_MOTION:
-                button = buttonHovered(components, components_size, x, y);
-                if(button.id != lastButton.id) {
-                    if(lastButton.id != 0) {
-                        if(lastButton.hoverable==1) drawButton(lastButton, 0);
-                    }
-                    if(button.id != 0)
-                    {
-                        if(button.hoverable==1) drawButton(button, 1);
-                    }
-                    lastButton = button;
-                    MLV_actualise_window();
-                }
-                break;
-            default:
-                break;
-        }
-    } while(!quit);
+                    break;
+                default:
+                    break;
+            }
+        } while(event != MLV_NONE);
+        clock_gettime(CLOCK_REALTIME, &fin);
+        MLV_wait_milliseconds((1000/60)-(fin.tv_sec/10-debut.tv_sec/10));
+        if(actualise == 1) MLV_actualise_window();
+    }
     MLV_free_window();
     
     exit(EXIT_SUCCESS);

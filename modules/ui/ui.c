@@ -98,7 +98,7 @@ int menu(int width, int height, ButtonComponent components[])
         DEFINE LOGO
     */
 
-    MLV_Image *logo = MLV_load_image("./src/img/logo2.png");
+    MLV_Image *logo = MLV_load_image("./src/img/logo.png");
     float logo_width, logo_height, logo_ratio;
 
     /*
