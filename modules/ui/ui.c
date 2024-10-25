@@ -11,156 +11,128 @@ int __max(int a, int b) {
     return a>=b?a:b;
 }
 
-void drawButton(ButtonComponent button, int hovered) {
-    MLV_Font *txt_font = MLV_load_font(button.font, button.font_size);
+boolean idboxComponent(component component, int x, int y)
+{
+    style stylesheet;
+    int dx, dy;
+    stylesheet = (component.is_hovered==TRUE&&component.is_hoverable==TRUE)?component.hover_stylesheet:component.stylesheet;
+
+    if(stylesheet.top <= y
+    && stylesheet.top + stylesheet.height >= y
+    && stylesheet.left + stylesheet.border_radius <= x
+    && stylesheet.left + stylesheet.width - (2 * stylesheet.border_radius) >= x) return TRUE;
+    if(stylesheet.top + stylesheet.border_radius <= y
+    && stylesheet.top + stylesheet.height - (2 * stylesheet.border_radius) >= y
+    && stylesheet.left <= x
+    && stylesheet.left + stylesheet.width >= x) return TRUE;
+
+    dx = x - (stylesheet.left+stylesheet.border_radius);
+    dy = y - (stylesheet.top+stylesheet.border_radius-1);
+    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
+    dx = x - (stylesheet.left+stylesheet.border_radius);
+    dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius);
+    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
+    dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius-1);
+    dy = y - (stylesheet.top+stylesheet.border_radius-1);
+    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
+    dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius-1);
+    dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius);
+    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
+    return FALSE;
+}
+
+void drawComponents(component components[], int components_size) {
+    int i;
+    for(i = 0; i<components_size; i++)
+    {
+        drawComponent(components[i]);
+    }
+}
+
+void drawComponent(component component)
+{
+    FILE* file;
+    MLV_Font *font_family;
+    style stylesheet;
     int font_height = 0;
-    rgb bg_color;
-    rgb font_color;
 
-    bg_color = (hovered==1||!button.hoverable)?button.hovered_bg_color:button.bg_color;
-    font_color = (hovered==1||!button.hoverable)?button.hovered_font_color:button.font_color;
-    /*
-        CONTENT OF THE BUTTON
-    */
-    MLV_draw_filled_rectangle(button.left+button.radius, button.top, button.width-(2*button.radius), button.height, MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
-    MLV_draw_filled_rectangle(button.left, button.top+button.radius, button.width, button.height-(2*button.radius), MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
+    stylesheet = (component.is_hovered==TRUE&&component.is_hoverable==TRUE)?component.hover_stylesheet:component.stylesheet;
+
+    if(stylesheet.border_radius>stylesheet.height/2||stylesheet.border_radius>stylesheet.width/2) stylesheet.border_radius = __min(stylesheet.width/2, stylesheet.height/2);
 
     /*
-        BORDER RADIUS OF THE BUTTON
+        CONTENT OF THE COMPONENT
     */
-    MLV_draw_filled_circle(button.left+button.radius, button.top+button.radius-1, button.radius-1, MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
-    MLV_draw_filled_circle(button.left+button.radius, button.top+button.height-button.radius, button.radius-1, MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
-    MLV_draw_filled_circle(button.left+button.width-button.radius-1, button.top+button.radius-1, button.radius-1, MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
-    MLV_draw_filled_circle(button.left+button.width-button.radius-1, button.top+button.height-button.radius, button.radius-1, MLV_rgba(bg_color.r, bg_color.g, bg_color.b, 255));
+    MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius, stylesheet.top, stylesheet.width-(2*stylesheet.border_radius), stylesheet.height, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius, stylesheet.width, stylesheet.height-(2*stylesheet.border_radius), MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
 
-    if(txt_font != NULL) {
-        MLV_get_size_of_text_with_font(button.content, NULL, &font_height, txt_font);
-        MLV_draw_text_with_font(button.left+20, button.top+(button.height/2)-(font_height/2), button.content, txt_font, MLV_rgba(font_color.r, font_color.g, font_color.b, 255));
+    /*
+        BORDER RADIUS OF THE COMPONENT
+    */
+    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius, stylesheet.top+stylesheet.border_radius-1, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius, stylesheet.top+stylesheet.height-stylesheet.border_radius, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius-1, stylesheet.top+stylesheet.border_radius-1, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius-1, stylesheet.top+stylesheet.height-stylesheet.border_radius, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    
+    file = fopen(stylesheet.font_family, "r");
+    if(file != NULL) {
+        fclose(file);
+        font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
+        MLV_get_size_of_text_with_font(component.content, NULL, &font_height, font_family);
+        MLV_draw_text_with_font(stylesheet.left+20, stylesheet.top+(stylesheet.height/2)-(font_height/2), component.content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
         
-        MLV_free_font(txt_font);
+        MLV_free_font(font_family);
     }
 }
 
-void addComponent(ButtonComponent components[], int components_size, int action_type, int hoverable, int top, int left, int width, int height, int radius, rgb bg_color, rgb hovered_bg_color, char content[], char font[], int font_size, rgb font_color, rgb hovered_font_color)
+void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int top, int left, int height, int width)
 {
-    ButtonComponent button;
-    button.id = components_size+1;
-    button.action_type = action_type;
-    button.hoverable = hoverable;
-    button.top = top;
-    button.left = left;
-    button.width = width;
-    button.height = height;
-    button.radius = radius;
-    button.bg_color = bg_color;
-    button.hovered_bg_color = hovered_bg_color;
-    strcpy(button.content, content);
-    strcpy(button.font, font);
-    button.font_size = font_size;
-    button.font_color = font_color;
-    button.hovered_font_color = hovered_font_color;
-    
-    components[components_size] = button;
+    component cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
 
-    drawButton(button, 0);
+    cmp.id = (*components_size)+1;
+    cmp.type = COMPONENT_BUTTON;
+    strcpy(cmp.content, "");
+    stylesheet.top = top;
+    stylesheet.left = left;
+    stylesheet.width = width;
+    stylesheet.height = height;
+    hover_stylesheet.top = top;
+    hover_stylesheet.left = left;
+    hover_stylesheet.width = width;
+    hover_stylesheet.height = height;
+    cmp.stylesheet = stylesheet;
+    cmp.is_hoverable = is_hoverable;
+    cmp.is_hovered = FALSE;
+    cmp.hover_stylesheet = hover_stylesheet;
+
+    components[(*components_size)++] = cmp;
 }
 
-int menu(int width, int height, ButtonComponent components[])
+void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, button_action_type action_type, int top, int left, int height, int width)
 {
-    /**
-     * Returns the numbers of ButtonComponents
-     *
-     * @param {int} width
-     * @param {int} height
-     * @param {ButtonComponent} components
-     * @returns {int}
-     */
-    
-    int components_size = 0;
+    component cmp;
+    button_component btn_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
 
-    /*
-        DEFINE SIDEBAR FRAME
-    */
+    cmp.id = (*components_size)+1;
+    cmp.type = COMPONENT_BUTTON;
+    strcpy(cmp.content, content);
+    stylesheet.top = top;
+    stylesheet.left = left;
+    stylesheet.width = width;
+    stylesheet.height = height;
+    hover_stylesheet.top = top;
+    hover_stylesheet.left = left;
+    hover_stylesheet.width = width;
+    hover_stylesheet.height = height;
+    cmp.stylesheet = stylesheet;
+    cmp.is_hoverable = is_hoverable;
+    cmp.is_hovered = FALSE;
+    cmp.hover_stylesheet = hover_stylesheet;
 
-    int sidebar_frame_width = __min(300, __max(width/75, 500));
-    int sidebar_frame_height = height;
-    int sidebar_frame_padding = 20;
-    int sidebar_frame_gap = 20;
-
-    /*
-        DEFINE BUTTONS STYLE
-    */
-
-    int button_height = 65;
-    int button_width = sidebar_frame_width-(2*sidebar_frame_padding);
-
-    /*
-        DEFINE LOGO
-    */
-
-    MLV_Image *logo = MLV_load_image("./src/img/logo.png");
-    float logo_width, logo_height, logo_ratio;
-
-    /*
-        DEFINE ROOT COLORS
-    */
-
-    rgb primary_color, secondary_color, black_color, button_color, white_color, danger_color;
-    primary_color.r = 0;
-    primary_color.g = 160;
-    primary_color.b = 224;
-
-    secondary_color.r = 10;
-    secondary_color.g = 14;
-    secondary_color.b = 24;
-
-    black_color.r = 5;
-    black_color.g = 7;
-    black_color.b = 12;
-
-    button_color.r = 19;
-    button_color.g = 25;
-    button_color.b = 41;
-
-    white_color.r = 245;
-    white_color.g = 245;
-    white_color.b = 255;
-
-    danger_color.r = 254;
-    danger_color.g = 30;
-    danger_color.b = 62;
-
-    /*
-        RESIZE LOGO
-    */
-
-    if(logo != NULL) {
-        logo_width = (float)MLV_get_image_width(logo);
-        logo_height = (float)MLV_get_image_height(logo);
-
-        logo_ratio = logo_height/logo_width;
-        logo_width = __min(800, width-sidebar_frame_width-200);
-        logo_height = (int)(logo_width*logo_ratio);
-        MLV_resize_image(logo, logo_width, logo_height);
-    }
-
-    /*
-        CONTENT OF THE MENU PAGE
-    */
-
-    MLV_draw_filled_rectangle(0, 0, width, height, MLV_rgba(black_color.r, black_color.g, black_color.b, 255));
-    MLV_draw_filled_rectangle(0, 0, sidebar_frame_width, sidebar_frame_height, MLV_rgba(secondary_color.r,secondary_color.g,secondary_color.b,255));
-    
-    if(logo != NULL) {
-        MLV_draw_image(logo, sidebar_frame_width+((width-sidebar_frame_width)/2)-(logo_width/2), (height/2)-(logo_height/2));
-        MLV_free_image(logo);
-    }
-
-    addComponent(components, components_size++, 1, 1, sidebar_frame_padding+(0*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Jouer", POPPINS_MEDIUM, 20, white_color, white_color);
-    addComponent(components, components_size++, -1, 1, sidebar_frame_padding+(1*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Paramètres", POPPINS_MEDIUM, 20, white_color, white_color);
-    addComponent(components, components_size++, -1, 1, sidebar_frame_padding+(2*(button_height+sidebar_frame_gap)), sidebar_frame_padding, button_width, button_height, 16, button_color, primary_color, "Scoreboard", POPPINS_MEDIUM, 20, white_color, white_color);
-    
-    addComponent(components, components_size++, 0, 0, height-sidebar_frame_padding-button_height, sidebar_frame_padding, button_width, button_height, 16, danger_color, danger_color, "Quitter", POPPINS_MEDIUM, 20, white_color, white_color);
-    
-    return components_size;
+    btn_cmp.id = (*components_size)+1;
+    btn_cmp.action_type = action_type;
+    components[(*components_size)++] = cmp;
+    buttons[(*buttons_size)++] = btn_cmp;
 }

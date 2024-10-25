@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
-#include <math.h>
 #include <time.h>
 
 #include "./modules/ui/ui.h"
+#include "./src/style/stylesheet.h"
 
 
 
@@ -34,42 +34,34 @@
  * end of the case.
  */
 
-
-
-ButtonComponent buttonHovered(ButtonComponent components[], int components_size, int x, int y)
-{
-    int i = 0, found = 0, dx, dy;
-    ButtonComponent button;
-    while(i < components_size && found == 0)
-    {
-        button = components[i];
-
-        if(button.top <= y
-        && button.top + button.height >= y
-        && button.left + button.radius <= x
-        && button.left + button.width - (2 * button.radius) >= x) found = 1;
-        if(button.top + button.radius <= y
-        && button.top + button.height - (2 * button.radius) >= y
-        && button.left <= x
-        && button.left + button.width >= x) found = 1;
-
-        dx = x - (button.left+button.radius);
-        dy = y - (button.top+button.radius-1);
-        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
-        dx = x - (button.left+button.radius);
-        dy = y - (button.top+button.height-button.radius);
-        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
-        dx = x - (button.left+button.width-button.radius-1);
-        dy = y - (button.top+button.radius-1);
-        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
-        dx = x - (button.left+button.width-button.radius-1);
-        dy = y - (button.top+button.height-button.radius);
-        if((dx*dx+dy*dy)<=(button.radius*button.radius)) found = 1;
-
-        i++;
+button_component lastHovered(component components[], button_component buttons[], int buttons_size, int x, int y) {
+    int i;
+    button_component button;
+    button.id = 0;
+    button.action_type = BUTTON_ACTION_NONE;
+    for(i = 0; i<buttons_size; i++) {
+        if(idboxComponent(components[buttons[i].id-1], x, y) == TRUE) {
+            button = buttons[i];
+        }
     }
-    if(!found) button.id = 0;
     return button;
+}
+boolean hover(component components[], int components_size, int x, int y) {
+    int i;
+    boolean change = FALSE;
+
+    for(i = 0; i<components_size; i++) {
+        if(components[i].is_hoverable == TRUE) {
+            if(idboxComponent(components[i], x, y) == TRUE) {
+                if(components[i].is_hovered != TRUE) change = TRUE;
+                components[i].is_hovered = TRUE;
+            } else {
+                if(components[i].is_hovered != FALSE) change = TRUE;
+                components[i].is_hovered = FALSE;
+            }
+        }
+    }
+    return change;
 }
 
 int main()
@@ -79,21 +71,25 @@ int main()
     MLV_Keyboard_modifier mod;
     MLV_Mouse_button mouse;
     MLV_Button_state state;
-    ButtonComponent lastButton, button;
-    ButtonComponent components[100];
-    int x = 0, y = 0, quit = 0, width = MLV_get_desktop_width(), height = MLV_get_desktop_height(), components_size = 0, actualise = 0;
-    struct timespec debut, fin;
-    lastButton.id = 0;
-    button.id = 0;
+    int x = 0, y = 0, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
+    width = MLV_get_desktop_width(),
+    height = MLV_get_desktop_height();
+    struct timespec start, end;
+
+    component components[COMPONENTS_MAX_SIZE];
+    button_component buttons[COMPONENTS_MAX_SIZE];
+    button_component button;
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    components_size = menu(width, height, components);
-
+    
+    createMenuComponents(height, width, components, &components_size, buttons, &buttons_size);
+    drawComponents(components, components_size);
     MLV_actualise_window();
-    while(!quit)
+
+    while(quit != TRUE)
     {
         actualise = 0;
-        clock_gettime(CLOCK_REALTIME, &debut);
+        clock_gettime(CLOCK_REALTIME, &start);
         do
         {
             event = MLV_get_event( 
@@ -114,35 +110,26 @@ int main()
                 case MLV_MOUSE_BUTTON:
                     if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                     {
-                        button = buttonHovered(components, components_size, x, y);
-                        if(button.id != 0)
-                        {
-                            if(button.action_type == 0) quit=1;
+                        button = lastHovered(components, buttons, buttons_size, x, y);
+                        if(button.action_type == BUTTON_ACTION_QUIT) {
+                            quit = 1;
                         }
                     }
                     break;
                 case MLV_MOUSE_MOTION:
-                    button = buttonHovered(components, components_size, x, y);
-                    if(button.id != lastButton.id) {
-                        if(lastButton.id != 0) {
-                            if(lastButton.hoverable==1) drawButton(lastButton, 0);
-                            actualise = 1;
-                        }
-                        if(button.id != 0)
-                        {
-                            if(button.hoverable==1) drawButton(button, 1);
-                            actualise = 1;
-                        }
-                        lastButton = button;
-                    }
+                    actualise |= hover(components, components_size, x, y);
                     break;
                 default:
                     break;
             }
         } while(event != MLV_NONE);
-        clock_gettime(CLOCK_REALTIME, &fin);
-        MLV_wait_milliseconds((1000/45)-(fin.tv_sec/10-debut.tv_sec/10));
-        if(actualise == 1) MLV_actualise_window();
+        clock_gettime(CLOCK_REALTIME, &end);
+        MLV_wait_milliseconds((1000/60)-(end.tv_sec/10-start.tv_sec/10));
+        if(actualise == TRUE) {
+            drawComponents(components, components_size);
+            MLV_actualise_window();
+            actualise = FALSE;
+        }
     }
     MLV_free_window();
     
