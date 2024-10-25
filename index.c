@@ -108,9 +108,7 @@ int main()
                 case MLV_KEY:
                     if(state == MLV_PRESSED)
                     {
-                        if(MLV_KEYBOARD_x==sym) {
-                            quit=1;
-                        }
+                        
                     }
                     break;
                 case MLV_MOUSE_BUTTON:
@@ -143,7 +141,7 @@ int main()
             }
         } while(event != MLV_NONE);
         clock_gettime(CLOCK_REALTIME, &fin);
-        MLV_wait_milliseconds((1000/60)-(fin.tv_sec/10-debut.tv_sec/10));
+        MLV_wait_milliseconds((1000/45)-(fin.tv_sec/10-debut.tv_sec/10));
         if(actualise == 1) MLV_actualise_window();
     }
     MLV_free_window();
