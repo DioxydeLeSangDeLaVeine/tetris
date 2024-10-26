@@ -106,6 +106,7 @@ void createMenuComponents(int top, int left, int height, int width, component co
     (*buttons_size) = 0;
     stylesheet = STYLESHEET_BODY(top, left, height, width);
     MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
     stylesheet = STYLESHEET_SIDEBAR(top, left, height, width);
     createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
