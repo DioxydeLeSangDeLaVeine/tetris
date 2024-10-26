@@ -34,19 +34,23 @@
  * end of the case.
  */
 
-button_component lastHovered(component components[], button_component buttons[], int buttons_size, int x, int y) {
+button_component lastHovered(component components[], button_component buttons[], int buttons_size, int x, int y)
+{
     int i;
     button_component button;
     button.id = 0;
     button.action_type = BUTTON_ACTION_NONE;
-    for(i = 0; i<buttons_size; i++) {
-        if(idboxComponent(components[buttons[i].id-1], x, y) == TRUE) {
+    for(i = 0; i<buttons_size; i++)
+    {
+        if(idboxComponent(components[buttons[i].id-1], x, y) == TRUE)
+        {
             button = buttons[i];
         }
     }
     return button;
 }
-boolean hover(component components[], int components_size, int x, int y) {
+boolean hover(component components[], int components_size, int x, int y, int fps)
+{
     int i;
     boolean change = FALSE;
 
@@ -59,6 +63,26 @@ boolean hover(component components[], int components_size, int x, int y) {
                 if(components[i].is_hovered != FALSE) change = TRUE;
                 components[i].is_hovered = FALSE;
             }
+            if(components[i].is_hovered)
+            {
+                if(components[i].__transition != 1) {
+                    change = TRUE;
+                    if(components[i].transition_duration==0) components[i].__transition = 1;
+                    else {
+                        if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
+                        else components[i].__transition+=(float)fps/components[i].transition_duration;
+                    }
+                }
+            } else {
+                if(components[i].__transition != 0) {
+                    change = TRUE;
+                    if(components[i].transition_duration==0) components[i].__transition = 0;
+                    else {
+                        if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
+                        else components[i].__transition-=(float)fps/components[i].transition_duration;
+                    }
+                }
+            }
         }
     }
     return change;
@@ -66,12 +90,12 @@ boolean hover(component components[], int components_size, int x, int y) {
 
 int main()
 {
-    MLV_Event event = MLV_NONE;
-    MLV_Keyboard_button sym;
-    MLV_Keyboard_modifier mod;
-    MLV_Mouse_button mouse;
-    MLV_Button_state state;
-    int x = 0, y = 0, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
+    MLV_Event event = 0;
+    MLV_Keyboard_button sym = 0;
+    MLV_Keyboard_modifier mod = 0;
+    MLV_Mouse_button mouse = 0;
+    MLV_Button_state state = 0;
+    int x = 0, y = 0, fps = 1000/60, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
     struct timespec start, end;
@@ -112,20 +136,22 @@ int main()
                     {
                         button = lastHovered(components, buttons, buttons_size, x, y);
                         if(button.action_type == BUTTON_ACTION_QUIT) {
-                            quit = 1;
+                            quit = TRUE;
                         }
                     }
                     break;
                 case MLV_MOUSE_MOTION:
-                    actualise |= hover(components, components_size, x, y);
                     break;
                 default:
                     break;
             }
+            actualise |= hover(components, components_size, x, y, fps);
         } while(event != MLV_NONE);
+
         clock_gettime(CLOCK_REALTIME, &end);
-        MLV_wait_milliseconds((1000/60)-(end.tv_sec/10-start.tv_sec/10));
-        if(actualise == TRUE) {
+        MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+        if(actualise == TRUE)
+        {
             drawComponents(components, components_size);
             MLV_actualise_window();
             actualise = FALSE;

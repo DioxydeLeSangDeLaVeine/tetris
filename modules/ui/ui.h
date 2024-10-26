@@ -65,6 +65,8 @@ typedef struct {
     boolean is_hoverable;
     boolean is_hovered;
     style hover_stylesheet;
+    int transition_duration;
+    float __transition;
 } component;
 
 typedef struct {
@@ -78,8 +80,9 @@ int __max(int a, int b);
 
 boolean idboxComponent(component component, int x, int y);
 void drawComponents(component components[], int components_size);
+style styleTransition(component component);
 void drawComponent(component component);
-void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int top, int left, int height, int width);
-void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, button_action_type action_type, int top, int left, int height, int width);
+void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, int top, int left, int height, int width);
+void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, button_action_type action_type, int top, int left, int height, int width);
 
 #endif

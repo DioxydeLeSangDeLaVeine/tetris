@@ -49,6 +49,31 @@ void drawComponents(component components[], int components_size) {
     }
 }
 
+style styleTransition(component component) {
+    style stylesheet;
+    if(component.is_hoverable==FALSE) return component.stylesheet;
+
+    stylesheet.background_color.r = (int)(component.stylesheet.background_color.r*(1-component.__transition)+component.hover_stylesheet.background_color.r*component.__transition);
+    stylesheet.background_color.g = (int)(component.stylesheet.background_color.g*(1-component.__transition)+component.hover_stylesheet.background_color.g*component.__transition);
+    stylesheet.background_color.b = (int)(component.stylesheet.background_color.b*(1-component.__transition)+component.hover_stylesheet.background_color.b*component.__transition);
+    stylesheet.background_color.a = (int)(component.stylesheet.background_color.a*(1-component.__transition)+component.hover_stylesheet.background_color.a*component.__transition);
+    stylesheet.color.r = (int)(component.stylesheet.color.r*(1-component.__transition)+component.hover_stylesheet.color.r*component.__transition);
+    stylesheet.color.g = (int)(component.stylesheet.color.g*(1-component.__transition)+component.hover_stylesheet.color.g*component.__transition);
+    stylesheet.color.b = (int)(component.stylesheet.color.b*(1-component.__transition)+component.hover_stylesheet.color.b*component.__transition);
+    stylesheet.color.a = (int)(component.stylesheet.color.a*(1-component.__transition)+component.hover_stylesheet.color.a*component.__transition);
+    if(component.__transition>0.5) strcpy(stylesheet.font_family, component.hover_stylesheet.font_family);
+    else strcpy(stylesheet.font_family, component.stylesheet.font_family);
+    stylesheet.font_size = (int)(component.stylesheet.font_size*(1-component.__transition)+component.hover_stylesheet.font_size*component.__transition);
+    stylesheet.border_radius = (int)(component.stylesheet.border_radius*(1-component.__transition)+component.hover_stylesheet.border_radius*component.__transition);
+
+    stylesheet.top = (int)(component.stylesheet.top*(1-component.__transition)+component.hover_stylesheet.top*component.__transition);
+    stylesheet.left = (int)(component.stylesheet.left*(1-component.__transition)+component.hover_stylesheet.left*component.__transition);
+    stylesheet.height = (int)(component.stylesheet.height*(1-component.__transition)+component.hover_stylesheet.height*component.__transition);
+    stylesheet.width = (int)(component.stylesheet.width*(1-component.__transition)+component.hover_stylesheet.width*component.__transition);
+
+    return stylesheet;
+}
+
 void drawComponent(component component)
 {
     FILE* file;
@@ -56,7 +81,7 @@ void drawComponent(component component)
     style stylesheet;
     int font_height = 0;
 
-    stylesheet = (component.is_hovered==TRUE&&component.is_hoverable==TRUE)?component.hover_stylesheet:component.stylesheet;
+    stylesheet = styleTransition(component);
 
     if(stylesheet.border_radius>stylesheet.height/2||stylesheet.border_radius>stylesheet.width/2) stylesheet.border_radius = __min(stylesheet.width/2, stylesheet.height/2);
 
@@ -85,7 +110,7 @@ void drawComponent(component component)
     }
 }
 
-void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int top, int left, int height, int width)
+void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, int top, int left, int height, int width)
 {
     component cmp;
     if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
@@ -105,11 +130,13 @@ void createFrame(component components[], int *components_size, style stylesheet,
     cmp.is_hoverable = is_hoverable;
     cmp.is_hovered = FALSE;
     cmp.hover_stylesheet = hover_stylesheet;
+    cmp.transition_duration = transition_duration;
+    cmp.__transition = 0;
 
     components[(*components_size)++] = cmp;
 }
 
-void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, button_action_type action_type, int top, int left, int height, int width)
+void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, button_action_type action_type, int top, int left, int height, int width)
 {
     component cmp;
     button_component btn_cmp;
@@ -130,6 +157,8 @@ void createButton(component components[], int *components_size, button_component
     cmp.is_hoverable = is_hoverable;
     cmp.is_hovered = FALSE;
     cmp.hover_stylesheet = hover_stylesheet;
+    cmp.transition_duration = transition_duration;
+    cmp.__transition = 0;
 
     btn_cmp.id = (*components_size)+1;
     btn_cmp.action_type = action_type;

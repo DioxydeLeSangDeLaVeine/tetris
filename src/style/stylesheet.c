@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <MLV/MLV_all.h>
 #include <string.h>
 #include "../../modules/ui/ui.h"
 #include "stylesheet.h"
@@ -45,7 +46,7 @@ style getStylesheet(stylesheet_type type, boolean is_hovered)
             stylesheet.color.b = 255;
             stylesheet.color.a = 255;
             strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
-            stylesheet.font_size = 20;
+            stylesheet.font_size = 18;
             stylesheet.border_radius = 16;
             break;
         case STYLESHEET_SIDEBAR:
@@ -87,14 +88,15 @@ void createMenuComponents(int height, int width, component components[], int *co
     (*buttons_size) = 0;
 
     stylesheet = getStylesheet(STYLESHEET_BODY, FALSE);
-    createFrame(components, components_size, stylesheet, FALSE, stylesheet, 0, 0, height, width);
+    MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    createFrame(components, components_size, stylesheet, FALSE, stylesheet, 0, 0, 0, height, width);
     stylesheet = getStylesheet(STYLESHEET_SIDEBAR, FALSE);
-    createFrame(components, components_size, stylesheet, FALSE, stylesheet, 20, 20, height-40, 300);
+    createFrame(components, components_size, stylesheet, FALSE, stylesheet, 0, 20, 20, height-40, 300);
     stylesheet = getStylesheet(STYLESHEET_SIDEBAR_QUIT_BUTTON, FALSE);
-    createButton(components, components_size, buttons, buttons_size, "Quitter", stylesheet, FALSE, stylesheet, BUTTON_ACTION_QUIT, height-40-65, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Quitter", stylesheet, FALSE, stylesheet, 0, BUTTON_ACTION_QUIT, height-40-65, 40, 65, 300-40);
     stylesheet = getStylesheet(STYLESHEET_SIDEBAR_BUTTONS, FALSE);
     hover_stylesheet = getStylesheet(STYLESHEET_SIDEBAR_BUTTONS, TRUE);
-    createButton(components, components_size, buttons, buttons_size, "Jouer", stylesheet, TRUE, hover_stylesheet, BUTTON_ACTION_NONE, (65+20)*0+40, 40, 65, 300-40);
-    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, BUTTON_ACTION_NONE, (65+20)*1+40, 40, 65, 300-40);
-    createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, BUTTON_ACTION_NONE, (65+20)*2+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Jouer", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*0+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*1+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*2+40, 40, 65, 300-40);
 }
