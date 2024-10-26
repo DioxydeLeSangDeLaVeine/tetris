@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -W -Wall -std=c89 -pedantic -O2 `pkg-config --cflags MLV` `pkg-config --libs-only-other --libs-only-L MLV`
-LDFLAGS = `pkg-config --libs-only-l MLV`
+LDFLAGS = `pkg-config --libs-only-l MLV` -lX11
 OBJ = ./index.o ./modules/ui/ui.o ./src/style/stylesheet.o
 TARGET = index
 

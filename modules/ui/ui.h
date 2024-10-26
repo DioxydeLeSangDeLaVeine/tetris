@@ -1,7 +1,7 @@
 #ifndef H_UI_MODULE
 #define H_UI_MODULE
 
-#define COMPONENTS_MAX_SIZE 200
+#define COMPONENTS_MAX_SIZE 64
 
 #define FONT_POPPINS_BLACK "./src/font/Poppins-Black.ttf"
 #define FONT_POPPINS_BLACK_ITALITC "./src/font/Poppins-BlackItalic.ttf"
@@ -23,14 +23,17 @@
 #define FONT_POPPINS_THIN_ITALIC "./src/font/Poppins-ThinItalic.ttf"
 
 typedef enum {
-    COMPONENT_NONE,
+    COMPONENT_UNDEFINED,
     COMPONENT_FRAME,
-    COMPONENT_BUTTON
+    COMPONENT_BUTTON,
+    COMPONENT_POPUP
 } component_type;
 
 typedef enum {
+    BUTTON_ACTION_UNDEFINED,
     BUTTON_ACTION_NONE,
-    BUTTON_ACTION_QUIT
+    BUTTON_ACTION_QUIT,
+    BUTTON_ACTION_OPEN_PLAY_POPUP
 } button_action_type;
 
 typedef enum {
@@ -46,9 +49,15 @@ typedef struct {
 } rgba;
 
 typedef struct {
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+} rgb;
+
+typedef struct {
     rgba background_color;
     rgba color;
-    char font_family[100];
+    char font_family[64];
     int font_size;
     int top;
     int left;
@@ -60,7 +69,7 @@ typedef struct {
 typedef struct {
     int id;
     component_type type;
-    char content[100];
+    char content[64];
     style stylesheet;
     boolean is_hoverable;
     boolean is_hovered;
@@ -74,6 +83,12 @@ typedef struct {
     button_action_type action_type;
 } button_component;
 
+typedef struct {
+    int id; /* Equal to his component ID */
+    component components[16];
+    int components_size;
+} container_component;
+
 
 int __min(int a, int b);
 int __max(int a, int b);
@@ -82,7 +97,9 @@ boolean idboxComponent(component component, int x, int y);
 void drawComponents(component components[], int components_size);
 style styleTransition(component component);
 void drawComponent(component component);
-void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, int top, int left, int height, int width);
-void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, button_action_type action_type, int top, int left, int height, int width);
+component initComponent(int id, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
+void createFrame(component components[], int *components_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
+void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, button_action_type action_type);
+void createContainer(component components[], int *components_size, container_component contain_components[], int *contain_components_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
 
 #endif

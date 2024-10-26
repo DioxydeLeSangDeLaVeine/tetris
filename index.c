@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
+#include <X11/Xlib.h>
+#include <X11/cursorfont.h>
 #include <time.h>
 
 #include "./modules/ui/ui.h"
 #include "./src/style/stylesheet.h"
-
-
 
 /**
  * Every functions in this project need to contain
@@ -39,7 +39,7 @@ button_component lastHovered(component components[], button_component buttons[],
     int i;
     button_component button;
     button.id = 0;
-    button.action_type = BUTTON_ACTION_NONE;
+    button.action_type = BUTTON_ACTION_UNDEFINED;
     for(i = 0; i<buttons_size; i++)
     {
         if(idboxComponent(components[buttons[i].id-1], x, y) == TRUE)
@@ -95,6 +95,11 @@ int main()
     MLV_Keyboard_modifier mod = 0;
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
+
+    Display *display = XOpenDisplay(NULL);
+    Window window;
+    Cursor current_cursor = 0, cursor_default, cursor_pointer;
+
     int x = 0, y = 0, fps = 1000/60, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
@@ -105,8 +110,16 @@ int main()
     button_component button;
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    
-    createMenuComponents(height, width, components, &components_size, buttons, &buttons_size);
+
+    if(display != NULL) {
+        window = DefaultRootWindow(display);
+        cursor_default = XCreateFontCursor(display, XC_arrow);
+        cursor_pointer = XCreateFontCursor(display, XC_hand2);
+        XDefineCursor(display, window, cursor_default);
+        current_cursor = cursor_default;
+        XFlush(display);
+    }
+    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
     drawComponents(components, components_size);
     MLV_actualise_window();
 
@@ -146,17 +159,40 @@ int main()
                     break;
             }
         } while(event != MLV_NONE);
-
+        if(display != NULL) {
+            button = lastHovered(components, buttons, buttons_size, x, y);
+            if(button.action_type != BUTTON_ACTION_UNDEFINED)
+            {
+                if(current_cursor != cursor_pointer) {
+                    XDefineCursor(display, window, cursor_pointer);
+                    current_cursor = cursor_pointer;
+                    XFlush(display);
+                }
+            } else {
+                if(current_cursor != cursor_default) {
+                    XDefineCursor(display, window, cursor_default);
+                    current_cursor = cursor_default;
+                    XFlush(display);
+                }
+            }
+        }
         clock_gettime(CLOCK_REALTIME, &end);
         MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+        
+
         actualise |= hover(components, components_size, x, y, fps);
+
         if(actualise == TRUE)
         {
             drawComponents(components, components_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
-
+    }
+    if(display != NULL) {
+        XFreeCursor(display, cursor_default);
+        XFreeCursor(display, cursor_pointer);
+        XCloseDisplay(display);
     }
     MLV_free_window();
     
