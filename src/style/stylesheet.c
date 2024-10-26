@@ -96,7 +96,7 @@ void createMenuComponents(int height, int width, component components[], int *co
     createButton(components, components_size, buttons, buttons_size, "Quitter", stylesheet, FALSE, stylesheet, 0, BUTTON_ACTION_QUIT, height-40-65, 40, 65, 300-40);
     stylesheet = getStylesheet(STYLESHEET_SIDEBAR_BUTTONS, FALSE);
     hover_stylesheet = getStylesheet(STYLESHEET_SIDEBAR_BUTTONS, TRUE);
-    createButton(components, components_size, buttons, buttons_size, "Jouer", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*0+40, 40, 65, 300-40);
-    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*1+40, 40, 65, 300-40);
-    createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, 300, BUTTON_ACTION_NONE, (65+20)*2+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Jouer", stylesheet, TRUE, hover_stylesheet, 100, BUTTON_ACTION_NONE, (65+20)*0+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 100, BUTTON_ACTION_NONE, (65+20)*1+40, 40, 65, 300-40);
+    createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, 100, BUTTON_ACTION_NONE, (65+20)*2+40, 40, 65, 300-40);
 }

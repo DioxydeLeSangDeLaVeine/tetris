@@ -145,17 +145,18 @@ int main()
                 default:
                     break;
             }
-            actualise |= hover(components, components_size, x, y, fps);
         } while(event != MLV_NONE);
 
         clock_gettime(CLOCK_REALTIME, &end);
         MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+        actualise |= hover(components, components_size, x, y, fps);
         if(actualise == TRUE)
         {
             drawComponents(components, components_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
+
     }
     MLV_free_window();
     
