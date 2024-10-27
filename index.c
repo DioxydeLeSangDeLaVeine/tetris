@@ -34,52 +34,73 @@
  * end of the case.
  */
 
-button_component lastHovered(component components[], button_component buttons[], int buttons_size, int x, int y)
+component lastHovered(component components[], int components_size, int x, int y)
 {
+    int i;
+    component cmp;
+    cmp.id = 0;
+    for(i = 0; i<components_size; i++)
+    {
+        if(idboxComponent(components[i], x, y) == TRUE)
+        {
+            cmp = components[i];
+        }
+    }
+    return cmp;
+}
+
+button_component componentToButtonComponent(component component, button_component buttons[], int buttons_size) {
     int i;
     button_component button;
     button.id = 0;
     button.action_type = BUTTON_ACTION_UNDEFINED;
+
     for(i = 0; i<buttons_size; i++)
     {
-        if(idboxComponent(components[buttons[i].id-1], x, y) == TRUE)
+        if(component.id == buttons[i].id)
         {
             button = buttons[i];
         }
     }
     return button;
 }
+
 boolean hover(component components[], int components_size, int x, int y, int fps)
 {
     int i;
+    component cmp;
     boolean change = FALSE;
 
+    cmp = lastHovered(components, components_size, x, y);
+
     for(i = 0; i<components_size; i++) {
-        if(components[i].is_hoverable == TRUE) {
-            if(idboxComponent(components[i], x, y) == TRUE) {
-                if(components[i].is_hovered != TRUE) change = TRUE;
-                components[i].is_hovered = TRUE;
-            } else {
-                if(components[i].is_hovered != FALSE) change = TRUE;
-                components[i].is_hovered = FALSE;
-            }
-            if(components[i].is_hovered)
-            {
-                if(components[i].__transition != 1) {
+        if(components[i].id != cmp.id) {
+            if(components[i].is_hoverable == TRUE) {
+                if(components[i].is_hovered != FALSE) {
                     change = TRUE;
-                    if(components[i].transition_duration==0) components[i].__transition = 1;
-                    else {
-                        if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
-                        else components[i].__transition+=(float)fps/components[i].transition_duration;
-                    }
+                    components[i].is_hovered = FALSE;
                 }
-            } else {
                 if(components[i].__transition != 0) {
                     change = TRUE;
                     if(components[i].transition_duration==0) components[i].__transition = 0;
                     else {
                         if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
                         else components[i].__transition-=(float)fps/components[i].transition_duration;
+                    }
+                }
+            }
+        } else {
+            if(components[i].is_hoverable == TRUE) {
+                if(components[i].is_hovered != TRUE) {
+                    change = TRUE;
+                    components[i].is_hovered = TRUE;
+                }
+                if(components[i].__transition != 1) {
+                    change = TRUE;
+                    if(components[i].transition_duration==0) components[i].__transition = 1;
+                    else {
+                        if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
+                        else components[i].__transition+=(float)fps/components[i].transition_duration;
                     }
                 }
             }
@@ -100,9 +121,11 @@ int main()
     Window window;
     Cursor current_cursor = 0, cursor_default, cursor_pointer;
 
-    int x = 0, y = 0, fps = 1000/128, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
+    int x = 0, y = 0, fps = 1000/256, recreate = FALSE, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
+    page_components page = MENU_COMPONENTS;
+
     struct timespec start, end;
 
     component components[COMPONENTS_MAX_SIZE];
@@ -147,9 +170,24 @@ int main()
                 case MLV_MOUSE_BUTTON:
                     if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                     {
-                        button = lastHovered(components, buttons, buttons_size, x, y);
-                        if(button.action_type == BUTTON_ACTION_QUIT) {
-                            quit = TRUE;
+                        button = componentToButtonComponent(lastHovered(components, components_size, x, y), buttons, buttons_size);
+                        switch(button.action_type)
+                        {
+                            case BUTTON_ACTION_QUIT:
+                                quit = TRUE;
+                                break;
+                            case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
+                                page = MENU_COMPONENTS;
+                                recreate = TRUE;
+                                actualise = TRUE;
+                                break;
+                            case BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS:
+                                page = SETTINGS_COMPONENTS;
+                                recreate = TRUE;
+                                actualise = TRUE;
+                                break;
+                            default:
+                                break;
                         }
                     }
                     break;
@@ -160,11 +198,11 @@ int main()
             }
         } while(event != MLV_NONE);
         clock_gettime(CLOCK_REALTIME, &end);
-        MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+        if((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
 
         actualise |= hover(components, components_size, x, y, fps);
         if(display != NULL) {
-            button = lastHovered(components, buttons, buttons_size, x, y);
+            button = componentToButtonComponent(lastHovered(components, components_size, x, y), buttons, buttons_size);
             if(button.action_type != BUTTON_ACTION_UNDEFINED)
             {
                 if(current_cursor != cursor_pointer) {
@@ -179,6 +217,17 @@ int main()
                     XFlush(display);
                 }
             }
+        }
+        if(recreate == TRUE) {
+            switch(page) {
+                case SETTINGS_COMPONENTS:
+                    createSettingsComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
+                    break;
+                default:
+                    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
+                    break;
+            }
+            recreate = FALSE;
         }
         if(actualise == TRUE)
         {

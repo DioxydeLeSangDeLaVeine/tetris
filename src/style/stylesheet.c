@@ -52,6 +52,8 @@ style STYLESHEET_BODY(int top, int left, int height, int width) {
     stylesheet.color = ROOT_WHITE_COLOR();
     strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
     stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.border_radius_top_left = 0;
     stylesheet.border_radius_top_right = 0;
     stylesheet.border_radius_bottom_left = 0;
@@ -65,20 +67,45 @@ style STYLESHEET_BODY(int top, int left, int height, int width) {
 
 style STYLESHEET_SIDEBAR(int top, int left, int height, int width) {
     style stylesheet;
-    style body_stylesheet;
+    style stylesheet_body;
     stylesheet.background_color = ROOT_SECONDARY_COLOR();
     stylesheet.color = ROOT_WHITE_COLOR();
     strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
     stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.border_radius_top_left = 32;
     stylesheet.border_radius_top_right = 32;
     stylesheet.border_radius_bottom_left = 32;
     stylesheet.border_radius_bottom_right = 32;
-    body_stylesheet = STYLESHEET_BODY(top, left, height, width);
-    stylesheet.top = body_stylesheet.top+40;
-    stylesheet.left = body_stylesheet.left+40;
-    stylesheet.height = body_stylesheet.height-40*2;
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    stylesheet.top = stylesheet_body.top+40;
+    stylesheet.left = stylesheet_body.left+40;
+    stylesheet.height = stylesheet_body.height-40*2;
     stylesheet.width = 300;
+    return stylesheet;
+}
+
+style STYLESHEET_CONTAINER(int top, int left, int height, int width) {
+    style stylesheet;
+    style stylesheet_body;
+    style stylesheet_sidebar;
+    stylesheet.background_color = ROOT_SECONDARY_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    stylesheet_sidebar = STYLESHEET_SIDEBAR(top,left,height,width);
+    strcpy(stylesheet.font_family, stylesheet_sidebar.font_family);
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.border_radius_top_left = 32;
+    stylesheet.border_radius_top_right = 32;
+    stylesheet.border_radius_bottom_left = 32;
+    stylesheet.border_radius_bottom_right = 32;
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    stylesheet.top = stylesheet_body.top+40;
+    stylesheet.left = stylesheet_sidebar.left+stylesheet_sidebar.width+40;
+    stylesheet.height = stylesheet_body.height-40*2;
+    stylesheet.width = stylesheet_body.width-stylesheet_sidebar.left-stylesheet_sidebar.width-40*2;
     return stylesheet;
 }
 
@@ -90,13 +117,15 @@ style STYLESHEET_SIDEBAR_BUTTONS(int top, int left, int height, int width) {
     stylesheet_sidebar = STYLESHEET_SIDEBAR(top,left,height,width);
     strcpy(stylesheet.font_family, stylesheet_sidebar.font_family);
     stylesheet.font_size = 20;
-    stylesheet.border_radius_top_left = 16;
-    stylesheet.border_radius_top_right = 16;
-    stylesheet.border_radius_bottom_left = 16;
-    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.border_radius_top_left = stylesheet_sidebar.border_radius_top_left/2;
+    stylesheet.border_radius_top_right = stylesheet_sidebar.border_radius_top_right/2;
+    stylesheet.border_radius_bottom_left = stylesheet_sidebar.border_radius_bottom_left/2;
+    stylesheet.border_radius_bottom_right = stylesheet_sidebar.border_radius_bottom_right/2;
     stylesheet.top = 0;
     stylesheet.left = stylesheet_sidebar.left+20;
-    stylesheet.height = 66;
+    stylesheet.height = 64;
     stylesheet.width = stylesheet_sidebar.width-20*2;
     return stylesheet;
 }
@@ -142,7 +171,7 @@ void createMenuComponents(int top, int left, int height, int width, component co
     hover_stylesheet.border_radius_top_right = 0;
     hover_stylesheet.border_radius_bottom_left = 0;
     hover_stylesheet.border_radius_bottom_right = 0;
-    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS);
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
     stylesheet.top = (stylesheet.height+10)*2+40+20;
@@ -152,4 +181,28 @@ void createMenuComponents(int top, int left, int height, int width, component co
     hover_stylesheet.border_radius_top_left = 0;
     hover_stylesheet.border_radius_top_right = 0;
     createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+}
+
+void createSettingsComponents(int top, int left, int height, int width, component components[], int *components_size, button_component buttons[], int *buttons_size)
+{
+    style stylesheet, hover_stylesheet;
+    (*components_size) = 0;
+    (*buttons_size) = 0;
+    
+    stylesheet = STYLESHEET_BODY(top, left, height, width);
+    MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
+    stylesheet = STYLESHEET_SIDEBAR(top, left, height, width);
+    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
+    stylesheet = STYLESHEET_CONTAINER(top, left, height, width);
+    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
+    stylesheet.top = (stylesheet.height+10)*0+40+20;
+    hover_stylesheet.top = (hover_stylesheet.height+10)*0+40+20;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    hover_stylesheet.border_radius_bottom_left = 0;
+    hover_stylesheet.border_radius_bottom_right = 0;
+    createButton(components, components_size, buttons, buttons_size, "Retour", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS);
 }

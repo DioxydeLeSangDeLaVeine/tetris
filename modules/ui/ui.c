@@ -44,6 +44,8 @@ style styleTransition(component component) {
     if(component.__transition>0.5) strcpy(stylesheet.font_family, component.hover_stylesheet.font_family);
     else strcpy(stylesheet.font_family, component.stylesheet.font_family);
     stylesheet.font_size = (int)(component.stylesheet.font_size*(1-component.__transition)+component.hover_stylesheet.font_size*component.__transition);
+    stylesheet.font_horizontal_align = (horizontal_align)(component.stylesheet.font_horizontal_align*(1-component.__transition)+component.hover_stylesheet.font_horizontal_align*component.__transition);
+    stylesheet.font_vertical_align = (vertical_align)(component.stylesheet.font_vertical_align*(1-component.__transition)+component.hover_stylesheet.font_vertical_align*component.__transition);
     stylesheet.top = (int)(component.stylesheet.top*(1-component.__transition)+component.hover_stylesheet.top*component.__transition);
     stylesheet.left = (int)(component.stylesheet.left*(1-component.__transition)+component.hover_stylesheet.left*component.__transition);
     stylesheet.height = (int)(component.stylesheet.height*(1-component.__transition)+component.hover_stylesheet.height*component.__transition);
@@ -151,7 +153,7 @@ void drawComponent(component component)
 {
     FILE* file;
     MLV_Font *font_family;
-    int font_height = 0, rt, rl, rr, rb;
+    int font_height = 0, font_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
     
     style stylesheet;
     MLV_Color background_color;
@@ -195,8 +197,32 @@ void drawComponent(component component)
     if(file != NULL && strcmp(component.content,"") != 0)
     {
         font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
-        MLV_get_size_of_text_with_font(component.content, NULL, &font_height, font_family);
-        MLV_draw_text_with_font(stylesheet.left+20, stylesheet.top+(stylesheet.height/2)-(font_height/2), component.content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
+        MLV_get_size_of_text_with_font(component.content, &font_width, &font_height, font_family);
+        
+        switch(stylesheet.font_horizontal_align) {
+            case HORIZONTAL_LEFT:
+                horizontal_align = stylesheet.left+20;
+                break;
+            case HORIZONTAL_CENTER:
+                horizontal_align = stylesheet.left+(stylesheet.width/2)-(font_width/2);
+                break;
+            case HORIZONTAL_RIGHT:
+                horizontal_align = stylesheet.left+stylesheet.width-font_width-20;
+                break;
+        }    
+        switch(stylesheet.font_vertical_align) {
+            case VERTICAL_TOP:
+                vertical_align = stylesheet.top+20;
+                break;
+            case VERTICAL_CENTER:
+                vertical_align = stylesheet.top+(stylesheet.height/2)-(font_height/2);
+                break;
+            case VERTICAL_BOTTOM:
+                vertical_align = stylesheet.top+stylesheet.height-font_height-20;
+                break;
+        }
+
+        MLV_draw_text_with_font(horizontal_align, vertical_align, component.content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
         
         MLV_free_font(font_family);
     }

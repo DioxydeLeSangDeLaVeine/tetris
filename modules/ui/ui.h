@@ -30,10 +30,23 @@ typedef enum {
 } component_type;
 
 typedef enum {
+    HORIZONTAL_LEFT,
+    HORIZONTAL_CENTER,
+    HORIZONTAL_RIGHT
+} horizontal_align;
+
+typedef enum {
+    VERTICAL_TOP,
+    VERTICAL_CENTER,
+    VERTICAL_BOTTOM
+} vertical_align;
+
+typedef enum {
     BUTTON_ACTION_UNDEFINED,
     BUTTON_ACTION_NONE,
     BUTTON_ACTION_QUIT,
-    BUTTON_ACTION_OPEN_PLAY_POPUP
+    BUTTON_ACTION_CREATE_MENU_COMPONENTS,
+    BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS
 } button_action_type;
 
 typedef enum {
@@ -59,6 +72,8 @@ typedef struct {
     rgba color;
     char font_family[64];
     int font_size;
+    horizontal_align font_horizontal_align;
+    vertical_align font_vertical_align;
     int top;
     int left;
     int width;
