@@ -63,7 +63,10 @@ typedef struct {
     int left;
     int width;
     int height;
-    int border_radius;
+    int border_radius_top_left;
+    int border_radius_top_right;
+    int border_radius_bottom_left;
+    int border_radius_bottom_right;
 } style;
 
 typedef struct {
