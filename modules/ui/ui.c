@@ -148,6 +148,7 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
     style rootStylesheet;
     __component_offset offsets[COMPONENTS_MAX_SIZE];
     boolean stop = FALSE;
+    component tmp_cmp;
 
     rootStylesheet.unit_top = UNIT_PX;
     rootStylesheet.top = top;
@@ -158,10 +159,17 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
     rootStylesheet.unit_width = UNIT_PX;
     rootStylesheet.width = width;
 
-    if(cmp.parent_id>=cmp.id || cmp.parent_id == 0) return transformUnits(styleTransition(cmp), rootStylesheet);
+    if(cmp.parent_id == 0) {
+        cmp.stylesheet = transformUnits(cmp.stylesheet, rootStylesheet);
+        cmp.hover_stylesheet = transformUnits(cmp.hover_stylesheet, rootStylesheet);
+    }
+    if(cmp.parent_id>=cmp.id || cmp.parent_id == 0) return styleTransition(cmp);
     while((i<cmp.id)&&i<components_size&&!stop) {
         if(components[i].parent_id != 0) {
-            stylesheets[i] = transformUnits(styleTransition(components[i]),stylesheets[components[i].parent_id-1]);
+            tmp_cmp = components[i];
+            tmp_cmp.stylesheet = transformUnits(tmp_cmp.stylesheet, stylesheets[components[i].parent_id-1]);
+            tmp_cmp.hover_stylesheet = transformUnits(tmp_cmp.hover_stylesheet, stylesheets[components[i].parent_id-1]);
+            stylesheets[i] = styleTransition(tmp_cmp);
             switch(stylesheets[components[i].parent_id-1].childs_direction)
             {
                 case DIRECTION_ROW:
@@ -216,7 +224,7 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
                     break;
             }
         } else {
-            stylesheets[i] = transformUnits(styleTransition(components[i]), rootStylesheet);
+            stylesheets[i] = styleTransition(components[i]);
             offsets[i].top_offset = stylesheets[i].top+stylesheets[i].padding;
             offsets[i].left_offset = stylesheets[i].left+stylesheets[i].padding;
             offsets[i].bottom_offset = stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
@@ -225,7 +233,7 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
         if(cmp.id==i) stop = TRUE;
         i++;
     }
-    if(cmp.id!=i) return transformUnits(styleTransition(cmp), rootStylesheet);
+    if(cmp.id!=i) return styleTransition(cmp);
     return stylesheets[i-1];
 }
 
@@ -233,6 +241,7 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
 {
     int32_t dx, dy, rt, rl, rr, rb;
 
+    if(stylesheet.height == 0 || stylesheet.width == 0)return FALSE;
     if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
     {
         rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
@@ -309,39 +318,41 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
     int32_t font_height = 0, font_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
     MLV_Color background_color;
 
-    background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
+    if(stylesheet.height == 0 || stylesheet.width == 0)return;
+    if(stylesheet.background_color.a != 0) {
+        background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
+        if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+        {
+            rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
+            rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
+            rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
+            rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
 
-    if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
-    {
-        rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
-        rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
-        rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
-        rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
+            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-stylesheet.border_radius_top_right-stylesheet.border_radius_top_left, stylesheet.height/2, background_color);
+            MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_left-stylesheet.border_radius_top_left, background_color);
+            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height/2, stylesheet.width-stylesheet.border_radius_bottom_right-stylesheet.border_radius_bottom_left, stylesheet.height/2, background_color);
+            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.width/2, stylesheet.top+stylesheet.border_radius_top_right, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_right-stylesheet.border_radius_top_right, background_color);
+            MLV_draw_filled_rectangle(stylesheet.left+rl, stylesheet.top+rt, (stylesheet.width-rl-rr)<0?0:(stylesheet.width-rl-rr), (stylesheet.height-rt-rb)<0?0:(stylesheet.height-rt-rb), background_color);
 
-        MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-stylesheet.border_radius_top_right-stylesheet.border_radius_top_left, stylesheet.height/2, background_color);
-        MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_left-stylesheet.border_radius_top_left, background_color);
-        MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height/2, stylesheet.width-stylesheet.border_radius_bottom_right-stylesheet.border_radius_bottom_left, stylesheet.height/2, background_color);
-        MLV_draw_filled_rectangle(stylesheet.left+stylesheet.width/2, stylesheet.top+stylesheet.border_radius_top_right, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_right-stylesheet.border_radius_top_right, background_color);
-        MLV_draw_filled_rectangle(stylesheet.left+rl, stylesheet.top+rt, (stylesheet.width-rl-rr)<0?0:(stylesheet.width-rl-rr), (stylesheet.height-rt-rb)<0?0:(stylesheet.height-rt-rb), background_color);
-
-        if(stylesheet.border_radius_top_left != 0)
-        {
-            MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top+stylesheet.border_radius_top_left-1, stylesheet.border_radius_top_left-1, background_color);
+            if(stylesheet.border_radius_top_left != 0)
+            {
+                MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top+stylesheet.border_radius_top_left-1, stylesheet.border_radius_top_left-1, background_color);
+            }
+            if(stylesheet.border_radius_bottom_left != 0)
+            {
+                MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_left-1, background_color);
+            }
+            if(stylesheet.border_radius_top_right != 0)
+            {
+                MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
+            }
+            if(stylesheet.border_radius_bottom_right != 0)
+            {
+                MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
+            }
+        } else {
+            MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
         }
-        if(stylesheet.border_radius_bottom_left != 0)
-        {
-            MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_left-1, background_color);
-        }
-        if(stylesheet.border_radius_top_right != 0)
-        {
-            MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
-        }
-        if(stylesheet.border_radius_bottom_right != 0)
-        {
-            MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
-        }
-    } else {
-        MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
     }
     
     if(cmp.type == COMPONENT_TEXT) {
@@ -355,24 +366,24 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
             
             switch(stylesheet.font_horizontal_align) {
                 case HORIZONTAL_LEFT:
-                    horizontal_align = stylesheet.left;
+                    horizontal_align = stylesheet.left+stylesheet.padding;
                     break;
                 case HORIZONTAL_CENTER:
                     horizontal_align = stylesheet.left+(stylesheet.width/2)-(font_width/2);
                     break;
                 case HORIZONTAL_RIGHT:
-                    horizontal_align = stylesheet.left+stylesheet.width-font_width;
+                    horizontal_align = stylesheet.left+stylesheet.width-font_width-stylesheet.padding;
                     break;
             }    
             switch(stylesheet.font_vertical_align) {
                 case VERTICAL_TOP:
-                    vertical_align = stylesheet.top+20;
+                    vertical_align = stylesheet.top+stylesheet.padding;
                     break;
                 case VERTICAL_CENTER:
                     vertical_align = stylesheet.top+(stylesheet.height/2)-(font_height/2);
                     break;
                 case VERTICAL_BOTTOM:
-                    vertical_align = stylesheet.top+stylesheet.height-font_height-20;
+                    vertical_align = stylesheet.top+stylesheet.height-font_height-stylesheet.padding;
                     break;
             }
 

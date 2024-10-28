@@ -4,7 +4,7 @@
 #define COMPONENTS_MAX_SIZE 64
 
 #define FONT_POPPINS_BLACK "./src/font/Poppins-Black.ttf"
-#define FONT_POPPINS_BLACK_ITALITC "./src/font/Poppins-BlackItalic.ttf"
+#define FONT_POPPINS_BLACK_ITALIC "./src/font/Poppins-BlackItalic.ttf"
 #define FONT_POPPINS_BOLD "./src/font/Poppins-Bold.ttf"
 #define FONT_POPPINS_BOLD_ITALIC "./src/font/Poppins-BoldItalic.ttf"
 #define FONT_POPPINS_EXTRABOLD "./src/font/Poppins-ExtraBold.ttf"
@@ -56,7 +56,10 @@ typedef enum {
     BUTTON_ACTION_NONE,
     BUTTON_ACTION_QUIT,
     BUTTON_ACTION_CREATE_MENU_COMPONENTS,
-    BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS
+    BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS,
+    BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS,
+    BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS,
+    BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS
 } button_action_type;
 
 typedef enum {

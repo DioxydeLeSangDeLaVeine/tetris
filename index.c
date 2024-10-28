@@ -93,6 +93,52 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
     return change;
 }
 
+void takeAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate) {
+    switch(action_type)
+        {
+            case BUTTON_ACTION_QUIT:
+                *quit = TRUE;
+                break;
+            case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
+                if(*page != MENU_COMPONENTS) {
+                    *page = MENU_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
+                if(*page != SETTINGS_KEYBOARD_COMPONENTS) {
+                    *page = SETTINGS_KEYBOARD_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS:
+                if(*page != SETTINGS_VIDEO_COMPONENTS) {
+                    *page = SETTINGS_VIDEO_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS:
+                if(*page != SETTINGS_GRAPHICS_COMPONENTS) {
+                    *page = SETTINGS_GRAPHICS_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS:
+                if(*page != SETTINGS_AUDIO_COMPONENTS) {
+                    *page = SETTINGS_AUDIO_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            default:
+                break;
+        }
+}
+
 int main()
 {
     MLV_Event event = 0;
@@ -109,7 +155,7 @@ int main()
     int32_t x = 0, y = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
-    uint32_t fps = 1000/128, components_size = 0, buttons_size = 0, texts_size = 0;
+    uint32_t fps = 1000/60, components_size = 0, buttons_size = 0, texts_size = 0;
     page_components page = MENU_COMPONENTS;
 
     struct timespec start, end;
@@ -129,7 +175,7 @@ int main()
         current_cursor = cursor_default;
         XFlush(display);
     }
-    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
+    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
     drawComponents(0, 0, height, width, components, components_size, texts, texts_size);
     MLV_actualise_window();
 
@@ -158,24 +204,7 @@ int main()
                     if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                     {
                         button = componentToButtonComponent(lastHovered(0, 0, height, width, components, components_size, x, y), buttons, buttons_size);
-                        switch(button.action_type)
-                        {
-                            case BUTTON_ACTION_QUIT:
-                                quit = TRUE;
-                                break;
-                            case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
-                                page = MENU_COMPONENTS;
-                                recreate = TRUE;
-                                actualise = TRUE;
-                                break;
-                            case BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS:
-                                page = SETTINGS_COMPONENTS;
-                                recreate = TRUE;
-                                actualise = TRUE;
-                                break;
-                            default:
-                                break;
-                        }
+                        takeAction(button.action_type, &quit, &page, &actualise, &recreate);
                     }
                     break;
                 case MLV_MOUSE_MOTION:
@@ -206,14 +235,7 @@ int main()
             }
         }
         if(recreate == TRUE) {
-            switch(page) {
-                case SETTINGS_COMPONENTS:
-                    createSettingsComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
-                    break;
-                default:
-                    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
-                    break;
-            }
+            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
             recreate = FALSE;
         }
         if(actualise == TRUE)
