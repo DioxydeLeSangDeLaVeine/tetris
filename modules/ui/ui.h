@@ -63,8 +63,8 @@ typedef enum {
 } button_action_type;
 
 typedef enum {
-    UNIT_PERCENTAGE,
-    UNIT_PX
+    UNIT_PX,
+    UNIT_PERCENTAGE
 } unit;
 
 typedef enum {
@@ -133,6 +133,11 @@ typedef struct {
     int32_t bottom_offset;
     int32_t right_offset;
 } __component_offset;
+
+typedef struct {
+    int32_t height;
+    int32_t width;
+} __ref;
 
 int32_t __min(int32_t a, int32_t b);
 int32_t __max(int32_t a, int32_t b);

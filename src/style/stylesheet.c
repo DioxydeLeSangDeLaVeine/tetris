@@ -131,7 +131,7 @@ style STYLESHEET_CONTAINER(int32_t top, int32_t left, int32_t height, int32_t wi
     stylesheet.border_radius_bottom_right = stylesheet_sidebar.border_radius_bottom_right;
     stylesheet.childs_direction = DIRECTION_COLUMN;
     stylesheet.padding = 50;
-    stylesheet.gap = 25;
+    stylesheet.gap = 15;
     stylesheet.unit_top = UNIT_PX;
     stylesheet.top = 0;
     stylesheet.unit_left = UNIT_PX;
@@ -140,6 +140,32 @@ style STYLESHEET_CONTAINER(int32_t top, int32_t left, int32_t height, int32_t wi
     stylesheet.height = 100;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = stylesheet_body.width-stylesheet_sidebar.left-stylesheet_sidebar.width-40*3;
+    return stylesheet;
+}
+style STYLESHEET_ROW() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 50;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_TOP;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 15;
+    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 60;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
     return stylesheet;
 }
 
@@ -224,6 +250,60 @@ style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM() {
     return stylesheet;
 }
 
+style STYLESHEET_TEXT() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_THIN);
+    stylesheet.font_size = 24;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 56;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 100;
+    return stylesheet;
+}
+
+style STYLESHEET_KEY() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_BUTTON_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_REGULAR);
+    stylesheet.font_size = 20;
+    stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_END;
+    stylesheet.border_radius_top_left = 8;
+    stylesheet.border_radius_top_right = 8;
+    stylesheet.border_radius_bottom_left = 8;
+    stylesheet.border_radius_bottom_right = 8;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 30;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 56;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 200;
+    return stylesheet;
+}
+
 style STYLESHEET_BUTTONS_TEXT() {
     style stylesheet;
     stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
@@ -250,6 +330,33 @@ style STYLESHEET_BUTTONS_TEXT() {
     stylesheet.width = 100;
     return stylesheet;
 }
+
+style STYLESHEET_MINI_TITLE() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
+    stylesheet.font_size = 35;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_TOP;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 60;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    return stylesheet;
+}
 style STYLESHEET_TITLE() {
     style stylesheet;
     stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
@@ -266,12 +373,12 @@ style STYLESHEET_TITLE() {
     stylesheet.childs_direction = DIRECTION_ROW;
     stylesheet.padding = 0;
     stylesheet.gap = 0;
-    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.unit_top = UNIT_PX;
     stylesheet.top = 0;
-    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.unit_left = UNIT_PX;
     stylesheet.left = 0;
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = 200;
+    stylesheet.height = 150;
     stylesheet.unit_width = UNIT_PERCENTAGE;
     stylesheet.width = 100;
     return stylesheet;
@@ -395,10 +502,27 @@ void createSettingsComponents(page_components page, int32_t top, int32_t left, i
 
 void createSettingsKeyboardComponents(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
 {
-    style text_stylesheet;
+    style stylesheet, text_stylesheet;
 
     text_stylesheet = STYLESHEET_TITLE();
     createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Commandes clavier & souris"); /* id = 14 */
+
+    text_stylesheet = STYLESHEET_MINI_TITLE();
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacement"); /* id = 15 */
+
+    stylesheet = STYLESHEET_ROW();
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 16 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 17 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 18 */
+    
+    text_stylesheet = STYLESHEET_TEXT();
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 19 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 20 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Valider"); /* id = 21 */
+    text_stylesheet = STYLESHEET_KEY();
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "RIGHT_ARROW"); /* id = 22 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "LEFT_ARROW"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "SPACE"); /* id = 24 */
 }
 void createSettingsVideoComponents(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
 {
