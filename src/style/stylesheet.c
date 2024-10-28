@@ -46,163 +46,253 @@ rgba ROOT_WHITE_COLOR() {
     return color;
 }
 
-style STYLESHEET_BODY(int top, int left, int height, int width) {
-    style stylesheet;
-    stylesheet.background_color = ROOT_BLACK_COLOR();
-    stylesheet.color = ROOT_WHITE_COLOR();
-    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
-    stylesheet.font_size = 0;
-    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
-    stylesheet.font_vertical_align = VERTICAL_CENTER;
-    stylesheet.border_radius_top_left = 0;
-    stylesheet.border_radius_top_right = 0;
-    stylesheet.border_radius_bottom_left = 0;
-    stylesheet.border_radius_bottom_right = 0;
-    stylesheet.top = top;
-    stylesheet.left = left;
-    stylesheet.height = height;
-    stylesheet.width = width;
-    return stylesheet;
+rgba ROOT_TRANSPARENT_COLOR() {
+    rgba color;
+    color.r = 0;
+    color.g = 0;
+    color.b = 0;
+    color.a = 0;
+    return color;
 }
 
-style STYLESHEET_SIDEBAR(int top, int left, int height, int width) {
+style STYLESHEET_SIDEBAR(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
-    style stylesheet_body;
+    (void)width; /* Anti-Unused */
+
     stylesheet.background_color = ROOT_SECONDARY_COLOR();
     stylesheet.color = ROOT_WHITE_COLOR();
-    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
+    strcpy(stylesheet.font_family, "");
     stylesheet.font_size = 0;
     stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
-    stylesheet.border_radius_top_left = 32;
-    stylesheet.border_radius_top_right = 32;
-    stylesheet.border_radius_bottom_left = 32;
-    stylesheet.border_radius_bottom_right = 32;
-    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
-    stylesheet.top = stylesheet_body.top+40;
-    stylesheet.left = stylesheet_body.left+40;
-    stylesheet.height = stylesheet_body.height-40*2;
-    stylesheet.width = 300;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 16;
+    stylesheet.border_radius_top_right = 16;
+    stylesheet.border_radius_bottom_left = 16;
+    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 20;
+    stylesheet.gap = 10;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = top+40;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = left+40;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = height-40*2;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 324;
     return stylesheet;
 }
 
-style STYLESHEET_CONTAINER(int top, int left, int height, int width) {
+style STYLESHEET_CONTAINER(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
-    style stylesheet_body;
     style stylesheet_sidebar;
     stylesheet.background_color = ROOT_SECONDARY_COLOR();
     stylesheet.color = ROOT_WHITE_COLOR();
     stylesheet_sidebar = STYLESHEET_SIDEBAR(top,left,height,width);
-    strcpy(stylesheet.font_family, stylesheet_sidebar.font_family);
+    strcpy(stylesheet.font_family, "");
     stylesheet.font_size = 0;
     stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
-    stylesheet.border_radius_top_left = 32;
-    stylesheet.border_radius_top_right = 32;
-    stylesheet.border_radius_bottom_left = 32;
-    stylesheet.border_radius_bottom_right = 32;
-    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
-    stylesheet.top = stylesheet_body.top+40;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = stylesheet_sidebar.border_radius_top_left;
+    stylesheet.border_radius_top_right = stylesheet_sidebar.border_radius_top_right;
+    stylesheet.border_radius_bottom_left = stylesheet_sidebar.border_radius_bottom_left;
+    stylesheet.border_radius_bottom_right = stylesheet_sidebar.border_radius_bottom_right;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 20;
+    stylesheet.gap = 20;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = top+40;
+    stylesheet.unit_left = UNIT_PX;
     stylesheet.left = stylesheet_sidebar.left+stylesheet_sidebar.width+40;
-    stylesheet.height = stylesheet_body.height-40*2;
-    stylesheet.width = stylesheet_body.width-stylesheet_sidebar.left-stylesheet_sidebar.width-40*2;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = height-40*2;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = width-stylesheet_sidebar.left-stylesheet_sidebar.width-40*2;
     return stylesheet;
 }
 
-style STYLESHEET_SIDEBAR_BUTTONS(int top, int left, int height, int width) {
+style STYLESHEET_SIDEBAR_BUTTONS(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
     style stylesheet_sidebar;
     stylesheet.background_color = ROOT_BUTTON_COLOR();
     stylesheet.color = ROOT_WHITE_COLOR();
     stylesheet_sidebar = STYLESHEET_SIDEBAR(top,left,height,width);
-    strcpy(stylesheet.font_family, stylesheet_sidebar.font_family);
-    stylesheet.font_size = 20;
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
     stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
     stylesheet.border_radius_top_left = stylesheet_sidebar.border_radius_top_left/2;
     stylesheet.border_radius_top_right = stylesheet_sidebar.border_radius_top_right/2;
     stylesheet.border_radius_bottom_left = stylesheet_sidebar.border_radius_bottom_left/2;
     stylesheet.border_radius_bottom_right = stylesheet_sidebar.border_radius_bottom_right/2;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 20;
+    stylesheet.gap = 20;
+    stylesheet.unit_top = UNIT_PX;
     stylesheet.top = 0;
-    stylesheet.left = stylesheet_sidebar.left+20;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
     stylesheet.height = 64;
-    stylesheet.width = stylesheet_sidebar.width-20*2;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    return stylesheet;
+}
+style STYLESHEET_TEXT() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
+    stylesheet.font_size = 18;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PERCENTAGE;
+    stylesheet.height = 100;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
     return stylesheet;
 }
 
-style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(int top, int left, int height, int width) {
+style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
     stylesheet.background_color = ROOT_PRIMARY_COLOR();
     return stylesheet;
 }
-
-void createMenuComponents(int top, int left, int height, int width, component components[], int *components_size, button_component buttons[], int *buttons_size)
-{
-    style stylesheet, hover_stylesheet;
-    (*components_size) = 0;
-    (*buttons_size) = 0;
-    stylesheet = STYLESHEET_BODY(top, left, height, width);
-    MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
-    stylesheet = STYLESHEET_SIDEBAR(top, left, height, width);
-    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
-    hover_stylesheet.top = height-40-20-hover_stylesheet.height;
-    createButton(components, components_size, buttons, buttons_size, "Quitter", hover_stylesheet, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT);
+style STYLESHEET_SIDEBAR_BUTTONS_TOP(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
-    stylesheet.top = (stylesheet.height+10)*0+40+20;
-    hover_stylesheet.top = (hover_stylesheet.height+10)*0+40+20;
     stylesheet.border_radius_bottom_left = 0;
     stylesheet.border_radius_bottom_right = 0;
-    hover_stylesheet.border_radius_bottom_left = 0;
-    hover_stylesheet.border_radius_bottom_right = 0;
-    createButton(components, components_size, buttons, buttons_size, "Jouer", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    return stylesheet;
+}
+style STYLESHEET_SIDEBAR_BUTTONS_MIDDLE(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
-    stylesheet.top = (stylesheet.height+10)*1+40+20;
-    hover_stylesheet.top = (hover_stylesheet.height+10)*1+40+20;
     stylesheet.border_radius_top_left = 0;
     stylesheet.border_radius_top_right = 0;
     stylesheet.border_radius_bottom_left = 0;
     stylesheet.border_radius_bottom_right = 0;
-    hover_stylesheet.border_radius_top_left = 0;
-    hover_stylesheet.border_radius_top_right = 0;
-    hover_stylesheet.border_radius_bottom_left = 0;
-    hover_stylesheet.border_radius_bottom_right = 0;
-    createButton(components, components_size, buttons, buttons_size, "Paramètres", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS);
+    return stylesheet;
+}
+style STYLESHEET_SIDEBAR_BUTTONS_BOTTOM(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
-    stylesheet.top = (stylesheet.height+10)*2+40+20;
-    hover_stylesheet.top = (hover_stylesheet.height+10)*2+40+20;
     stylesheet.border_radius_top_left = 0;
     stylesheet.border_radius_top_right = 0;
-    hover_stylesheet.border_radius_top_left = 0;
-    hover_stylesheet.border_radius_top_right = 0;
-    createButton(components, components_size, buttons, buttons_size, "Scoreboard", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    return stylesheet;
+}
+style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    return stylesheet;
+}
+style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    return stylesheet;
+}
+style STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    return stylesheet;
 }
 
-void createSettingsComponents(int top, int left, int height, int width, component components[], int *components_size, button_component buttons[], int *buttons_size)
+void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
 {
-    style stylesheet, hover_stylesheet;
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    rgba color;
     (*components_size) = 0;
     (*buttons_size) = 0;
+    (*texts_size) = 0;
     
-    stylesheet = STYLESHEET_BODY(top, left, height, width);
-    MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
+    color = ROOT_BLACK_COLOR();
+    MLV_clear_window(MLV_rgba(color.r, color.g, color.b, color.a));
+    MLV_draw_filled_rectangle(0, 0, width, top, MLV_rgba(color.r, color.g, color.b, color.a));
     stylesheet = STYLESHEET_SIDEBAR(top, left, height, width);
-    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
-    stylesheet = STYLESHEET_CONTAINER(top, left, height, width);
-    createFrame(components, components_size, "", stylesheet, FALSE, stylesheet, 0);
-    stylesheet = STYLESHEET_SIDEBAR_BUTTONS(top, left, height, width);
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
+
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_COMPONENTS);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS(top, left, height, width);
-    stylesheet.top = (stylesheet.height+10)*0+40+20;
-    hover_stylesheet.top = (hover_stylesheet.height+10)*0+40+20;
-    stylesheet.border_radius_bottom_left = 0;
-    stylesheet.border_radius_bottom_right = 0;
-    hover_stylesheet.border_radius_bottom_left = 0;
-    hover_stylesheet.border_radius_bottom_right = 0;
-    createButton(components, components_size, buttons, buttons_size, "Retour", stylesheet, TRUE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS);
+    hover_stylesheet.component_justify = JUSTIFY_END;
+    createButton(components, components_size, buttons, buttons_size, 1, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT);
+
+    text_stylesheet = STYLESHEET_TEXT();
+    createText(components, components_size, texts, texts_size, 2, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Nouvelle partie");
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre une partie");
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres");
+    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard");
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter");
+}
+
+void createSettingsComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
+{
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    rgba color;
+    (*components_size) = 0;
+    (*buttons_size) = 0;
+    (*texts_size) = 0;
+    
+    color = ROOT_BLACK_COLOR();
+    MLV_clear_window(MLV_rgba(color.r, color.g, color.b, color.a));
+    MLV_draw_filled_rectangle(0, 0, width, top, MLV_rgba(color.r, color.g, color.b, color.a));
+    stylesheet = STYLESHEET_SIDEBAR(top, left, height, width);
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
+    stylesheet = STYLESHEET_CONTAINER(top, left, height, width);
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM(top, left, height, width);
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM(top, left, height, width);
+    createButton(components, components_size, buttons, buttons_size, 1, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE);
+
+
+    text_stylesheet = STYLESHEET_TEXT();
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour");
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Clavier & Souris");
+    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo");
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique");
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres audio");
 }

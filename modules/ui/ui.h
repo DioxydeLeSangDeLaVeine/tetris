@@ -26,7 +26,7 @@ typedef enum {
     COMPONENT_UNDEFINED,
     COMPONENT_FRAME,
     COMPONENT_BUTTON,
-    COMPONENT_POPUP
+    COMPONENT_TEXT
 } component_type;
 
 typedef enum {
@@ -42,6 +42,16 @@ typedef enum {
 } vertical_align;
 
 typedef enum {
+    JUSTIFY_START,
+    JUSTIFY_END
+} justify;
+
+typedef enum {
+    DIRECTION_ROW,
+    DIRECTION_COLUMN
+} direction;
+
+typedef enum {
     BUTTON_ACTION_UNDEFINED,
     BUTTON_ACTION_NONE,
     BUTTON_ACTION_QUIT,
@@ -50,74 +60,93 @@ typedef enum {
 } button_action_type;
 
 typedef enum {
+    UNIT_PERCENTAGE,
+    UNIT_PX
+} unit;
+
+typedef enum {
     FALSE,
     TRUE
 } boolean;
 
 typedef struct {
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
-    unsigned int a;
+    uint32_t r;
+    uint32_t g;
+    uint32_t b;
+    uint32_t a;
 } rgba;
-
-typedef struct {
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
-} rgb;
 
 typedef struct {
     rgba background_color;
     rgba color;
     char font_family[64];
-    int font_size;
+    int32_t font_size;
     horizontal_align font_horizontal_align;
     vertical_align font_vertical_align;
-    int top;
-    int left;
-    int width;
-    int height;
-    int border_radius_top_left;
-    int border_radius_top_right;
-    int border_radius_bottom_left;
-    int border_radius_bottom_right;
+    justify component_justify;
+    int32_t padding;
+    int32_t gap;
+    direction childs_direction;
+    unit unit_top;
+    int32_t top;
+    unit unit_left;
+    int32_t left;
+    unit unit_width;
+    int32_t width;
+    unit unit_height;
+    int32_t height;
+    int32_t border_radius_top_left;
+    int32_t border_radius_top_right;
+    int32_t border_radius_bottom_left;
+    int32_t border_radius_bottom_right;
 } style;
 
 typedef struct {
-    int id;
+    uint32_t id;
+    uint32_t parent_id;
     component_type type;
-    char content[64];
     style stylesheet;
     boolean is_hoverable;
+    boolean ignore_hover;
     boolean is_hovered;
     style hover_stylesheet;
-    int transition_duration;
+    uint32_t transition_duration;
     float __transition;
 } component;
 
 typedef struct {
-    int id; /* Equal to his component ID */
+    unsigned short id; /* Equal to his component ID */
     button_action_type action_type;
 } button_component;
 
 typedef struct {
-    int id; /* Equal to his component ID */
-    component components[16];
-    int components_size;
-} container_component;
+    unsigned short id; /* Equal to his component ID */
+    char content[64];
+} text_component;
+
+typedef struct {
+    int32_t top_offset;
+    int32_t left_offset;
+    int32_t bottom_offset;
+    int32_t right_offset;
+} __component_offset;
+
+int32_t __min(int32_t a, int32_t b);
+int32_t __max(int32_t a, int32_t b);
 
 
-int __min(int a, int b);
-int __max(int a, int b);
-
-boolean idboxComponent(component component, int x, int y);
-void drawComponents(component components[], int components_size);
+button_component componentToButtonComponent(component component, button_component buttons[], int buttons_size);
+text_component componentToTextComponent(component component, text_component texts[], int texts_size);
 style styleTransition(component component);
-void drawComponent(component component);
-component initComponent(int id, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
-void createFrame(component components[], int *components_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
-void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration, button_action_type action_type);
-void createContainer(component components[], int *components_size, container_component contain_components[], int *contain_components_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, int transition_duration);
+void transformUnit(int32_t *value, unit *value_unit, int32_t reference);
+style transformUnits(style stylesheet, style parentStylesheet);
+style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component component);
+boolean idboxComponent(style stylesheet, int32_t x, int32_t y);
+void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size);
+void drawComponent(component component, style stylesheet, text_component texts[], uint32_t texts_size);
+component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
+void createFrame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
+void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type);
+void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[]);
 
 #endif

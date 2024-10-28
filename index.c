@@ -34,44 +34,28 @@
  * end of the case.
  */
 
-component lastHovered(component components[], int components_size, int x, int y)
+component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y)
 {
     int i;
     component cmp;
     cmp.id = 0;
     for(i = 0; i<components_size; i++)
     {
-        if(idboxComponent(components[i], x, y) == TRUE)
+        if(idboxComponent(styleReal(top, left, height, width, components, components_size, components[i]), x, y) == TRUE)
         {
-            cmp = components[i];
+            if(!components[i].ignore_hover) cmp = components[i];
         }
     }
     return cmp;
 }
 
-button_component componentToButtonComponent(component component, button_component buttons[], int buttons_size) {
-    int i;
-    button_component button;
-    button.id = 0;
-    button.action_type = BUTTON_ACTION_UNDEFINED;
-
-    for(i = 0; i<buttons_size; i++)
-    {
-        if(component.id == buttons[i].id)
-        {
-            button = buttons[i];
-        }
-    }
-    return button;
-}
-
-boolean hover(component components[], int components_size, int x, int y, int fps)
+boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
 {
     int i;
     component cmp;
     boolean change = FALSE;
 
-    cmp = lastHovered(components, components_size, x, y);
+    cmp = lastHovered(top, left, height, width, components, components_size, x, y);
 
     for(i = 0; i<components_size; i++) {
         if(components[i].id != cmp.id) {
@@ -121,15 +105,18 @@ int main()
     Window window;
     Cursor current_cursor = 0, cursor_default, cursor_pointer;
 
-    int x = 0, y = 0, fps = 1000/256, recreate = FALSE, actualise = FALSE, quit = FALSE, components_size = 0, buttons_size = 0,
+    boolean recreate = FALSE, actualise = FALSE, quit = FALSE;
+    int32_t x = 0, y = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
+    uint32_t fps = 1000/128, components_size = 0, buttons_size = 0, texts_size = 0;
     page_components page = MENU_COMPONENTS;
 
     struct timespec start, end;
 
     component components[COMPONENTS_MAX_SIZE];
     button_component buttons[COMPONENTS_MAX_SIZE];
+    text_component texts[COMPONENTS_MAX_SIZE];
     button_component button;
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
@@ -142,8 +129,8 @@ int main()
         current_cursor = cursor_default;
         XFlush(display);
     }
-    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
-    drawComponents(components, components_size);
+    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
+    drawComponents(0, 0, height, width, components, components_size, texts, texts_size);
     MLV_actualise_window();
 
     while(quit != TRUE)
@@ -170,7 +157,7 @@ int main()
                 case MLV_MOUSE_BUTTON:
                     if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                     {
-                        button = componentToButtonComponent(lastHovered(components, components_size, x, y), buttons, buttons_size);
+                        button = componentToButtonComponent(lastHovered(0, 0, height, width, components, components_size, x, y), buttons, buttons_size);
                         switch(button.action_type)
                         {
                             case BUTTON_ACTION_QUIT:
@@ -196,13 +183,13 @@ int main()
                 default:
                     break;
             }
-        } while(event != MLV_NONE);
+        } while((event != MLV_NONE)&&!quit);
         clock_gettime(CLOCK_REALTIME, &end);
         if((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
 
-        actualise |= hover(components, components_size, x, y, fps);
+        actualise |= hover(0, 0, height, width, components, components_size, x, y, fps);
         if(display != NULL) {
-            button = componentToButtonComponent(lastHovered(components, components_size, x, y), buttons, buttons_size);
+            button = componentToButtonComponent(lastHovered(0, 0, height, width, components, components_size, x, y), buttons, buttons_size);
             if(button.action_type != BUTTON_ACTION_UNDEFINED)
             {
                 if(current_cursor != cursor_pointer) {
@@ -221,17 +208,17 @@ int main()
         if(recreate == TRUE) {
             switch(page) {
                 case SETTINGS_COMPONENTS:
-                    createSettingsComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
+                    createSettingsComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
                     break;
                 default:
-                    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size);
+                    createMenuComponents(0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size);
                     break;
             }
             recreate = FALSE;
         }
         if(actualise == TRUE)
         {
-            drawComponents(components, components_size);
+            drawComponents(0, 0, height, width, components, components_size, texts, texts_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
