@@ -43,6 +43,23 @@ text_component componentToTextComponent(component cmp, text_component texts[], i
     return text;
 }
 
+key_component componentToKeyComponent(component cmp, key_component keys[], int keys_size) {
+    int i;
+    key_component key;
+    key.id = 0;
+    key.take_type = KEY_TAKE_UNDEFINED;
+    strcpy(key.content, "");
+
+    for(i = 0; i<keys_size; i++)
+    {
+        if(cmp.id == keys[i].id)
+        {
+            key = keys[i];
+        }
+    }
+    return key;
+}
+
 style styleTransition(component component) {
     style stylesheet;
     if(component.is_hoverable==FALSE) {
@@ -303,19 +320,22 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
     return FALSE;
 }
 
-void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size) {
+void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size) {
     uint32_t i;
 
     for(i = 0; i<components_size; i++) {
-        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size);
+        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size);
     }
 }
 
-void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size)
+void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size)
 {
     FILE* file;
     MLV_Font *font_family;
     int32_t font_height = 0, font_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
+    key_component key_cmp;
+    text_component txt_cmp;
+    char content[64];
     MLV_Color background_color;
 
     if(stylesheet.height == 0 || stylesheet.width == 0)return;
@@ -355,14 +375,25 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
         }
     }
     
-    if(cmp.type == COMPONENT_TEXT) {
-        text_component txt_cmp;
-        txt_cmp = componentToTextComponent(cmp, texts, texts_size);
+    if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY) {
+        switch(cmp.type) {
+            case COMPONENT_TEXT:
+                txt_cmp = componentToTextComponent(cmp, texts, texts_size);
+                strcpy(content, txt_cmp.content);
+                break;
+            case COMPONENT_KEY:
+                key_cmp = componentToKeyComponent(cmp, keys, keys_size);
+                strcpy(content, key_cmp.content);
+                break;
+            default:
+                strcpy(content, "");
+                break;
+        }
         file = fopen(stylesheet.font_family, "r");
-        if(file != NULL && strcmp(txt_cmp.content,"") != 0)
+        if(file != NULL && strcmp(content, "") != 0)
         {
             font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
-            MLV_get_size_of_text_with_font(txt_cmp.content, &font_width, &font_height, font_family);
+            MLV_get_size_of_text_with_font(content, &font_width, &font_height, font_family);
             
             switch(stylesheet.font_horizontal_align) {
                 case HORIZONTAL_LEFT:
@@ -387,7 +418,7 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                     break;
             }
 
-            MLV_draw_text_with_font(horizontal_align, vertical_align, txt_cmp.content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
+            MLV_draw_text_with_font(horizontal_align, vertical_align, content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
             
             MLV_free_font(font_family);
         }
@@ -441,4 +472,18 @@ void createText(component components[], uint32_t *components_size, text_componen
     (*components_size)++;
     texts[*texts_size] = txt_cmp;
     (*texts_size)++;
+}
+
+void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[])
+{
+    key_component key_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    key_cmp.id = (*components_size)+1;
+    key_cmp.take_type = take_type;
+    strcpy(key_cmp.content, content);
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_KEY, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    keys[*keys_size] = key_cmp;
+    (*keys_size)++;
 }
