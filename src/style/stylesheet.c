@@ -446,14 +446,14 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     return stylesheet;
 }
 
-void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size) {
+void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
     (*buttons_size) = 0;
     (*texts_size) = 0;
 
     stylesheet = STYLESHEET_BODY(top, left, height, width);
-    MLV_clear_window(MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+    MLV_clear_window(MLV_COLOR_BLACK);
     createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 1 */
 
     switch(page) {
@@ -462,14 +462,14 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createComponentsWithSidebar(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size);
+            createComponentsWithSidebar(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
             break;
         default:
             break;
     }
 }
 
-void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size) {
+void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
     createFrame(components, components_size, 1, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 2 */
@@ -482,7 +482,7 @@ void createComponentsWithSidebar(page_components page, int32_t top, int32_t left
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createSettingsComponents(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size);
+            createSettingsComponents(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
             break;
         default:
             break;
@@ -515,7 +515,7 @@ void createMenuComponents(component components[], uint32_t *components_size, but
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter"); /* id = 11 */
 }
 
-void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size)
+void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
 
@@ -546,7 +546,7 @@ void createSettingsComponents(page_components page, int32_t top, int32_t left, i
 
     switch(page) {
         case SETTINGS_KEYBOARD_COMPONENTS:
-            createSettingsKeyboardComponents(components, components_size, texts, texts_size, keys, keys_size);
+            createSettingsKeyboardComponents(components, components_size, texts, texts_size, keys, keys_size, set);
             break;
         case SETTINGS_VIDEO_COMPONENTS:
             createSettingsVideoComponents(components, components_size, texts, texts_size);
@@ -562,9 +562,10 @@ void createSettingsComponents(page_components page, int32_t top, int32_t left, i
     }
 }
 
-void createSettingsKeyboardComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size)
+void createSettingsKeyboardComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
+    char key[16];
 
     text_stylesheet = STYLESHEET_TITLE();
     createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Commandes clavier & souris"); /* id = 14 */
@@ -578,21 +579,30 @@ void createSettingsKeyboardComponents(component components[], uint32_t *componen
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 18 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 19 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 20 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 21 */
     
     text_stylesheet = STYLESHEET_TEXT();
-    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 21 */
-    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 22 */
-    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 23 */
-    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 24 */
-    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Valider"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 22 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 24 */
+    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente rapide"); /* id = 26 */
+    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mettre pause"); /* id = 27 */
 
     stylesheet = STYLESHEET_KEY();
     hover_stylesheet = STYLESHEET_HOVERED_KEY();
-    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_MOVE_LEFT, "Q"); /* id = 26 */
-    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_MOVE_RIGHT, "D"); /* id = 27 */
-    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_TURN_LEFT, "A"); /* id = 28 */
-    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_TURN_RIGHT, "E"); /* id = 29 */
-    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_CONFIRM, "SPACE"); /* id = 30 */
+    getKeyFromMLV(set.keyboard_move_left, key);
+    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_MOVE_LEFT, key); /* id = 27 */
+    getKeyFromMLV(set.keyboard_move_right, key);
+    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_MOVE_RIGHT, key); /* id = 28 */
+    getKeyFromMLV(set.keyboard_turn_left, key);
+    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_TURN_LEFT, key); /* id = 29 */
+    getKeyFromMLV(set.keyboard_turn_right, key);
+    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_TURN_RIGHT, key); /* id = 30 */
+    getKeyFromMLV(set.keyboard_confirm, key);
+    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_CONFIRM, key); /* id = 31 */
+    getKeyFromMLV(set.keyboard_pause, key);
+    createKey(components, components_size, keys, keys_size, 21, stylesheet, TRUE, FALSE, hover_stylesheet, 64, KEY_TAKE_PAUSE, key); /* id = 32 */
 }
 void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
 {

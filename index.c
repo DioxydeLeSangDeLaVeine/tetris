@@ -93,7 +93,7 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
     return change;
 }
 
-void takeAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate) {
+void buttonAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate) {
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
@@ -139,92 +139,127 @@ void takeAction(button_action_type action_type, boolean *quit, page_components *
         }
 }
 
-void getKeyFromMLV(MLV_Keyboard_button sym, MLV_Keyboard_modifier mod, char response[]) {
-    (void)mod;
-    switch(sym)
-    {
-        case MLV_KEYBOARD_a: strcpy(response, "A"); break;
-        case MLV_KEYBOARD_b: strcpy(response, "B"); break;
-        case MLV_KEYBOARD_c: strcpy(response, "C"); break;
-        case MLV_KEYBOARD_d: strcpy(response, "D"); break;
-        case MLV_KEYBOARD_e: strcpy(response, "E"); break;
-        case MLV_KEYBOARD_f: strcpy(response, "F"); break;
-        case MLV_KEYBOARD_g: strcpy(response, "G"); break;
-        case MLV_KEYBOARD_h: strcpy(response, "H"); break;
-        case MLV_KEYBOARD_i: strcpy(response, "I"); break;
-        case MLV_KEYBOARD_j: strcpy(response, "J"); break;
-        case MLV_KEYBOARD_k: strcpy(response, "K"); break;
-        case MLV_KEYBOARD_l: strcpy(response, "L"); break;
-        case MLV_KEYBOARD_m: strcpy(response, "M"); break;
-        case MLV_KEYBOARD_n: strcpy(response, "N"); break;
-        case MLV_KEYBOARD_o: strcpy(response, "O"); break;
-        case MLV_KEYBOARD_p: strcpy(response, "P"); break;
-        case MLV_KEYBOARD_q: strcpy(response, "Q"); break;
-        case MLV_KEYBOARD_r: strcpy(response, "R"); break;
-        case MLV_KEYBOARD_s: strcpy(response, "S"); break;
-        case MLV_KEYBOARD_t: strcpy(response, "T"); break;
-        case MLV_KEYBOARD_u: strcpy(response, "U"); break;
-        case MLV_KEYBOARD_v: strcpy(response, "V"); break;
-        case MLV_KEYBOARD_w: strcpy(response, "W"); break;
-        case MLV_KEYBOARD_x: strcpy(response, "X"); break;
-        case MLV_KEYBOARD_y: strcpy(response, "Y"); break;
-        case MLV_KEYBOARD_z: strcpy(response, "Z"); break;
-        case MLV_KEYBOARD_0: strcpy(response, "0"); break;
-        case MLV_KEYBOARD_1: strcpy(response, "1"); break;
-        case MLV_KEYBOARD_2: strcpy(response, "2"); break;
-        case MLV_KEYBOARD_3: strcpy(response, "3"); break;
-        case MLV_KEYBOARD_4: strcpy(response, "4"); break;
-        case MLV_KEYBOARD_5: strcpy(response, "5"); break;
-        case MLV_KEYBOARD_6: strcpy(response, "6"); break;
-        case MLV_KEYBOARD_7: strcpy(response, "7"); break;
-        case MLV_KEYBOARD_8: strcpy(response, "8"); break;
-        case MLV_KEYBOARD_9: strcpy(response, "9"); break;
-        case MLV_KEYBOARD_LALT: strcpy(response, "LEFT_ALT"); break;
-        case MLV_KEYBOARD_RALT: strcpy(response, "RIGHT_ALT"); break;
-        case MLV_KEYBOARD_LSHIFT: strcpy(response, "LEFT_SHIFT"); break;
-        case MLV_KEYBOARD_RSHIFT: strcpy(response, "RIGHT_SHIFT"); break;
-        case MLV_KEYBOARD_LCTRL: strcpy(response, "LEFT_CTRL"); break;
-        case MLV_KEYBOARD_RCTRL: strcpy(response, "RIGHT_CTRL"); break;
-        case MLV_KEYBOARD_SPACE: strcpy(response, "SPACE"); break;
-        case MLV_KEYBOARD_RETURN: strcpy(response, "ENTER"); break;
-        case MLV_KEYBOARD_BACKSPACE: strcpy(response, "BACKSPACE"); break;
-        case MLV_KEYBOARD_TAB: strcpy(response, "TAB"); break;
-        case MLV_KEYBOARD_CAPSLOCK: strcpy(response, "CAPS_LOCK"); break;
-        case MLV_KEYBOARD_ESCAPE: strcpy(response, "ESCAPE"); break;
-        case MLV_KEYBOARD_UP: strcpy(response, "UP_ARROW"); break;
-        case MLV_KEYBOARD_DOWN: strcpy(response, "DOWN_ARROW"); break;
-        case MLV_KEYBOARD_LEFT: strcpy(response, "LEFT_ARROW"); break;
-        case MLV_KEYBOARD_RIGHT: strcpy(response, "RIGHT_ARROW"); break;
-        case MLV_KEYBOARD_KP0: strcpy(response, "NUMPAD_0"); break;
-        case MLV_KEYBOARD_KP1: strcpy(response, "NUMPAD_1"); break;
-        case MLV_KEYBOARD_KP2: strcpy(response, "NUMPAD_2"); break;
-        case MLV_KEYBOARD_KP3: strcpy(response, "NUMPAD_3"); break;
-        case MLV_KEYBOARD_KP4: strcpy(response, "NUMPAD_4"); break;
-        case MLV_KEYBOARD_KP5: strcpy(response, "NUMPAD_5"); break;
-        case MLV_KEYBOARD_KP6: strcpy(response, "NUMPAD_6"); break;
-        case MLV_KEYBOARD_KP7: strcpy(response, "NUMPAD_7"); break;
-        case MLV_KEYBOARD_KP8: strcpy(response, "NUMPAD_8"); break;
-        case MLV_KEYBOARD_KP9: strcpy(response, "NUMPAD_9"); break;
-        case MLV_KEYBOARD_KP_DIVIDE: strcpy(response, "NUMPAD_DIVIDE"); break;
-        case MLV_KEYBOARD_KP_MULTIPLY: strcpy(response, "NUMPAD_MULTIPLY"); break;
-        case MLV_KEYBOARD_KP_MINUS: strcpy(response, "NUMPAD_MINUS"); break;
-        case MLV_KEYBOARD_KP_PLUS: strcpy(response, "NUMPAD_PLUS"); break;
-        case MLV_KEYBOARD_KP_ENTER: strcpy(response, "NUMPAD_ENTER"); break;
-        case MLV_KEYBOARD_KP_PERIOD: strcpy(response, "NUMPAD_PERIOD"); break;
-        case MLV_KEYBOARD_F1: strcpy(response, "F1"); break;
-        case MLV_KEYBOARD_F2: strcpy(response, "F2"); break;
-        case MLV_KEYBOARD_F3: strcpy(response, "F3"); break;
-        case MLV_KEYBOARD_F4: strcpy(response, "F4"); break;
-        case MLV_KEYBOARD_F5: strcpy(response, "F5"); break;
-        case MLV_KEYBOARD_F6: strcpy(response, "F6"); break;
-        case MLV_KEYBOARD_F7: strcpy(response, "F7"); break;
-        case MLV_KEYBOARD_F8: strcpy(response, "F8"); break;
-        case MLV_KEYBOARD_F9: strcpy(response, "F9"); break;
-        case MLV_KEYBOARD_F10: strcpy(response, "F10"); break;
-        case MLV_KEYBOARD_F11: strcpy(response, "F11"); break;
-        case MLV_KEYBOARD_F12: strcpy(response, "F12"); break;
-        default: strcpy(response, ""); break;
+settings defaultSettings() {
+    settings set;
+    set.keyboard_move_left = MLV_KEYBOARD_q;
+    set.keyboard_move_right = MLV_KEYBOARD_d;
+    set.keyboard_turn_left = MLV_KEYBOARD_a;
+    set.keyboard_turn_right = MLV_KEYBOARD_e;
+    set.keyboard_confirm = MLV_KEYBOARD_SPACE;
+    set.video_fps = 30;
+    return set;
+}
+
+void writeSettings(settings set) {
+    FILE *file = fopen("./data/settings", "w");
+    char response[64];
+
+    if(file == NULL) {
+        return;
     }
+
+    fprintf(file, "### KEYBOARD ###\n");
+    getKeyFromMLV(set.keyboard_move_left, response);
+    fprintf(file, "KEY_MOVE_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_move_right, response);
+    fprintf(file, "KEY_MOVE_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_left, response);
+    fprintf(file, "KEY_TURN_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_right, response);
+    fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_confirm, response);
+    fprintf(file, "KEY_CONFIRM=%s\n", response);
+    getKeyFromMLV(set.keyboard_pause, response);
+    fprintf(file, "KEY_PAUSE=%s\n\n", response);
+
+    fprintf(file, "### VIDEO ###\n");
+    fprintf(file, "FPS=%u\n\n", set.video_fps);
+
+    fprintf(file, "### GRAPHICS ###\n\n");
+    fprintf(file, "### AUDIO ###\n");
+
+    fclose(file);
+}
+
+settings readSettings() {
+    FILE *file = fopen("./data/settings", "r");
+    MLV_Keyboard_button key;
+    settings set;
+    char setting_name[65], setting_value[65];
+    char line[130];
+    int i, j;
+    boolean is_value;
+
+    set = defaultSettings();
+    
+    if(file == NULL) {
+        writeSettings(set);
+        return set;
+    }
+
+    while(fgets(line, 130, file) != NULL) {
+        i = 0;
+        j = 0;
+        is_value = FALSE;
+        strcpy(setting_name, "");
+        strcpy(setting_value, "");
+        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#') {
+            while(line[i] != '\0'&&line[i] != '\n') {
+                if(is_value == FALSE) {
+                    if(line[i]=='=')
+                    {
+                        is_value = TRUE;
+                        setting_name[i] = '\0';
+                    } else {
+                        setting_name[i]=line[i];
+                    }
+                } else {
+                    setting_value[j]=line[i];
+                    j++;
+                }
+                i++;
+            }
+            setting_value[j]='\0';
+            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_confirm = key;
+                }
+            } else if(strcmp(setting_name, "KEY_PAUSE") == 0) {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_pause = key;
+                }
+            } else if(strcmp(setting_name, "FPS") == 0) {
+                if(atoi(setting_value) > 0) {
+                    set.video_fps = atoi(setting_value);
+                }
+            }
+        }
+    }
+    fclose(file);
+    writeSettings(set);
+    return set;
 }
 
 int main()
@@ -243,8 +278,9 @@ int main()
     int32_t x = 0, y = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
-    uint32_t fps = 1000/60, i = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0;
+    uint32_t i = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0;
     page_components page = MENU_COMPONENTS;
+    settings set;
 
     struct timespec start, end;
 
@@ -269,9 +305,10 @@ int main()
         current_cursor = cursor_default;
         XFlush(display);
     }
-    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size);
+    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, set);
     drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size);
     MLV_actualise_window();
+    set = readSettings();
 
     while(quit != TRUE)
     {
@@ -292,13 +329,36 @@ int main()
                     if(state == MLV_PRESSED)
                     {
                         if(listen == TRUE) {
-                            getKeyFromMLV(sym, mod, key.content);
+                            getKeyFromMLV(sym, key.content);
                             if(strcmp(key.content, "") != 0) {
                                 for(i = 0; i<keys_size; i++) {
                                     if(keys[i].take_type == key.take_type) {
                                         strcpy(keys[i].content, key.content);
                                     }
                                 }
+                                switch(key.take_type) {
+                                    case KEY_TAKE_MOVE_LEFT:
+                                        set.keyboard_move_left = sym;
+                                        break;
+                                    case KEY_TAKE_MOVE_RIGHT:
+                                        set.keyboard_move_right = sym;
+                                        break;
+                                    case KEY_TAKE_TURN_LEFT:
+                                        set.keyboard_turn_left = sym;
+                                        break;
+                                    case KEY_TAKE_TURN_RIGHT:
+                                        set.keyboard_turn_right = sym;
+                                        break;
+                                    case KEY_TAKE_CONFIRM:
+                                        set.keyboard_confirm = sym;
+                                        break;
+                                    case KEY_TAKE_PAUSE:
+                                        set.keyboard_pause = sym;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                writeSettings(set);
                                 components_size-=2;
                                 texts_size-=1;
                                 listen = FALSE;
@@ -316,7 +376,7 @@ int main()
                             {
                                 case COMPONENT_BUTTON:
                                     button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                    takeAction(button.action_type, &quit, &page, &actualise, &recreate);
+                                    buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
                                     break;
                                 case COMPONENT_KEY:
                                     key = componentToKeyComponent(cmp, keys, keys_size);
@@ -340,9 +400,9 @@ int main()
             }
         } while((event != MLV_NONE)&&!quit);
         clock_gettime(CLOCK_REALTIME, &end);
-        if((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+        if((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
 
-        actualise |= hover(0, 0, height, width, components, components_size, x, y, fps);
+        actualise |= hover(0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
         if(display != NULL) {
             cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
             if(cmp.type == COMPONENT_BUTTON || cmp.type == COMPONENT_KEY)
@@ -361,9 +421,14 @@ int main()
             }
         }
         if(recreate == TRUE) {
-            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size);
+            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, set);
+            MLV_flush_event_queue();
             recreate = FALSE;
-            listen = FALSE;
+            if(listen == TRUE) {
+                components_size-=2;
+                texts_size-=1;
+                listen = FALSE;
+            }
         }
         if(actualise == TRUE)
         {
