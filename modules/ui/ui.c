@@ -231,6 +231,22 @@ key_component componentToKeyComponent(component cmp, key_component keys[], int k
     return key;
 }
 
+image_component componentToImageComponent(component cmp, image_component images[], int images_size) {
+    int i;
+    image_component image;
+    image.id = 0;
+    strcpy(image.path, "");
+
+    for(i = 0; i<images_size; i++)
+    {
+        if(cmp.id == images[i].id)
+        {
+            image = images[i];
+        }
+    }
+    return image;
+}
+
 style styleTransition(component component) {
     style stylesheet;
     if(component.is_hoverable==FALSE) {
@@ -491,107 +507,137 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
     return FALSE;
 }
 
-void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size) {
+void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size) {
     uint32_t i;
 
     for(i = 0; i<components_size; i++) {
-        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size);
+        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
     }
 }
 
-void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size)
+void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     FILE* file;
+    MLV_Image *mlv_img;
     MLV_Font *font_family;
-    int32_t font_height = 0, font_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
+    int32_t font_height = 0, font_width = 0, image_height = 0, image_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
+    float image_ratio;
     key_component key_cmp;
     text_component txt_cmp;
+    image_component img_cmp;
     char content[64];
     MLV_Color background_color;
 
     if(stylesheet.height == 0 || stylesheet.width == 0)return;
-    if(stylesheet.background_color.a != 0) {
-        background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
-        if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+    if(cmp.type == COMPONENT_IMAGE) {
+        img_cmp = componentToImageComponent(cmp, images, images_size);
+        mlv_img = MLV_load_image(img_cmp.path);
+        if(mlv_img != NULL)
         {
-            rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
-            rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
-            rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
-            rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
+            MLV_get_image_size(mlv_img, &image_width, &image_height);
+            image_ratio = ((float)image_width)/image_height;
+            if(image_width > stylesheet.width || image_height > stylesheet.height)
+            {
+                if(image_height > stylesheet.height)
+                {
+                    image_height = stylesheet.height;
+                    image_width = (int)(stylesheet.height * image_ratio);
+                }
+                if(image_width > stylesheet.width)
+                {
+                    image_width = stylesheet.width;
+                    image_height = (int)(stylesheet.width / image_ratio);
+                }
+            }
+            MLV_resize_image(mlv_img, image_width, image_height);
+            MLV_draw_image(mlv_img, stylesheet.left, stylesheet.top);
 
-            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-stylesheet.border_radius_top_right-stylesheet.border_radius_top_left, stylesheet.height/2, background_color);
-            MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_left-stylesheet.border_radius_top_left, background_color);
-            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height/2, stylesheet.width-stylesheet.border_radius_bottom_right-stylesheet.border_radius_bottom_left, stylesheet.height/2, background_color);
-            MLV_draw_filled_rectangle(stylesheet.left+stylesheet.width/2, stylesheet.top+stylesheet.border_radius_top_right, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_right-stylesheet.border_radius_top_right, background_color);
-            MLV_draw_filled_rectangle(stylesheet.left+rl, stylesheet.top+rt, (stylesheet.width-rl-rr)<0?0:(stylesheet.width-rl-rr), (stylesheet.height-rt-rb)<0?0:(stylesheet.height-rt-rb), background_color);
-
-            if(stylesheet.border_radius_top_left != 0)
-            {
-                MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top+stylesheet.border_radius_top_left-1, stylesheet.border_radius_top_left-1, background_color);
-            }
-            if(stylesheet.border_radius_bottom_left != 0)
-            {
-                MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_left-1, background_color);
-            }
-            if(stylesheet.border_radius_top_right != 0)
-            {
-                MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
-            }
-            if(stylesheet.border_radius_bottom_right != 0)
-            {
-                MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
-            }
-        } else {
-            MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
+            MLV_free_image(mlv_img);
         }
-    }
-    
-    if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY) {
-        switch(cmp.type) {
-            case COMPONENT_TEXT:
-                txt_cmp = componentToTextComponent(cmp, texts, texts_size);
-                strcpy(content, txt_cmp.content);
-                break;
-            case COMPONENT_KEY:
-                key_cmp = componentToKeyComponent(cmp, keys, keys_size);
-                strcpy(content, key_cmp.content);
-                break;
-            default:
-                strcpy(content, "");
-                break;
+    } else {
+        if(stylesheet.background_color.a != 0) {
+            background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
+            if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+            {
+                rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
+                rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
+                rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
+                rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
+
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-stylesheet.border_radius_top_right-stylesheet.border_radius_top_left, stylesheet.height/2, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_left-stylesheet.border_radius_top_left, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height/2, stylesheet.width-stylesheet.border_radius_bottom_right-stylesheet.border_radius_bottom_left, stylesheet.height/2, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.width/2, stylesheet.top+stylesheet.border_radius_top_right, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_right-stylesheet.border_radius_top_right, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+rl, stylesheet.top+rt, (stylesheet.width-rl-rr)<0?0:(stylesheet.width-rl-rr), (stylesheet.height-rt-rb)<0?0:(stylesheet.height-rt-rb), background_color);
+
+                if(stylesheet.border_radius_top_left != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top+stylesheet.border_radius_top_left-1, stylesheet.border_radius_top_left-1, background_color);
+                }
+                if(stylesheet.border_radius_bottom_left != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_left-1, background_color);
+                }
+                if(stylesheet.border_radius_top_right != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
+                }
+                if(stylesheet.border_radius_bottom_right != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
+                }
+            } else {
+                MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
+            }
         }
-        file = fopen(stylesheet.font_family, "r");
-        if(file != NULL && strcmp(content, "") != 0)
-        {
-            font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
-            MLV_get_size_of_text_with_font(content, &font_width, &font_height, font_family);
-            
-            switch(stylesheet.font_horizontal_align) {
-                case HORIZONTAL_LEFT:
-                    horizontal_align = stylesheet.left+stylesheet.padding;
+        
+        if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY) {
+            switch(cmp.type) {
+                case COMPONENT_TEXT:
+                    txt_cmp = componentToTextComponent(cmp, texts, texts_size);
+                    strcpy(content, txt_cmp.content);
                     break;
-                case HORIZONTAL_CENTER:
-                    horizontal_align = stylesheet.left+(stylesheet.width/2)-(font_width/2);
+                case COMPONENT_KEY:
+                    key_cmp = componentToKeyComponent(cmp, keys, keys_size);
+                    strcpy(content, key_cmp.content);
                     break;
-                case HORIZONTAL_RIGHT:
-                    horizontal_align = stylesheet.left+stylesheet.width-font_width-stylesheet.padding;
-                    break;
-            }    
-            switch(stylesheet.font_vertical_align) {
-                case VERTICAL_TOP:
-                    vertical_align = stylesheet.top+stylesheet.padding;
-                    break;
-                case VERTICAL_CENTER:
-                    vertical_align = stylesheet.top+(stylesheet.height/2)-(font_height/2);
-                    break;
-                case VERTICAL_BOTTOM:
-                    vertical_align = stylesheet.top+stylesheet.height-font_height-stylesheet.padding;
+                default:
+                    strcpy(content, "");
                     break;
             }
+            file = fopen(stylesheet.font_family, "r");
+            if(file != NULL && strcmp(content, "") != 0)
+            {
+                font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
+                MLV_get_size_of_text_with_font(content, &font_width, &font_height, font_family);
+                
+                switch(stylesheet.font_horizontal_align) {
+                    case HORIZONTAL_LEFT:
+                        horizontal_align = stylesheet.left+stylesheet.padding;
+                        break;
+                    case HORIZONTAL_CENTER:
+                        horizontal_align = stylesheet.left+(stylesheet.width/2)-(font_width/2);
+                        break;
+                    case HORIZONTAL_RIGHT:
+                        horizontal_align = stylesheet.left+stylesheet.width-font_width-stylesheet.padding;
+                        break;
+                }    
+                switch(stylesheet.font_vertical_align) {
+                    case VERTICAL_TOP:
+                        vertical_align = stylesheet.top+stylesheet.padding;
+                        break;
+                    case VERTICAL_CENTER:
+                        vertical_align = stylesheet.top+(stylesheet.height/2)-(font_height/2);
+                        break;
+                    case VERTICAL_BOTTOM:
+                        vertical_align = stylesheet.top+stylesheet.height-font_height-stylesheet.padding;
+                        break;
+                }
 
-            MLV_draw_text_with_font(horizontal_align, vertical_align, content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
-            
-            MLV_free_font(font_family);
+                MLV_draw_text_with_font(horizontal_align, vertical_align, content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
+                
+                MLV_free_font(font_family);
+            }
         }
     }
 }
@@ -657,4 +703,17 @@ void createKey(component components[], uint32_t *components_size, key_component 
     (*components_size)++;
     keys[*keys_size] = key_cmp;
     (*keys_size)++;
+}
+
+void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[])
+{
+    image_component img_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    img_cmp.id = (*components_size)+1;
+    strcpy(img_cmp.path, path);
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_IMAGE, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    images[*images_size] = img_cmp;
+    (*images_size)++;
 }

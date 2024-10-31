@@ -94,10 +94,10 @@ style STYLESHEET_SIDEBAR() {
     stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.component_justify = JUSTIFY_START;
-    stylesheet.border_radius_top_left = 16;
-    stylesheet.border_radius_top_right = 16;
-    stylesheet.border_radius_bottom_left = 16;
-    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.border_radius_top_left = 32;
+    stylesheet.border_radius_top_right = 32;
+    stylesheet.border_radius_bottom_left = 32;
+    stylesheet.border_radius_bottom_right = 32;
     stylesheet.childs_direction = DIRECTION_COLUMN;
     stylesheet.padding = 20;
     stylesheet.gap = 10;
@@ -109,6 +109,38 @@ style STYLESHEET_SIDEBAR() {
     stylesheet.height = 100;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = 324;
+    return stylesheet;
+}
+
+style STYLESHEET_LOGO(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    style stylesheet_sidebar;
+    style stylesheet_body;
+
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    stylesheet_sidebar = STYLESHEET_SIDEBAR();
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = (stylesheet_body.height/2)-(500/2);
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(500/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 500;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 500;
     return stylesheet;
 }
 
@@ -139,7 +171,7 @@ style STYLESHEET_CONTAINER(int32_t top, int32_t left, int32_t height, int32_t wi
     stylesheet.unit_height = UNIT_PERCENTAGE;
     stylesheet.height = 100;
     stylesheet.unit_width = UNIT_PX;
-    stylesheet.width = stylesheet_body.width-stylesheet_sidebar.left-stylesheet_sidebar.width-40*3;
+    stylesheet.width = stylesheet_body.width-stylesheet_sidebar.left-stylesheet_sidebar.width-stylesheet_body.padding*2-stylesheet_body.gap;
     return stylesheet;
 }
 style STYLESHEET_ROW() {
@@ -286,10 +318,10 @@ style STYLESHEET_KEY() {
     stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.component_justify = JUSTIFY_END;
-    stylesheet.border_radius_top_left = 8;
-    stylesheet.border_radius_top_right = 8;
-    stylesheet.border_radius_bottom_left = 8;
-    stylesheet.border_radius_bottom_right = 8;
+    stylesheet.border_radius_top_left = 16;
+    stylesheet.border_radius_top_right = 16;
+    stylesheet.border_radius_bottom_left = 16;
+    stylesheet.border_radius_bottom_right = 16;
     stylesheet.childs_direction = DIRECTION_ROW;
     stylesheet.padding = 30;
     stylesheet.gap = 0;
@@ -428,10 +460,10 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.component_justify = JUSTIFY_START;
-    stylesheet.border_radius_top_left = 16;
-    stylesheet.border_radius_top_right = 16;
-    stylesheet.border_radius_bottom_left = 16;
-    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.border_radius_top_left = 32;
+    stylesheet.border_radius_top_right = 32;
+    stylesheet.border_radius_bottom_left = 32;
+    stylesheet.border_radius_bottom_right = 32;
     stylesheet.childs_direction = DIRECTION_ROW;
     stylesheet.padding = 0;
     stylesheet.gap = 0;
@@ -446,7 +478,7 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     return stylesheet;
 }
 
-void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set) {
+void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
     (*buttons_size) = 0;
@@ -462,21 +494,21 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createComponentsWithSidebar(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
+            createComponentsWithSidebar(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
             break;
         default:
             break;
     }
 }
 
-void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set) {
+void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
     createFrame(components, components_size, 1, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 2 */
 
     switch(page) {
         case MENU_COMPONENTS:
-            createMenuComponents(components, components_size, buttons, buttons_size, texts, texts_size);
+            createMenuComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
@@ -489,30 +521,35 @@ void createComponentsWithSidebar(page_components page, int32_t top, int32_t left
     }
 }
 
-void createMenuComponents(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
+void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
     
+    stylesheet = STYLESHEET_LOGO(top, left, height, width);
+    createImage(components, components_size, images, images_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "./src/img/logo.png"); /* id = 3 */
+
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 3 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 4 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 4 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 5 */
     createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 5 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 5 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 6 */
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS();
     hover_stylesheet.component_justify = JUSTIFY_END;
-    createButton(components, components_size, buttons, buttons_size, 2, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT); /* id = 6 */
+    createButton(components, components_size, buttons, buttons_size, 2, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT); /* id = 7 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Nouvelle partie"); /* id = 7 */
-    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre une partie"); /* id = 8 */
-    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 9 */
-    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 10 */
-    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter"); /* id = 11 */
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Nouvelle partie"); /* id = 8 */
+    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre une partie"); /* id = 9 */
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 10 */
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 11 */
+    createText(components, components_size, texts, texts_size, 8, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter"); /* id = 12 */
+
+
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)

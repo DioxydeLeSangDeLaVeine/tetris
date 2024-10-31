@@ -278,7 +278,7 @@ int main()
     int32_t x = 0, y = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
-    uint32_t i = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0;
+    uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0;
     page_components page = MENU_COMPONENTS;
     settings set;
 
@@ -288,6 +288,7 @@ int main()
     button_component buttons[COMPONENTS_MAX_SIZE];
     text_component texts[COMPONENTS_MAX_SIZE];
     key_component keys[COMPONENTS_MAX_SIZE];
+    image_component images[COMPONENTS_MAX_SIZE];
 
     component cmp;
     button_component button;
@@ -305,8 +306,8 @@ int main()
         current_cursor = cursor_default;
         XFlush(display);
     }
-    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, set);
-    drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size);
+    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+    drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
     set = readSettings();
 
@@ -368,27 +369,32 @@ int main()
                     }
                     break;
                 case MLV_MOUSE_BUTTON:
-                    if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
+                    if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT) {
+                        clicked_cmp_id = lastHovered(0, 0, height, width, components, components_size, x, y).id;
+                    }
+                    if(state == MLV_RELEASED && mouse == MLV_BUTTON_LEFT)
                     {
                         if(listen != TRUE) {
                             cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
-                            switch(cmp.type)
-                            {
-                                case COMPONENT_BUTTON:
-                                    button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                    buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
-                                    break;
-                                case COMPONENT_KEY:
-                                    key = componentToKeyComponent(cmp, keys, keys_size);
-                                    stylesheet = STYLESHEET_HIDE(0,0,height,width);
-                                    createFrame(components, &components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
-                                    stylesheet = STYLESHEET_HIDE_TEXT(0,0,height,width);
-                                    createText(components, &components_size, texts, &texts_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "Appuyez sur une touche de votre clavier.");
-                                    listen = TRUE;
-                                    actualise = TRUE;
-                                    break;
-                                default:
-                                    break;
+                            if(cmp.id == clicked_cmp_id) {
+                                switch(cmp.type)
+                                {
+                                    case COMPONENT_BUTTON:
+                                        button = componentToButtonComponent(cmp, buttons, buttons_size);
+                                        buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
+                                        break;
+                                    case COMPONENT_KEY:
+                                        key = componentToKeyComponent(cmp, keys, keys_size);
+                                        stylesheet = STYLESHEET_HIDE(0,0,height,width);
+                                        createFrame(components, &components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
+                                        stylesheet = STYLESHEET_HIDE_TEXT(0,0,height,width);
+                                        createText(components, &components_size, texts, &texts_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "Appuyez sur une touche de votre clavier.");
+                                        listen = TRUE;
+                                        actualise = TRUE;
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
                     }
@@ -421,7 +427,7 @@ int main()
             }
         }
         if(recreate == TRUE) {
-            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, set);
+            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
             MLV_flush_event_queue();
             recreate = FALSE;
             if(listen == TRUE) {
@@ -432,7 +438,7 @@ int main()
         }
         if(actualise == TRUE)
         {
-            drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size);
+            drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
