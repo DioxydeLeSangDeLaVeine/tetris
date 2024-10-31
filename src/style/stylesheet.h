@@ -2,6 +2,7 @@
 #define H_STYLESHEET
 
 #include "../../modules/ui/ui.h"
+#include "../../modules/util/util.h"
 
 typedef enum {
     MENU_COMPONENTS,

@@ -3,6 +3,7 @@
 #include <MLV/MLV_all.h>
 #include <string.h>
 #include "../../modules/ui/ui.h"
+#include "../../modules/util/util.h"
 #include "stylesheet.h"
 
 rgba ROOT_PRIMARY_COLOR() {

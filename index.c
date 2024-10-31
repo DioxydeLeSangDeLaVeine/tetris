@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "./modules/ui/ui.h"
+#include "./modules/util/util.h"
 #include "./src/style/stylesheet.h"
 
 /**
