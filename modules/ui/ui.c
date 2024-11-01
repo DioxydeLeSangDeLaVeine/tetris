@@ -3,136 +3,540 @@
 #include <MLV/MLV_all.h>
 #include <string.h>
 #include "ui.h"
+#include "../util/util.h"
 
-int __min(int a, int b) {
-    return a<=b?a:b;
-}
-int __max(int a, int b) {
-    return a>=b?a:b;
+button_component componentToButtonComponent(component cmp, button_component buttons[], int buttons_size) {
+    int i;
+    button_component button;
+    button.id = 0;
+    button.action_type = BUTTON_ACTION_UNDEFINED;
+
+    for(i = 0; i<buttons_size; i++)
+    {
+        if(cmp.id == buttons[i].id)
+        {
+            button = buttons[i];
+        }
+    }
+    return button;
 }
 
-boolean idboxComponent(component component, int x, int y)
-{
+text_component componentToTextComponent(component cmp, text_component texts[], int texts_size) {
+    int i;
+    text_component text;
+    text.id = 0;
+    strcpy(text.content, "");
+
+    for(i = 0; i<texts_size; i++)
+    {
+        if(cmp.id == texts[i].id)
+        {
+            text = texts[i];
+        }
+    }
+    return text;
+}
+
+key_component componentToKeyComponent(component cmp, key_component keys[], int keys_size) {
+    int i;
+    key_component key;
+    key.id = 0;
+    key.take_type = KEY_TAKE_UNDEFINED;
+    strcpy(key.content, "");
+
+    for(i = 0; i<keys_size; i++)
+    {
+        if(cmp.id == keys[i].id)
+        {
+            key = keys[i];
+        }
+    }
+    return key;
+}
+
+image_component componentToImageComponent(component cmp, image_component images[], int images_size) {
+    int i;
+    image_component image;
+    image.id = 0;
+    strcpy(image.path, "");
+
+    for(i = 0; i<images_size; i++)
+    {
+        if(cmp.id == images[i].id)
+        {
+            image = images[i];
+        }
+    }
+    return image;
+}
+
+style styleTransition(component component) {
     style stylesheet;
-    int dx, dy;
-    stylesheet = (component.is_hovered==TRUE&&component.is_hoverable==TRUE)?component.hover_stylesheet:component.stylesheet;
+    if(component.is_hoverable==FALSE) {
+        if(component.stylesheet.border_radius_top_left != 0)
+        {
+            if(component.stylesheet.border_radius_top_left>component.stylesheet.height/2||component.stylesheet.border_radius_top_left>component.stylesheet.width/2) component.stylesheet.border_radius_top_left = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+        }
+        if(component.stylesheet.border_radius_top_right != 0)
+        {
+            if(component.stylesheet.border_radius_top_right>component.stylesheet.height/2||component.stylesheet.border_radius_top_right>component.stylesheet.width/2) component.stylesheet.border_radius_top_right = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+        }
+        if(component.stylesheet.border_radius_bottom_left != 0)
+        {
+            if(component.stylesheet.border_radius_bottom_left>component.stylesheet.height/2||component.stylesheet.border_radius_bottom_left>component.stylesheet.width/2) component.stylesheet.border_radius_bottom_left = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+        }
+        if(component.stylesheet.border_radius_bottom_right != 0)
+        {
+            if(component.stylesheet.border_radius_bottom_right>component.stylesheet.height/2||component.stylesheet.border_radius_bottom_right>component.stylesheet.width/2) component.stylesheet.border_radius_bottom_right = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+        }
+        return component.stylesheet;
+    }
 
-    if(stylesheet.top <= y
-    && stylesheet.top + stylesheet.height >= y
-    && stylesheet.left + stylesheet.border_radius <= x
-    && stylesheet.left + stylesheet.width - (2 * stylesheet.border_radius) >= x) return TRUE;
-    if(stylesheet.top + stylesheet.border_radius <= y
-    && stylesheet.top + stylesheet.height - (2 * stylesheet.border_radius) >= y
-    && stylesheet.left <= x
-    && stylesheet.left + stylesheet.width >= x) return TRUE;
+    stylesheet.background_color.r = (int32_t)(component.stylesheet.background_color.r*(1-component.__transition)+component.hover_stylesheet.background_color.r*component.__transition);
+    stylesheet.background_color.g = (int32_t)(component.stylesheet.background_color.g*(1-component.__transition)+component.hover_stylesheet.background_color.g*component.__transition);
+    stylesheet.background_color.b = (int32_t)(component.stylesheet.background_color.b*(1-component.__transition)+component.hover_stylesheet.background_color.b*component.__transition);
+    stylesheet.background_color.a = (int32_t)(component.stylesheet.background_color.a*(1-component.__transition)+component.hover_stylesheet.background_color.a*component.__transition);
+    stylesheet.color.r = (int32_t)(component.stylesheet.color.r*(1-component.__transition)+component.hover_stylesheet.color.r*component.__transition);
+    stylesheet.color.g = (int32_t)(component.stylesheet.color.g*(1-component.__transition)+component.hover_stylesheet.color.g*component.__transition);
+    stylesheet.color.b = (int32_t)(component.stylesheet.color.b*(1-component.__transition)+component.hover_stylesheet.color.b*component.__transition);
+    stylesheet.color.a = (int32_t)(component.stylesheet.color.a*(1-component.__transition)+component.hover_stylesheet.color.a*component.__transition);
+    if(component.__transition>0.5) {
+        stylesheet.childs_direction = component.hover_stylesheet.childs_direction;
+        stylesheet.component_justify = component.hover_stylesheet.component_justify;
+        stylesheet.unit_top = component.hover_stylesheet.unit_top;
+        stylesheet.unit_left = component.hover_stylesheet.unit_left;
+        stylesheet.unit_height = component.hover_stylesheet.unit_height;
+        stylesheet.unit_width = component.hover_stylesheet.unit_width;
+        strcpy(stylesheet.font_family, component.hover_stylesheet.font_family);
+    }
+    else {
+        stylesheet.childs_direction = component.stylesheet.childs_direction;
+        stylesheet.component_justify = component.stylesheet.component_justify;
+        stylesheet.unit_top = component.stylesheet.unit_top;
+        stylesheet.unit_left = component.stylesheet.unit_left;
+        stylesheet.unit_height = component.stylesheet.unit_height;
+        stylesheet.unit_width = component.stylesheet.unit_width;
+        strcpy(stylesheet.font_family, component.stylesheet.font_family);
+    }
+    stylesheet.font_size = (int32_t)(component.stylesheet.font_size*(1-component.__transition)+component.hover_stylesheet.font_size*component.__transition);
+    stylesheet.font_horizontal_align = (horizontal_align)(component.stylesheet.font_horizontal_align*(1-component.__transition)+component.hover_stylesheet.font_horizontal_align*component.__transition);
+    stylesheet.font_vertical_align = (vertical_align)(component.stylesheet.font_vertical_align*(1-component.__transition)+component.hover_stylesheet.font_vertical_align*component.__transition);
+    stylesheet.padding = (int32_t)(component.stylesheet.padding*(1-component.__transition)+component.hover_stylesheet.padding*component.__transition);
+    stylesheet.gap = (int32_t)(component.stylesheet.padding*(1-component.__transition)+component.hover_stylesheet.padding*component.__transition);
+    stylesheet.top = (int32_t)(component.stylesheet.top*(1-component.__transition)+component.hover_stylesheet.top*component.__transition);
+    stylesheet.left = (int32_t)(component.stylesheet.left*(1-component.__transition)+component.hover_stylesheet.left*component.__transition);
+    stylesheet.height = (int32_t)(component.stylesheet.height*(1-component.__transition)+component.hover_stylesheet.height*component.__transition);
+    stylesheet.width = (int32_t)(component.stylesheet.width*(1-component.__transition)+component.hover_stylesheet.width*component.__transition);
+    stylesheet.border_radius_top_left = (int32_t)(component.stylesheet.border_radius_top_left*(1-component.__transition)+component.hover_stylesheet.border_radius_top_left*component.__transition);
+    stylesheet.border_radius_top_right = (int32_t)(component.stylesheet.border_radius_top_right*(1-component.__transition)+component.hover_stylesheet.border_radius_top_right*component.__transition);
+    stylesheet.border_radius_bottom_left = (int32_t)(component.stylesheet.border_radius_bottom_left*(1-component.__transition)+component.hover_stylesheet.border_radius_bottom_left*component.__transition);
+    stylesheet.border_radius_bottom_right = (int32_t)(component.stylesheet.border_radius_bottom_right*(1-component.__transition)+component.hover_stylesheet.border_radius_bottom_right*component.__transition);
+    if(stylesheet.border_radius_top_left != 0)
+    {
+        if(stylesheet.border_radius_top_left>stylesheet.height/2||stylesheet.border_radius_top_left>stylesheet.width/2) stylesheet.border_radius_top_left = __min(stylesheet.width/2, stylesheet.height/2);
+    }
+    if(stylesheet.border_radius_top_right != 0)
+    {
+        if(stylesheet.border_radius_top_right>stylesheet.height/2||stylesheet.border_radius_top_right>stylesheet.width/2) stylesheet.border_radius_top_right = __min(stylesheet.width/2, stylesheet.height/2);
+    }
+    if(stylesheet.border_radius_bottom_left != 0)
+    {
+        if(stylesheet.border_radius_bottom_left>stylesheet.height/2||stylesheet.border_radius_bottom_left>stylesheet.width/2) stylesheet.border_radius_bottom_left = __min(stylesheet.width/2, stylesheet.height/2);
+    }
+    if(stylesheet.border_radius_bottom_right != 0)
+    {
+        if(stylesheet.border_radius_bottom_right>stylesheet.height/2||stylesheet.border_radius_bottom_right>stylesheet.width/2) stylesheet.border_radius_bottom_right = __min(stylesheet.width/2, stylesheet.height/2);
+    }
 
-    dx = x - (stylesheet.left+stylesheet.border_radius);
-    dy = y - (stylesheet.top+stylesheet.border_radius-1);
-    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
-    dx = x - (stylesheet.left+stylesheet.border_radius);
-    dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius);
-    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
-    dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius-1);
-    dy = y - (stylesheet.top+stylesheet.border_radius-1);
-    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
-    dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius-1);
-    dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius);
-    if((dx*dx+dy*dy)<=(stylesheet.border_radius*stylesheet.border_radius)) return TRUE;
+    return stylesheet;
+}
+
+void transformUnit(int *value, unit *value_unit, int reference) {
+    switch(*value_unit) {
+        case UNIT_PERCENTAGE:
+            *value = (int)(((float)(*value)/100)*reference);
+            *value_unit = UNIT_PX;
+        default:
+            break;
+    }
+}
+
+style transformUnits(style stylesheet, style parentStylesheet) {
+    transformUnit(&(stylesheet.top), &(stylesheet.unit_top), parentStylesheet.height+parentStylesheet.padding);
+    transformUnit(&(stylesheet.left), &(stylesheet.unit_left), parentStylesheet.width+parentStylesheet.padding);
+    transformUnit(&(stylesheet.height), &(stylesheet.unit_height), parentStylesheet.height-2*parentStylesheet.padding);
+    transformUnit(&(stylesheet.width), &(stylesheet.unit_width), parentStylesheet.width-2*parentStylesheet.padding);
+    return stylesheet;
+}
+
+style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component cmp) {
+    uint32_t i = 0;
+    style stylesheets[COMPONENTS_MAX_SIZE];
+    style rootStylesheet;
+    __component_offset offsets[COMPONENTS_MAX_SIZE];
+    boolean stop = FALSE;
+    component tmp_cmp;
+
+    rootStylesheet.unit_top = UNIT_PX;
+    rootStylesheet.top = top;
+    rootStylesheet.unit_left = UNIT_PX;
+    rootStylesheet.left = left;
+    rootStylesheet.unit_height = UNIT_PX;
+    rootStylesheet.height = height;
+    rootStylesheet.unit_width = UNIT_PX;
+    rootStylesheet.width = width;
+
+    if(cmp.parent_id == 0) {
+        cmp.stylesheet = transformUnits(cmp.stylesheet, rootStylesheet);
+        cmp.hover_stylesheet = transformUnits(cmp.hover_stylesheet, rootStylesheet);
+    }
+    if(cmp.parent_id>=cmp.id || cmp.parent_id == 0) return styleTransition(cmp);
+    while((i<cmp.id)&&i<components_size&&!stop) {
+        if(components[i].parent_id != 0) {
+            tmp_cmp = components[i];
+            tmp_cmp.stylesheet = transformUnits(tmp_cmp.stylesheet, stylesheets[components[i].parent_id-1]);
+            tmp_cmp.hover_stylesheet = transformUnits(tmp_cmp.hover_stylesheet, stylesheets[components[i].parent_id-1]);
+            stylesheets[i] = styleTransition(tmp_cmp);
+            switch(stylesheets[components[i].parent_id-1].childs_direction)
+            {
+                case DIRECTION_ROW:
+                    switch(stylesheets[i].component_justify)
+                    {
+                        case JUSTIFY_START:
+                            offsets[i].top_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].padding;
+                            offsets[i].left_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].padding;
+                            offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
+                            offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
+
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            offsets[components[i].parent_id-1].left_offset += stylesheets[i].width+stylesheets[components[i].parent_id-1].gap;
+                            break;
+                        case JUSTIFY_END:
+                            offsets[i].top_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].padding;
+                            offsets[i].left_offset = offsets[components[i].parent_id-1].right_offset-(stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding);
+                            offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
+                            offsets[i].right_offset = offsets[components[i].parent_id-1].right_offset-stylesheets[i].padding+stylesheets[i].left;
+
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].right_offset-stylesheets[i].width;
+                            offsets[components[i].parent_id-1].right_offset -= stylesheets[i].width+stylesheets[components[i].parent_id-1].gap;
+                            break;
+                    }
+                    break;
+                case DIRECTION_COLUMN:
+                    switch(stylesheets[i].component_justify)
+                    {
+                        case JUSTIFY_START:
+                            offsets[i].top_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].padding;
+                            offsets[i].left_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].padding;
+                            offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
+                            offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
+
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            offsets[components[i].parent_id-1].top_offset += stylesheets[i].height+stylesheets[components[i].parent_id-1].gap;
+                            break;
+                        case JUSTIFY_END:
+                            offsets[i].top_offset = offsets[components[i].parent_id-1].bottom_offset-(stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding);
+                            offsets[i].left_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].padding;
+                            offsets[i].bottom_offset = offsets[components[i].parent_id-1].bottom_offset-stylesheets[i].padding+stylesheets[i].top;
+                            offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
+
+                            stylesheets[i].top = offsets[components[i].parent_id-1].bottom_offset-stylesheets[i].height;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            offsets[components[i].parent_id-1].bottom_offset -= stylesheets[i].height+stylesheets[components[i].parent_id-1].gap;
+                            break;
+                    }
+                    break;
+            }
+        } else {
+            stylesheets[i] = styleTransition(components[i]);
+            offsets[i].top_offset = stylesheets[i].top+stylesheets[i].padding;
+            offsets[i].left_offset = stylesheets[i].left+stylesheets[i].padding;
+            offsets[i].bottom_offset = stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
+            offsets[i].right_offset = stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
+        }
+        if(cmp.id==i) stop = TRUE;
+        i++;
+    }
+    if(cmp.id!=i) return styleTransition(cmp);
+    return stylesheets[i-1];
+}
+
+boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
+{
+    int32_t dx, dy, rt, rl, rr, rb;
+
+    if(stylesheet.height == 0 || stylesheet.width == 0)return FALSE;
+    if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+    {
+        rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
+        rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
+        rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
+        rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
+
+        if(stylesheet.left+rl<=x
+        && stylesheet.top+rt<=y
+        && ((stylesheet.left+stylesheet.width-rr)?0:(stylesheet.left+stylesheet.width-rr))>=x
+        && ((stylesheet.top+stylesheet.height-rb)?0:(stylesheet.top+stylesheet.height-rb))>=y) return TRUE;
+        if(stylesheet.left+stylesheet.border_radius_top_left<=x
+        && stylesheet.top<=y
+        && stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right>=x
+        && stylesheet.top+stylesheet.height/2>=y) return TRUE;
+        if(stylesheet.left<=x
+        && stylesheet.top+stylesheet.border_radius_top_left<=y
+        && stylesheet.left+stylesheet.width/2>=x
+        && stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left>=y) return TRUE;
+        if(stylesheet.left+stylesheet.border_radius_bottom_left<=x
+        && stylesheet.top+stylesheet.height/2<=y
+        && stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right>=x
+        && stylesheet.top+stylesheet.height>=y) return TRUE;
+        if(stylesheet.left+stylesheet.width/2<=x
+        && stylesheet.top+stylesheet.border_radius_top_right<=y
+        && stylesheet.left+stylesheet.width>=x
+        && stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right>=y) return TRUE;
+
+        if(stylesheet.border_radius_top_left != 0)
+        {
+            dx = x - (stylesheet.left+stylesheet.border_radius_top_left);
+            dy = y - (stylesheet.top+stylesheet.border_radius_top_left-1);
+            if((dx*dx+dy*dy)<=((stylesheet.border_radius_top_left-1)*(stylesheet.border_radius_top_left-1))) return TRUE;
+        }
+        if(stylesheet.border_radius_bottom_left != 0)
+        {
+            dx = x - (stylesheet.left+stylesheet.border_radius_bottom_left);
+            dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left);
+            if((dx*dx+dy*dy)<=((stylesheet.border_radius_bottom_left-1)*(stylesheet.border_radius_bottom_left-1))) return TRUE;
+        }
+            if(stylesheet.border_radius_top_right != 0)
+            {
+            dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1);
+            dy = y - (stylesheet.top+stylesheet.border_radius_top_right-1);
+            if((dx*dx+dy*dy)<=((stylesheet.border_radius_top_right-1)*(stylesheet.border_radius_top_right-1))) return TRUE;
+        }
+        if(stylesheet.border_radius_bottom_right != 0)
+        {
+            dx = x - (stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1);
+            dy = y - (stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right);
+            if((dx*dx+dy*dy)<=((stylesheet.border_radius_bottom_right-1)*(stylesheet.border_radius_bottom_right-1))) return TRUE;
+        }
+    } else {
+        if(stylesheet.top <= y
+        && stylesheet.top + stylesheet.height >= y
+        && stylesheet.left <= x
+        && stylesheet.left + stylesheet.width >= x) return TRUE;
+    }
     return FALSE;
 }
 
-void drawComponents(component components[], int components_size) {
-    int i;
-    for(i = 0; i<components_size; i++)
-    {
-        drawComponent(components[i]);
+void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size) {
+    uint32_t i;
+
+    for(i = 0; i<components_size; i++) {
+        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
     }
 }
 
-void drawComponent(component component)
+void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     FILE* file;
+    MLV_Image *mlv_img;
     MLV_Font *font_family;
-    style stylesheet;
-    int font_height = 0;
+    int32_t font_height = 0, font_width = 0, image_height = 0, image_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
+    float image_ratio;
+    key_component key_cmp;
+    text_component txt_cmp;
+    image_component img_cmp;
+    char content[64];
+    MLV_Color background_color;
 
-    stylesheet = (component.is_hovered==TRUE&&component.is_hoverable==TRUE)?component.hover_stylesheet:component.stylesheet;
+    if(stylesheet.height == 0 || stylesheet.width == 0)return;
+    if(cmp.type == COMPONENT_IMAGE) {
+        img_cmp = componentToImageComponent(cmp, images, images_size);
+        mlv_img = MLV_load_image(img_cmp.path);
+        if(mlv_img != NULL)
+        {
+            MLV_get_image_size(mlv_img, &image_width, &image_height);
+            image_ratio = ((float)image_width)/image_height;
+            if(image_width > stylesheet.width || image_height > stylesheet.height)
+            {
+                if(image_height > stylesheet.height)
+                {
+                    image_height = stylesheet.height;
+                    image_width = (int)(stylesheet.height * image_ratio);
+                }
+                if(image_width > stylesheet.width)
+                {
+                    image_width = stylesheet.width;
+                    image_height = (int)(stylesheet.width / image_ratio);
+                }
+            }
+            MLV_resize_image(mlv_img, image_width, image_height);
+            MLV_draw_image(mlv_img, stylesheet.left, stylesheet.top);
 
-    if(stylesheet.border_radius>stylesheet.height/2||stylesheet.border_radius>stylesheet.width/2) stylesheet.border_radius = __min(stylesheet.width/2, stylesheet.height/2);
+            MLV_free_image(mlv_img);
+        }
+    } else {
+        if(stylesheet.background_color.a != 0) {
+            background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
+            if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+            {
+                rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
+                rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
+                rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
+                rb = __max(stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_right);
 
-    /*
-        CONTENT OF THE COMPONENT
-    */
-    MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius, stylesheet.top, stylesheet.width-(2*stylesheet.border_radius), stylesheet.height, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius, stylesheet.width, stylesheet.height-(2*stylesheet.border_radius), MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-stylesheet.border_radius_top_right-stylesheet.border_radius_top_left, stylesheet.height/2, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_left-stylesheet.border_radius_top_left, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height/2, stylesheet.width-stylesheet.border_radius_bottom_right-stylesheet.border_radius_bottom_left, stylesheet.height/2, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+stylesheet.width/2, stylesheet.top+stylesheet.border_radius_top_right, stylesheet.width/2, stylesheet.height-stylesheet.border_radius_bottom_right-stylesheet.border_radius_top_right, background_color);
+                MLV_draw_filled_rectangle(stylesheet.left+rl, stylesheet.top+rt, (stylesheet.width-rl-rr)<0?0:(stylesheet.width-rl-rr), (stylesheet.height-rt-rb)<0?0:(stylesheet.height-rt-rb), background_color);
 
-    /*
-        BORDER RADIUS OF THE COMPONENT
-    */
-    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius, stylesheet.top+stylesheet.border_radius-1, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius, stylesheet.top+stylesheet.height-stylesheet.border_radius, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius-1, stylesheet.top+stylesheet.border_radius-1, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius-1, stylesheet.top+stylesheet.height-stylesheet.border_radius, stylesheet.border_radius-1, MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a));
-    
-    file = fopen(stylesheet.font_family, "r");
-    if(file != NULL) {
-        fclose(file);
-        font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
-        MLV_get_size_of_text_with_font(component.content, NULL, &font_height, font_family);
-        MLV_draw_text_with_font(stylesheet.left+20, stylesheet.top+(stylesheet.height/2)-(font_height/2), component.content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
+                if(stylesheet.border_radius_top_left != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top+stylesheet.border_radius_top_left-1, stylesheet.border_radius_top_left-1, background_color);
+                }
+                if(stylesheet.border_radius_bottom_left != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.border_radius_bottom_left, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_left, stylesheet.border_radius_bottom_left-1, background_color);
+                }
+                if(stylesheet.border_radius_top_right != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
+                }
+                if(stylesheet.border_radius_bottom_right != 0)
+                {
+                    MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
+                }
+            } else {
+                MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
+            }
+        }
         
-        MLV_free_font(font_family);
+        if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY) {
+            switch(cmp.type) {
+                case COMPONENT_TEXT:
+                    txt_cmp = componentToTextComponent(cmp, texts, texts_size);
+                    strcpy(content, txt_cmp.content);
+                    break;
+                case COMPONENT_KEY:
+                    key_cmp = componentToKeyComponent(cmp, keys, keys_size);
+                    strcpy(content, key_cmp.content);
+                    break;
+                default:
+                    strcpy(content, "");
+                    break;
+            }
+            file = fopen(stylesheet.font_family, "r");
+            if(file != NULL && strcmp(content, "") != 0)
+            {
+                font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
+                MLV_get_size_of_text_with_font(content, &font_width, &font_height, font_family);
+                
+                switch(stylesheet.font_horizontal_align) {
+                    case HORIZONTAL_LEFT:
+                        horizontal_align = stylesheet.left+stylesheet.padding;
+                        break;
+                    case HORIZONTAL_CENTER:
+                        horizontal_align = stylesheet.left+(stylesheet.width/2)-(font_width/2);
+                        break;
+                    case HORIZONTAL_RIGHT:
+                        horizontal_align = stylesheet.left+stylesheet.width-font_width-stylesheet.padding;
+                        break;
+                }    
+                switch(stylesheet.font_vertical_align) {
+                    case VERTICAL_TOP:
+                        vertical_align = stylesheet.top+stylesheet.padding;
+                        break;
+                    case VERTICAL_CENTER:
+                        vertical_align = stylesheet.top+(stylesheet.height/2)-(font_height/2);
+                        break;
+                    case VERTICAL_BOTTOM:
+                        vertical_align = stylesheet.top+stylesheet.height-font_height-stylesheet.padding;
+                        break;
+                }
+
+                MLV_draw_text_with_font(horizontal_align, vertical_align, content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
+                
+                MLV_free_font(font_family);
+            }
+        }
     }
 }
 
-void createFrame(component components[], int *components_size, style stylesheet, boolean is_hoverable, style hover_stylesheet, int top, int left, int height, int width)
+component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration)
 {
     component cmp;
-    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
-
-    cmp.id = (*components_size)+1;
-    cmp.type = COMPONENT_BUTTON;
-    strcpy(cmp.content, "");
-    stylesheet.top = top;
-    stylesheet.left = left;
-    stylesheet.width = width;
-    stylesheet.height = height;
-    hover_stylesheet.top = top;
-    hover_stylesheet.left = left;
-    hover_stylesheet.width = width;
-    hover_stylesheet.height = height;
+    cmp.id = id;
+    cmp.type = type;
+    cmp.parent_id = parent_id,
     cmp.stylesheet = stylesheet;
     cmp.is_hoverable = is_hoverable;
+    cmp.ignore_hover = ignore_hover;
     cmp.is_hovered = FALSE;
     cmp.hover_stylesheet = hover_stylesheet;
-
-    components[(*components_size)++] = cmp;
+    cmp.transition_duration = transition_duration;
+    cmp.__transition = 0;
+    return cmp;
 }
 
-void createButton(component components[], int *components_size, button_component buttons[], int *buttons_size, char content[], style stylesheet, boolean is_hoverable, style hover_stylesheet, button_action_type action_type, int top, int left, int height, int width)
+void createFrame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration)
 {
-    component cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_FRAME, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+}
+
+void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type)
+{
     button_component btn_cmp;
     if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
 
-    cmp.id = (*components_size)+1;
-    cmp.type = COMPONENT_BUTTON;
-    strcpy(cmp.content, content);
-    stylesheet.top = top;
-    stylesheet.left = left;
-    stylesheet.width = width;
-    stylesheet.height = height;
-    hover_stylesheet.top = top;
-    hover_stylesheet.left = left;
-    hover_stylesheet.width = width;
-    hover_stylesheet.height = height;
-    cmp.stylesheet = stylesheet;
-    cmp.is_hoverable = is_hoverable;
-    cmp.is_hovered = FALSE;
-    cmp.hover_stylesheet = hover_stylesheet;
-
     btn_cmp.id = (*components_size)+1;
     btn_cmp.action_type = action_type;
-    components[(*components_size)++] = cmp;
-    buttons[(*buttons_size)++] = btn_cmp;
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_BUTTON, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    buttons[*buttons_size] = btn_cmp;
+    (*buttons_size)++;
+}
+
+void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[])
+{
+    text_component txt_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    txt_cmp.id = (*components_size)+1;
+    strcpy(txt_cmp.content, content);
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_TEXT, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    texts[*texts_size] = txt_cmp;
+    (*texts_size)++;
+}
+
+void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[])
+{
+    key_component key_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    key_cmp.id = (*components_size)+1;
+    key_cmp.take_type = take_type;
+    strcpy(key_cmp.content, content);
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_KEY, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    keys[*keys_size] = key_cmp;
+    (*keys_size)++;
+}
+
+void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[])
+{
+    image_component img_cmp;
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    img_cmp.id = (*components_size)+1;
+    strcpy(img_cmp.path, path);
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_IMAGE, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
+    images[*images_size] = img_cmp;
+    (*images_size)++;
 }
