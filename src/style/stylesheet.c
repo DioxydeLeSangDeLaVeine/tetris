@@ -319,10 +319,10 @@ style STYLESHEET_KEY() {
     stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
     stylesheet.font_vertical_align = VERTICAL_CENTER;
     stylesheet.component_justify = JUSTIFY_END;
-    stylesheet.border_radius_top_left = 16;
-    stylesheet.border_radius_top_right = 16;
-    stylesheet.border_radius_bottom_left = 16;
-    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.border_radius_top_left = 8;
+    stylesheet.border_radius_top_right = 8;
+    stylesheet.border_radius_bottom_left = 8;
+    stylesheet.border_radius_bottom_right = 8;
     stylesheet.childs_direction = DIRECTION_ROW;
     stylesheet.padding = 30;
     stylesheet.gap = 0;
