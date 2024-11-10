@@ -11,8 +11,8 @@
 
 /**
  * Every functions in this project need to contain
- * at the first line, a comment like this one,
- * containing the @param, and @returns.
+ * upside, a comment like this one,
+ * containing every @param, and @returns.
  *
  * Example :
  * @param {YOUR_SUPER_DUPER_COOL_TYPE} VARIABLE_NAME
@@ -42,7 +42,7 @@ component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, 
     cmp.id = 0;
     for(i = 0; i<components_size; i++)
     {
-        if(idboxComponent(styleReal(top, left, height, width, components, components_size, components[i]), x, y) == TRUE)
+        if(idboxComponent(autoLayout(top, left, height, width, components, components_size, components[i]), x, y) == TRUE)
         {
             if(!components[i].ignore_hover) cmp = components[i];
         }
@@ -58,14 +58,19 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
 
     cmp = lastHovered(top, left, height, width, components, components_size, x, y);
 
-    for(i = 0; i<components_size; i++) {
-        if(components[i].id != cmp.id) {
-            if(components[i].is_hoverable == TRUE) {
-                if(components[i].is_hovered != FALSE) {
+    for(i = 0; i<components_size; i++)
+    {
+        if(components[i].id != cmp.id)
+        {
+            if(components[i].is_hoverable == TRUE)
+            {
+                if(components[i].is_hovered != FALSE)
+                {
                     change = TRUE;
                     components[i].is_hovered = FALSE;
                 }
-                if(components[i].__transition != 0) {
+                if(components[i].__transition != 0)
+                {
                     change = TRUE;
                     if(components[i].transition_duration==0) components[i].__transition = 0;
                     else {
@@ -75,12 +80,15 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
                 }
             }
         } else {
-            if(components[i].is_hoverable == TRUE) {
-                if(components[i].is_hovered != TRUE) {
+            if(components[i].is_hoverable == TRUE)
+            {
+                if(components[i].is_hovered != TRUE)
+                {
                     change = TRUE;
                     components[i].is_hovered = TRUE;
                 }
-                if(components[i].__transition != 1) {
+                if(components[i].__transition != 1)
+                {
                     change = TRUE;
                     if(components[i].transition_duration==0) components[i].__transition = 1;
                     else {
@@ -94,42 +102,48 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
     return change;
 }
 
-void buttonAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate) {
+void buttonAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate)
+{
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
                 *quit = TRUE;
                 break;
             case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
-                if(*page != MENU_COMPONENTS) {
+                if(*page != MENU_COMPONENTS)
+                {
                     *page = MENU_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
-                if(*page != SETTINGS_KEYBOARD_COMPONENTS) {
+                if(*page != SETTINGS_KEYBOARD_COMPONENTS)
+                {
                     *page = SETTINGS_KEYBOARD_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS:
-                if(*page != SETTINGS_VIDEO_COMPONENTS) {
+                if(*page != SETTINGS_VIDEO_COMPONENTS)
+                {
                     *page = SETTINGS_VIDEO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS:
-                if(*page != SETTINGS_GRAPHICS_COMPONENTS) {
+                if(*page != SETTINGS_GRAPHICS_COMPONENTS)
+                {
                     *page = SETTINGS_GRAPHICS_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS:
-                if(*page != SETTINGS_AUDIO_COMPONENTS) {
+                if(*page != SETTINGS_AUDIO_COMPONENTS)
+                {
                     *page = SETTINGS_AUDIO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
@@ -140,7 +154,8 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
         }
 }
 
-settings defaultSettings() {
+settings defaultSettings()
+{
     settings set;
     set.keyboard_move_left = MLV_KEYBOARD_q;
     set.keyboard_move_right = MLV_KEYBOARD_d;
@@ -151,11 +166,13 @@ settings defaultSettings() {
     return set;
 }
 
-void writeSettings(settings set) {
+void writeSettings(settings set)
+{
     FILE *file = fopen("./data/settings", "w");
     char response[64];
 
-    if(file == NULL) {
+    if(file == NULL)
+    {
         return;
     }
 
@@ -182,7 +199,8 @@ void writeSettings(settings set) {
     fclose(file);
 }
 
-settings readSettings() {
+settings readSettings()
+{
     FILE *file = fopen("./data/settings", "r");
     MLV_Keyboard_button key;
     settings set;
@@ -193,20 +211,25 @@ settings readSettings() {
 
     set = defaultSettings();
     
-    if(file == NULL) {
+    if(file == NULL)
+    {
         writeSettings(set);
         return set;
     }
 
-    while(fgets(line, 130, file) != NULL) {
+    while(fgets(line, 130, file) != NULL)
+    {
         i = 0;
         j = 0;
         is_value = FALSE;
         strcpy(setting_name, "");
         strcpy(setting_value, "");
-        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#') {
-            while(line[i] != '\0'&&line[i] != '\n') {
-                if(is_value == FALSE) {
+        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#')
+        {
+            while(line[i] != '\0'&&line[i] != '\n')
+            {
+                if(is_value == FALSE)
+                {
                     if(line[i]=='=')
                     {
                         is_value = TRUE;
@@ -221,37 +244,44 @@ settings readSettings() {
                 i++;
             }
             setting_value[j]='\0';
-            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0) {
+            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_move_left = key;
                 }
-            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0) {
+            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_move_right = key;
                 }
-            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0) {
+            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_turn_left = key;
                 }
-            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0) {
+            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_turn_right = key;
                 }
-            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0) {
+            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_confirm = key;
                 }
-            } else if(strcmp(setting_name, "KEY_PAUSE") == 0) {
+            } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
+            {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_pause = key;
                 }
-            } else if(strcmp(setting_name, "FPS") == 0) {
+            } else if(strcmp(setting_name, "FPS") == 0)
+            {
                 if(atoi(setting_value) > 0) {
                     set.video_fps = atoi(setting_value);
                 }

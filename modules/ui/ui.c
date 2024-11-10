@@ -5,8 +5,19 @@
 #include "ui.h"
 #include "../util/util.h"
 
-button_component componentToButtonComponent(component cmp, button_component buttons[], int buttons_size) {
-    int i;
+
+/**
+ * Returns button component from a component.
+ *
+ * @param {component} cmp
+ * @param {button_component} buttons[]
+ * @param {uint32_t} buttons_size
+ *
+ * @returns {button_component}
+ */
+button_component componentToButtonComponent(component cmp, button_component buttons[], uint32_t buttons_size)
+{
+    uint32_t i;
     button_component button;
     button.id = 0;
     button.action_type = BUTTON_ACTION_UNDEFINED;
@@ -21,8 +32,19 @@ button_component componentToButtonComponent(component cmp, button_component butt
     return button;
 }
 
-text_component componentToTextComponent(component cmp, text_component texts[], int texts_size) {
-    int i;
+
+/**
+ * Returns text component from a component.
+ *
+ * @param {component} cmp
+ * @param {text_component} texts[]
+ * @param {uint32_t} texts_size
+ *
+ * @returns {text_component}
+ */
+text_component componentToTextComponent(component cmp, text_component texts[], uint32_t texts_size)
+{
+    uint32_t i;
     text_component text;
     text.id = 0;
     strcpy(text.content, "");
@@ -37,8 +59,19 @@ text_component componentToTextComponent(component cmp, text_component texts[], i
     return text;
 }
 
-key_component componentToKeyComponent(component cmp, key_component keys[], int keys_size) {
-    int i;
+
+/**
+ * Returns key component from a component.
+ *
+ * @param {component} cmp
+ * @param {key_component} keys[]
+ * @param {uint32_t} keys_size
+ *
+ * @returns {key_component}
+ */
+key_component componentToKeyComponent(component cmp, key_component keys[], uint32_t keys_size)
+{
+    uint32_t i;
     key_component key;
     key.id = 0;
     key.take_type = KEY_TAKE_UNDEFINED;
@@ -54,8 +87,19 @@ key_component componentToKeyComponent(component cmp, key_component keys[], int k
     return key;
 }
 
-image_component componentToImageComponent(component cmp, image_component images[], int images_size) {
-    int i;
+
+/**
+ * Returns image component from a component.
+ *
+ * @param {component} cmp
+ * @param {image_component} images[]
+ * @param {uint32_t} images_size
+ *
+ * @returns {image_component}
+ */
+image_component componentToImageComponent(component cmp, image_component images[], uint32_t images_size)
+{
+    uint32_t i;
     image_component image;
     image.id = 0;
     strcpy(image.path, "");
@@ -70,67 +114,76 @@ image_component componentToImageComponent(component cmp, image_component images[
     return image;
 }
 
-style styleTransition(component component) {
+
+/**
+ * Calculate the transition between stylesheet and hovered stylesheet.
+ *
+ * @param {component} cmp
+ *
+ * @returns {style}
+ */
+style styleTransition(component cmp)
+{
     style stylesheet;
-    if(component.is_hoverable==FALSE) {
-        if(component.stylesheet.border_radius_top_left != 0)
+    if(cmp.is_hoverable==FALSE) {
+        if(cmp.stylesheet.border_radius_top_left != 0)
         {
-            if(component.stylesheet.border_radius_top_left>component.stylesheet.height/2||component.stylesheet.border_radius_top_left>component.stylesheet.width/2) component.stylesheet.border_radius_top_left = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+            if(cmp.stylesheet.border_radius_top_left>cmp.stylesheet.height/2||cmp.stylesheet.border_radius_top_left>cmp.stylesheet.width/2) cmp.stylesheet.border_radius_top_left = __min(cmp.stylesheet.width/2, cmp.stylesheet.height/2);
         }
-        if(component.stylesheet.border_radius_top_right != 0)
+        if(cmp.stylesheet.border_radius_top_right != 0)
         {
-            if(component.stylesheet.border_radius_top_right>component.stylesheet.height/2||component.stylesheet.border_radius_top_right>component.stylesheet.width/2) component.stylesheet.border_radius_top_right = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+            if(cmp.stylesheet.border_radius_top_right>cmp.stylesheet.height/2||cmp.stylesheet.border_radius_top_right>cmp.stylesheet.width/2) cmp.stylesheet.border_radius_top_right = __min(cmp.stylesheet.width/2, cmp.stylesheet.height/2);
         }
-        if(component.stylesheet.border_radius_bottom_left != 0)
+        if(cmp.stylesheet.border_radius_bottom_left != 0)
         {
-            if(component.stylesheet.border_radius_bottom_left>component.stylesheet.height/2||component.stylesheet.border_radius_bottom_left>component.stylesheet.width/2) component.stylesheet.border_radius_bottom_left = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+            if(cmp.stylesheet.border_radius_bottom_left>cmp.stylesheet.height/2||cmp.stylesheet.border_radius_bottom_left>cmp.stylesheet.width/2) cmp.stylesheet.border_radius_bottom_left = __min(cmp.stylesheet.width/2, cmp.stylesheet.height/2);
         }
-        if(component.stylesheet.border_radius_bottom_right != 0)
+        if(cmp.stylesheet.border_radius_bottom_right != 0)
         {
-            if(component.stylesheet.border_radius_bottom_right>component.stylesheet.height/2||component.stylesheet.border_radius_bottom_right>component.stylesheet.width/2) component.stylesheet.border_radius_bottom_right = __min(component.stylesheet.width/2, component.stylesheet.height/2);
+            if(cmp.stylesheet.border_radius_bottom_right>cmp.stylesheet.height/2||cmp.stylesheet.border_radius_bottom_right>cmp.stylesheet.width/2) cmp.stylesheet.border_radius_bottom_right = __min(cmp.stylesheet.width/2, cmp.stylesheet.height/2);
         }
-        return component.stylesheet;
+        return cmp.stylesheet;
     }
 
-    stylesheet.background_color.r = (int32_t)(component.stylesheet.background_color.r*(1-component.__transition)+component.hover_stylesheet.background_color.r*component.__transition);
-    stylesheet.background_color.g = (int32_t)(component.stylesheet.background_color.g*(1-component.__transition)+component.hover_stylesheet.background_color.g*component.__transition);
-    stylesheet.background_color.b = (int32_t)(component.stylesheet.background_color.b*(1-component.__transition)+component.hover_stylesheet.background_color.b*component.__transition);
-    stylesheet.background_color.a = (int32_t)(component.stylesheet.background_color.a*(1-component.__transition)+component.hover_stylesheet.background_color.a*component.__transition);
-    stylesheet.color.r = (int32_t)(component.stylesheet.color.r*(1-component.__transition)+component.hover_stylesheet.color.r*component.__transition);
-    stylesheet.color.g = (int32_t)(component.stylesheet.color.g*(1-component.__transition)+component.hover_stylesheet.color.g*component.__transition);
-    stylesheet.color.b = (int32_t)(component.stylesheet.color.b*(1-component.__transition)+component.hover_stylesheet.color.b*component.__transition);
-    stylesheet.color.a = (int32_t)(component.stylesheet.color.a*(1-component.__transition)+component.hover_stylesheet.color.a*component.__transition);
-    if(component.__transition>0.5) {
-        stylesheet.childs_direction = component.hover_stylesheet.childs_direction;
-        stylesheet.component_justify = component.hover_stylesheet.component_justify;
-        stylesheet.unit_top = component.hover_stylesheet.unit_top;
-        stylesheet.unit_left = component.hover_stylesheet.unit_left;
-        stylesheet.unit_height = component.hover_stylesheet.unit_height;
-        stylesheet.unit_width = component.hover_stylesheet.unit_width;
-        strcpy(stylesheet.font_family, component.hover_stylesheet.font_family);
+    stylesheet.background_color.r = (int32_t)(cmp.stylesheet.background_color.r*(1-cmp.__transition)+cmp.hover_stylesheet.background_color.r*cmp.__transition);
+    stylesheet.background_color.g = (int32_t)(cmp.stylesheet.background_color.g*(1-cmp.__transition)+cmp.hover_stylesheet.background_color.g*cmp.__transition);
+    stylesheet.background_color.b = (int32_t)(cmp.stylesheet.background_color.b*(1-cmp.__transition)+cmp.hover_stylesheet.background_color.b*cmp.__transition);
+    stylesheet.background_color.a = (int32_t)(cmp.stylesheet.background_color.a*(1-cmp.__transition)+cmp.hover_stylesheet.background_color.a*cmp.__transition);
+    stylesheet.color.r = (int32_t)(cmp.stylesheet.color.r*(1-cmp.__transition)+cmp.hover_stylesheet.color.r*cmp.__transition);
+    stylesheet.color.g = (int32_t)(cmp.stylesheet.color.g*(1-cmp.__transition)+cmp.hover_stylesheet.color.g*cmp.__transition);
+    stylesheet.color.b = (int32_t)(cmp.stylesheet.color.b*(1-cmp.__transition)+cmp.hover_stylesheet.color.b*cmp.__transition);
+    stylesheet.color.a = (int32_t)(cmp.stylesheet.color.a*(1-cmp.__transition)+cmp.hover_stylesheet.color.a*cmp.__transition);
+    if(cmp.__transition>0.5)
+    {
+        stylesheet.childs_direction = cmp.hover_stylesheet.childs_direction;
+        stylesheet.component_justify = cmp.hover_stylesheet.component_justify;
+        stylesheet.unit_top = cmp.hover_stylesheet.unit_top;
+        stylesheet.unit_left = cmp.hover_stylesheet.unit_left;
+        stylesheet.unit_height = cmp.hover_stylesheet.unit_height;
+        stylesheet.unit_width = cmp.hover_stylesheet.unit_width;
+        strcpy(stylesheet.font_family, cmp.hover_stylesheet.font_family);
+    } else {
+        stylesheet.childs_direction = cmp.stylesheet.childs_direction;
+        stylesheet.component_justify = cmp.stylesheet.component_justify;
+        stylesheet.unit_top = cmp.stylesheet.unit_top;
+        stylesheet.unit_left = cmp.stylesheet.unit_left;
+        stylesheet.unit_height = cmp.stylesheet.unit_height;
+        stylesheet.unit_width = cmp.stylesheet.unit_width;
+        strcpy(stylesheet.font_family, cmp.stylesheet.font_family);
     }
-    else {
-        stylesheet.childs_direction = component.stylesheet.childs_direction;
-        stylesheet.component_justify = component.stylesheet.component_justify;
-        stylesheet.unit_top = component.stylesheet.unit_top;
-        stylesheet.unit_left = component.stylesheet.unit_left;
-        stylesheet.unit_height = component.stylesheet.unit_height;
-        stylesheet.unit_width = component.stylesheet.unit_width;
-        strcpy(stylesheet.font_family, component.stylesheet.font_family);
-    }
-    stylesheet.font_size = (int32_t)(component.stylesheet.font_size*(1-component.__transition)+component.hover_stylesheet.font_size*component.__transition);
-    stylesheet.font_horizontal_align = (horizontal_align)(component.stylesheet.font_horizontal_align*(1-component.__transition)+component.hover_stylesheet.font_horizontal_align*component.__transition);
-    stylesheet.font_vertical_align = (vertical_align)(component.stylesheet.font_vertical_align*(1-component.__transition)+component.hover_stylesheet.font_vertical_align*component.__transition);
-    stylesheet.padding = (int32_t)(component.stylesheet.padding*(1-component.__transition)+component.hover_stylesheet.padding*component.__transition);
-    stylesheet.gap = (int32_t)(component.stylesheet.padding*(1-component.__transition)+component.hover_stylesheet.padding*component.__transition);
-    stylesheet.top = (int32_t)(component.stylesheet.top*(1-component.__transition)+component.hover_stylesheet.top*component.__transition);
-    stylesheet.left = (int32_t)(component.stylesheet.left*(1-component.__transition)+component.hover_stylesheet.left*component.__transition);
-    stylesheet.height = (int32_t)(component.stylesheet.height*(1-component.__transition)+component.hover_stylesheet.height*component.__transition);
-    stylesheet.width = (int32_t)(component.stylesheet.width*(1-component.__transition)+component.hover_stylesheet.width*component.__transition);
-    stylesheet.border_radius_top_left = (int32_t)(component.stylesheet.border_radius_top_left*(1-component.__transition)+component.hover_stylesheet.border_radius_top_left*component.__transition);
-    stylesheet.border_radius_top_right = (int32_t)(component.stylesheet.border_radius_top_right*(1-component.__transition)+component.hover_stylesheet.border_radius_top_right*component.__transition);
-    stylesheet.border_radius_bottom_left = (int32_t)(component.stylesheet.border_radius_bottom_left*(1-component.__transition)+component.hover_stylesheet.border_radius_bottom_left*component.__transition);
-    stylesheet.border_radius_bottom_right = (int32_t)(component.stylesheet.border_radius_bottom_right*(1-component.__transition)+component.hover_stylesheet.border_radius_bottom_right*component.__transition);
+    stylesheet.font_size = (int32_t)(cmp.stylesheet.font_size*(1-cmp.__transition)+cmp.hover_stylesheet.font_size*cmp.__transition);
+    stylesheet.font_horizontal_align = (horizontal_align)(cmp.stylesheet.font_horizontal_align*(1-cmp.__transition)+cmp.hover_stylesheet.font_horizontal_align*cmp.__transition);
+    stylesheet.font_vertical_align = (vertical_align)(cmp.stylesheet.font_vertical_align*(1-cmp.__transition)+cmp.hover_stylesheet.font_vertical_align*cmp.__transition);
+    stylesheet.padding = (int32_t)(cmp.stylesheet.padding*(1-cmp.__transition)+cmp.hover_stylesheet.padding*cmp.__transition);
+    stylesheet.gap = (int32_t)(cmp.stylesheet.padding*(1-cmp.__transition)+cmp.hover_stylesheet.padding*cmp.__transition);
+    stylesheet.top = (int32_t)(cmp.stylesheet.top*(1-cmp.__transition)+cmp.hover_stylesheet.top*cmp.__transition);
+    stylesheet.left = (int32_t)(cmp.stylesheet.left*(1-cmp.__transition)+cmp.hover_stylesheet.left*cmp.__transition);
+    stylesheet.height = (int32_t)(cmp.stylesheet.height*(1-cmp.__transition)+cmp.hover_stylesheet.height*cmp.__transition);
+    stylesheet.width = (int32_t)(cmp.stylesheet.width*(1-cmp.__transition)+cmp.hover_stylesheet.width*cmp.__transition);
+    stylesheet.border_radius_top_left = (int32_t)(cmp.stylesheet.border_radius_top_left*(1-cmp.__transition)+cmp.hover_stylesheet.border_radius_top_left*cmp.__transition);
+    stylesheet.border_radius_top_right = (int32_t)(cmp.stylesheet.border_radius_top_right*(1-cmp.__transition)+cmp.hover_stylesheet.border_radius_top_right*cmp.__transition);
+    stylesheet.border_radius_bottom_left = (int32_t)(cmp.stylesheet.border_radius_bottom_left*(1-cmp.__transition)+cmp.hover_stylesheet.border_radius_bottom_left*cmp.__transition);
+    stylesheet.border_radius_bottom_right = (int32_t)(cmp.stylesheet.border_radius_bottom_right*(1-cmp.__transition)+cmp.hover_stylesheet.border_radius_bottom_right*cmp.__transition);
     if(stylesheet.border_radius_top_left != 0)
     {
         if(stylesheet.border_radius_top_left>stylesheet.height/2||stylesheet.border_radius_top_left>stylesheet.width/2) stylesheet.border_radius_top_left = __min(stylesheet.width/2, stylesheet.height/2);
@@ -151,17 +204,39 @@ style styleTransition(component component) {
     return stylesheet;
 }
 
-void transformUnit(int *value, unit *value_unit, int reference) {
-    switch(*value_unit) {
+
+/**
+ * Recalculate a unit from a cmp.
+ *
+ * @param {int32_t} *value
+ * @param {unit} *value_unit
+ * @param {int32_t} reference ( Value from the parent component )
+ *
+ * @returns {style}
+ */
+void transformUnit(int32_t *value, unit *value_unit, int32_t reference)
+{
+    switch(*value_unit)
+    {
         case UNIT_PERCENTAGE:
-            *value = (int)(((float)(*value)/100)*reference);
+            *value = (int32_t)(((float)(*value)/100)*reference);
             *value_unit = UNIT_PX;
         default:
             break;
     }
 }
 
-style transformUnits(style stylesheet, style parentStylesheet) {
+
+/**
+ * Recalculate the units of the cmp.
+ *
+ * @param {style} stylesheet
+ * @param {style} parentStylesheet
+ *
+ * @returns {style}
+ */
+style transformUnits(style stylesheet, style parentStylesheet)
+{
     transformUnit(&(stylesheet.top), &(stylesheet.unit_top), parentStylesheet.height+parentStylesheet.padding);
     transformUnit(&(stylesheet.left), &(stylesheet.unit_left), parentStylesheet.width+parentStylesheet.padding);
     transformUnit(&(stylesheet.height), &(stylesheet.unit_height), parentStylesheet.height-2*parentStylesheet.padding);
@@ -169,7 +244,24 @@ style transformUnits(style stylesheet, style parentStylesheet) {
     return stylesheet;
 }
 
-style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component cmp) {
+
+/**
+ * Call functions to recalculate the units of the component
+ * and changes his coordinates according to the coordinates
+ * and the flex direction of his parent.
+ *
+ * @param {int32_t} top
+ * @param {int32_t} left
+ * @param {int32_t} height
+ * @param {int32_t} width
+ * @param {component} components[]
+ * @param {uint32_t} components_size
+ * @param {component} cmp
+ *
+ * @returns {style}
+ */
+style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component cmp)
+{
     uint32_t i = 0;
     style stylesheets[COMPONENTS_MAX_SIZE];
     style rootStylesheet;
@@ -186,17 +278,26 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
     rootStylesheet.unit_width = UNIT_PX;
     rootStylesheet.width = width;
 
-    if(cmp.parent_id == 0) {
+    if(cmp.parent_id == 0)
+    {
         cmp.stylesheet = transformUnits(cmp.stylesheet, rootStylesheet);
         cmp.hover_stylesheet = transformUnits(cmp.hover_stylesheet, rootStylesheet);
     }
     if(cmp.parent_id>=cmp.id || cmp.parent_id == 0) return styleTransition(cmp);
-    while((i<cmp.id)&&i<components_size&&!stop) {
-        if(components[i].parent_id != 0) {
+    while((i<cmp.id)&&i<components_size&&!stop)
+    {
+        if(components[i].parent_id != 0)
+        {
+            /* Transform units with parent stylesheet as reference */
             tmp_cmp = components[i];
             tmp_cmp.stylesheet = transformUnits(tmp_cmp.stylesheet, stylesheets[components[i].parent_id-1]);
             tmp_cmp.hover_stylesheet = transformUnits(tmp_cmp.hover_stylesheet, stylesheets[components[i].parent_id-1]);
             stylesheets[i] = styleTransition(tmp_cmp);
+
+            /*
+                Put the child component inside his parents at the correct offset and increment/decrement
+                the offset according to the flex direction and the child justification
+            */
             switch(stylesheets[components[i].parent_id-1].childs_direction)
             {
                 case DIRECTION_ROW:
@@ -264,6 +365,18 @@ style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, compon
     return stylesheets[i-1];
 }
 
+
+/**
+ * Returns TRUE or FALSE according to if yes or
+ * not the cursor ( x, y ) is inside the idbox of
+ * that describe the stylesheet.
+ *
+ * @param {style} stylesheet
+ * @param {int32_t} x
+ * @param {int32_t} y
+ *
+ * @returns {boolean}
+ */
 boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
 {
     int32_t dx, dy, rt, rl, rr, rb;
@@ -271,6 +384,7 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
     if(stylesheet.height == 0 || stylesheet.width == 0)return FALSE;
     if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
     {
+        /* Permit us to know the greater border_radius between two corner in the same direction ( useful ) */
         rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
         rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
         rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
@@ -297,6 +411,7 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
         && stylesheet.left+stylesheet.width>=x
         && stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right>=y) return TRUE;
 
+        /* Idbox calculations for corners if the border radius is greater than 0 */
         if(stylesheet.border_radius_top_left != 0)
         {
             dx = x - (stylesheet.left+stylesheet.border_radius_top_left);
@@ -330,17 +445,52 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
     return FALSE;
 }
 
-void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size) {
+
+/**
+ * Call functions to draw every components based on their real
+ * stylesheet and the type of component it is.
+ *
+ * @param {int32_t} top
+ * @param {int32_t} left
+ * @param {int32_t} height
+ * @param {int32_t} width
+ * @param {text_component} texts[]
+ * @param {uint32_t} texts_size
+ * @param {key_component} keys[]
+ * @param {uint32_t} keys_size
+ * @param {image_component} images[]
+ * @param {uint32_t} images_size
+ *
+ * @returns {void}
+ */
+void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
+{
     uint32_t i;
 
-    for(i = 0; i<components_size; i++) {
-        drawComponent(components[i], styleReal(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
+    for(i = 0; i<components_size; i++)
+    {
+        drawComponent(components[i], autoLayout(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
     }
 }
 
+
+/**
+ * Allows drawing a single component based on its stylesheet
+ * and the type of component it is.
+ *
+ * @param {component} cmp
+ * @param {style} stylesheet
+ * @param {text_component} texts[]
+ * @param {uint32_t} texts_size
+ * @param {key_component} keys[]
+ * @param {uint32_t} keys_size
+ * @param {image_component} images[]
+ * @param {uint32_t} images_size
+ *
+ * @returns {void}
+ */
 void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
-    FILE* file;
     MLV_Image *mlv_img;
     MLV_Font *font_family;
     int32_t font_height = 0, font_width = 0, image_height = 0, image_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
@@ -351,12 +501,16 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
     char content[64];
     MLV_Color background_color;
 
+    /* Not drawing anything if not visible */
     if(stylesheet.height == 0 || stylesheet.width == 0)return;
-    if(cmp.type == COMPONENT_IMAGE) {
+    if(cmp.type == COMPONENT_IMAGE)
+    {
         img_cmp = componentToImageComponent(cmp, images, images_size);
         mlv_img = MLV_load_image(img_cmp.path);
         if(mlv_img != NULL)
         {
+            /* Resizing calculations to fit max width and max height */
+
             MLV_get_image_size(mlv_img, &image_width, &image_height);
             image_ratio = ((float)image_width)/image_height;
             if(image_width > stylesheet.width || image_height > stylesheet.height)
@@ -373,16 +527,20 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                 }
             }
             MLV_resize_image(mlv_img, image_width, image_height);
-            MLV_draw_image(mlv_img, stylesheet.left, stylesheet.top);
+            MLV_draw_image(mlv_img, stylesheet.left+stylesheet.width/2-image_width/2, stylesheet.top+stylesheet.height/2-image_height/2);
 
             MLV_free_image(mlv_img);
         }
     } else {
-        if(stylesheet.background_color.a != 0) {
+        /* Not drawing frame if not visible */
+        if(stylesheet.background_color.a != 0)
+        {
             background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
             if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
             {
-                if(stylesheet.border_radius_top_left==stylesheet.border_radius_top_right&&stylesheet.border_radius_top_right==stylesheet.border_radius_bottom_left&&stylesheet.border_radius_bottom_left==stylesheet.border_radius_bottom_right) {
+                if(stylesheet.border_radius_top_left==stylesheet.border_radius_top_right&&stylesheet.border_radius_top_right==stylesheet.border_radius_bottom_left&&stylesheet.border_radius_bottom_left==stylesheet.border_radius_bottom_right)
+                {
+                    /* Optimized border radius if there are all the same */
                     MLV_draw_filled_rectangle(stylesheet.left+stylesheet.border_radius_top_left, stylesheet.top, stylesheet.width-2*stylesheet.border_radius_top_left, stylesheet.height, background_color);
                     MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top+stylesheet.border_radius_top_left, stylesheet.width, stylesheet.height-stylesheet.border_radius_top_left*2, background_color);
                     
@@ -391,6 +549,8 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                     MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_top_right-1, stylesheet.top+stylesheet.border_radius_top_right-1, stylesheet.border_radius_top_right-1, background_color);
                     MLV_draw_filled_circle(stylesheet.left+stylesheet.width-stylesheet.border_radius_bottom_right-1, stylesheet.top+stylesheet.height-stylesheet.border_radius_bottom_right, stylesheet.border_radius_bottom_right-1, background_color);
                 } else {
+                    /* Independant border radius */
+
                     rt = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_top_right);
                     rl = __max(stylesheet.border_radius_top_left, stylesheet.border_radius_bottom_left);
                     rr = __max(stylesheet.border_radius_top_right, stylesheet.border_radius_bottom_right);
@@ -420,12 +580,15 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                     }
                 }
             } else {
+                /* No border radius */
                 MLV_draw_filled_rectangle(stylesheet.left, stylesheet.top, stylesheet.width, stylesheet.height, background_color);
             }
         }
         
-        if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY) {
-            switch(cmp.type) {
+        if(cmp.type == COMPONENT_TEXT || cmp.type == COMPONENT_KEY)
+        {
+            switch(cmp.type)
+            {
                 case COMPONENT_TEXT:
                     txt_cmp = componentToTextComponent(cmp, texts, texts_size);
                     strcpy(content, txt_cmp.content);
@@ -438,13 +601,13 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                     strcpy(content, "");
                     break;
             }
-            file = fopen(stylesheet.font_family, "r");
-            if(file != NULL && strcmp(content, "") != 0)
+            if(MLV_path_exists(stylesheet.font_family))
             {
                 font_family = MLV_load_font(stylesheet.font_family, stylesheet.font_size);
                 MLV_get_size_of_text_with_font(content, &font_width, &font_height, font_family);
                 
-                switch(stylesheet.font_horizontal_align) {
+                switch(stylesheet.font_horizontal_align)
+                {
                     case HORIZONTAL_LEFT:
                         horizontal_align = stylesheet.left+stylesheet.padding;
                         break;
@@ -455,7 +618,8 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                         horizontal_align = stylesheet.left+stylesheet.width-font_width-stylesheet.padding;
                         break;
                 }    
-                switch(stylesheet.font_vertical_align) {
+                switch(stylesheet.font_vertical_align)
+                {
                     case VERTICAL_TOP:
                         vertical_align = stylesheet.top+stylesheet.padding;
                         break;
@@ -468,13 +632,27 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
                 }
 
                 MLV_draw_text_with_font(horizontal_align, vertical_align, content, font_family, MLV_rgba(stylesheet.color.r, stylesheet.color.g, stylesheet.color.b, stylesheet.color.a));
-                
                 MLV_free_font(font_family);
             }
         }
     }
 }
 
+
+/**
+ * Initialisation of basic component structure.
+ *
+ * @param {uint32_t} id
+ * @param {component_type} type
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ *
+ * @returns {component}
+ */
 component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration)
 {
     component cmp;
@@ -491,6 +669,21 @@ component initComponent(uint32_t id, component_type type, uint32_t parent_id, st
     return cmp;
 }
 
+
+/**
+ * Initialisation of frame component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ *
+ * @returns {void}
+ */
 void createFrame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration)
 {
     if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
@@ -498,6 +691,22 @@ void createFrame(component components[], uint32_t *components_size, uint32_t par
     (*components_size)++;
 }
 
+
+/**
+ * Initialisation of button component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ * @param {button_action_type} action_type
+ *
+ * @returns {void}
+ */
 void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type)
 {
     button_component btn_cmp;
@@ -511,6 +720,22 @@ void createButton(component components[], uint32_t *components_size, button_comp
     (*buttons_size)++;
 }
 
+
+/**
+ * Initialisation of text component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ * @param {char} content[]
+ *
+ * @returns {void}
+ */
 void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[])
 {
     text_component txt_cmp;
@@ -524,6 +749,23 @@ void createText(component components[], uint32_t *components_size, text_componen
     (*texts_size)++;
 }
 
+
+/**
+ * Initialisation of key component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ * @param {key_take_type} take_type
+ * @param {char} content[]
+ *
+ * @returns {void}
+ */
 void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[])
 {
     key_component key_cmp;
@@ -538,6 +780,22 @@ void createKey(component components[], uint32_t *components_size, key_component 
     (*keys_size)++;
 }
 
+
+/**
+ * Initialisation of image component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ * @param {char} path[]
+ *
+ * @returns {void}
+ */
 void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[])
 {
     image_component img_cmp;

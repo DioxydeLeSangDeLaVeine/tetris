@@ -3,14 +3,45 @@
 #include <MLV/MLV_all.h>
 #include "util.h"
 
-int32_t __min(int32_t a, int32_t b) {
+
+/**
+ * Minimum of a and b.
+ *
+ * @param {int32_t} a
+ * @param {int32_t} b
+ *
+ * @returns {int32_t}
+ */
+int32_t __min(int32_t a, int32_t b)
+{
     return a<=b?a:b;
 }
-int32_t __max(int32_t a, int32_t b) {
+
+
+/**
+ * Maximum of a and b.
+ *
+ * @param {int32_t} a
+ * @param {int32_t} b
+ *
+ * @returns {int32_t}
+ */
+int32_t __max(int32_t a, int32_t b)
+{
     return a>=b?a:b;
 }
 
-void getKeyFromMLV(MLV_Keyboard_button sym, char response[]) {
+
+/**
+ * Returns char[] from a MLV_Keyboard_button.
+ *
+ * @param {MLV_Keyboard_button} sym
+ * @param {char} response[]
+ *
+ * @returns {void}
+ */
+void getKeyFromMLV(MLV_Keyboard_button sym, char response[])
+{
     switch(sym)
     {
         case MLV_KEYBOARD_a: strcpy(response, "A"); break;
@@ -103,7 +134,17 @@ void getKeyFromMLV(MLV_Keyboard_button sym, char response[]) {
         default: strcpy(response, ""); break;
     }
 }
-MLV_Keyboard_button getMLVFromKey(char key[]) {
+
+
+/**
+ * Returns MLV_Keyboard_button from a char[].
+ *
+ * @param {char} key[]
+ *
+ * @returns {MLV_Keyboard_button}
+ */
+MLV_Keyboard_button getMLVFromKey(char key[])
+{
     if (strcmp(key, "A") == 0) return MLV_KEYBOARD_a;
     else if (strcmp(key, "B") == 0) return MLV_KEYBOARD_b;
     else if (strcmp(key, "C") == 0) return MLV_KEYBOARD_c;

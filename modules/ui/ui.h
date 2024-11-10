@@ -160,15 +160,15 @@ typedef struct {
     int32_t width;
 } __ref;
 
-button_component componentToButtonComponent(component component, button_component buttons[], int buttons_size);
-text_component componentToTextComponent(component component, text_component texts[], int texts_size);
-key_component componentToKeyComponent(component component, key_component keys[], int keys_size);
-image_component componentToImageComponent(component cmp, image_component images[], int images_size);
+button_component componentToButtonComponent(component component, button_component buttons[], uint32_t buttons_size);
+text_component componentToTextComponent(component component, text_component texts[], uint32_t texts_size);
+key_component componentToKeyComponent(component component, key_component keys[], uint32_t keys_size);
+image_component componentToImageComponent(component cmp, image_component images[], uint32_t images_size);
 
-style styleTransition(component component);
+style styleTransition(component cmp);
 void transformUnit(int32_t *value, unit *value_unit, int32_t reference);
 style transformUnits(style stylesheet, style parentStylesheet);
-style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component component);
+style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component component);
 
 boolean idboxComponent(style stylesheet, int32_t x, int32_t y);
 
