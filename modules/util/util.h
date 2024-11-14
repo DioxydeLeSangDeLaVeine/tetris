@@ -14,6 +14,8 @@ typedef struct {
     MLV_Keyboard_button keyboard_confirm;
     MLV_Keyboard_button keyboard_pause;
     uint32_t video_fps;
+    boolean graphics_border_radius;
+    boolean graphics_animations;
 } settings;
 
 int32_t __min(int32_t a, int32_t b);

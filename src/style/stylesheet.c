@@ -135,13 +135,13 @@ style STYLESHEET_LOGO(int32_t top, int32_t left, int32_t height, int32_t width) 
     stylesheet.padding = 0;
     stylesheet.gap = 0;
     stylesheet.unit_top = UNIT_PX;
-    stylesheet.top = (stylesheet_body.height/2)-(500/2);
+    stylesheet.top = (stylesheet_body.height/2)-(1000/2);
     stylesheet.unit_left = UNIT_PX;
-    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(500/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(1000/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = 500;
+    stylesheet.height = 1000;
     stylesheet.unit_width = UNIT_PX;
-    stylesheet.width = 500;
+    stylesheet.width = 1000;
     return stylesheet;
 }
 

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
-#include <X11/Xlib.h>
-#include <X11/cursorfont.h>
 #include <time.h>
 
 #include "./modules/ui/ui.h"
@@ -50,12 +48,11 @@ component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, 
     return cmp;
 }
 
-boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
+boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
 {
     int i;
     component cmp;
     boolean change = FALSE;
-
     cmp = lastHovered(top, left, height, width, components, components_size, x, y);
 
     for(i = 0; i<components_size; i++)
@@ -72,10 +69,13 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
                 if(components[i].__transition != 0)
                 {
                     change = TRUE;
-                    if(components[i].transition_duration==0) components[i].__transition = 0;
+                    if(set.graphics_animations == FALSE) components[i].__transition = 0;
                     else {
-                        if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
-                        else components[i].__transition-=(float)fps/components[i].transition_duration;
+                        if(components[i].transition_duration==0) components[i].__transition = 0;
+                        else {
+                            if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
+                            else components[i].__transition-=(float)fps/components[i].transition_duration;
+                        }
                     }
                 }
             }
@@ -90,10 +90,13 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
                 if(components[i].__transition != 1)
                 {
                     change = TRUE;
-                    if(components[i].transition_duration==0) components[i].__transition = 1;
+                    if(set.graphics_animations == FALSE) components[i].__transition = 1;
                     else {
-                        if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
-                        else components[i].__transition+=(float)fps/components[i].transition_duration;
+                        if(components[i].transition_duration==0) components[i].__transition = 1;
+                        else {
+                            if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
+                            else components[i].__transition+=(float)fps/components[i].transition_duration;
+                        }
                     }
                 }
             }
@@ -163,6 +166,8 @@ settings defaultSettings()
     set.keyboard_turn_right = MLV_KEYBOARD_e;
     set.keyboard_confirm = MLV_KEYBOARD_SPACE;
     set.video_fps = 30;
+    set.graphics_border_radius = TRUE;
+    set.graphics_animations = TRUE;
     return set;
 }
 
@@ -192,8 +197,11 @@ void writeSettings(settings set)
 
     fprintf(file, "### VIDEO ###\n");
     fprintf(file, "FPS=%u\n\n", set.video_fps);
-
     fprintf(file, "### GRAPHICS ###\n\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n");
+    if(set.graphics_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
+    else fprintf(file, "ANIMATIONS=FALSE\n\n");
     fprintf(file, "### AUDIO ###\n");
 
     fclose(file);
@@ -285,6 +293,14 @@ settings readSettings()
                 if(atoi(setting_value) > 0) {
                     set.video_fps = atoi(setting_value);
                 }
+            } else if(strcmp(setting_name, "BORDER_RADIUS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
+                else set.graphics_border_radius = FALSE;
+            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.graphics_animations = TRUE;
+                else set.graphics_animations = FALSE;
             }
         }
     }
@@ -300,10 +316,6 @@ int main()
     MLV_Keyboard_modifier mod = 0;
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
-
-    Display *display = XOpenDisplay(NULL);
-    Window window;
-    Cursor current_cursor = 0, cursor_default, cursor_pointer;
 
     boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE;
     int32_t x = 0, y = 0,
@@ -329,16 +341,8 @@ int main()
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
 
-    if(display != NULL) {
-        window = DefaultRootWindow(display);
-        cursor_default = XCreateFontCursor(display, XC_arrow);
-        cursor_pointer = XCreateFontCursor(display, XC_hand2);
-        XDefineCursor(display, window, cursor_default);
-        current_cursor = cursor_default;
-        XFlush(display);
-    }
     createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
-    drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
+    drawComponents(set, 0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
     set = readSettings();
 
@@ -439,24 +443,7 @@ int main()
         clock_gettime(CLOCK_REALTIME, &end);
         if((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
 
-        actualise |= hover(0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
-        if(display != NULL) {
-            cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
-            if(cmp.type == COMPONENT_BUTTON || cmp.type == COMPONENT_KEY)
-            {
-                if(current_cursor != cursor_pointer) {
-                    XDefineCursor(display, window, cursor_pointer);
-                    current_cursor = cursor_pointer;
-                    XFlush(display);
-                }
-            } else {
-                if(current_cursor != cursor_default) {
-                    XDefineCursor(display, window, cursor_default);
-                    current_cursor = cursor_default;
-                    XFlush(display);
-                }
-            }
-        }
+        actualise |= hover(set, 0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
         if(recreate == TRUE) {
             createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
             MLV_flush_event_queue();
@@ -469,15 +456,10 @@ int main()
         }
         if(actualise == TRUE)
         {
-            drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
+            drawComponents(set, 0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
-    }
-    if(display != NULL) {
-        XFreeCursor(display, cursor_default);
-        XFreeCursor(display, cursor_pointer);
-        XCloseDisplay(display);
     }
     MLV_free_window();
     

@@ -450,6 +450,7 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
  * Call functions to draw every components based on their real
  * stylesheet and the type of component it is.
  *
+ * @param {settings} set
  * @param {int32_t} top
  * @param {int32_t} left
  * @param {int32_t} height
@@ -463,13 +464,13 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
  *
  * @returns {void}
  */
-void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
+void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     uint32_t i;
 
     for(i = 0; i<components_size; i++)
     {
-        drawComponent(components[i], autoLayout(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
+        drawComponent(set, components[i], autoLayout(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
     }
 }
 
@@ -478,6 +479,7 @@ void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, co
  * Allows drawing a single component based on its stylesheet
  * and the type of component it is.
  *
+ * @param {settings} set
  * @param {component} cmp
  * @param {style} stylesheet
  * @param {text_component} texts[]
@@ -489,7 +491,7 @@ void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, co
  *
  * @returns {void}
  */
-void drawComponent(component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
+void drawComponent(settings set, component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     MLV_Image *mlv_img;
     MLV_Font *font_family;
@@ -536,7 +538,7 @@ void drawComponent(component cmp, style stylesheet, text_component texts[], uint
         if(stylesheet.background_color.a != 0)
         {
             background_color = MLV_rgba(stylesheet.background_color.r, stylesheet.background_color.g, stylesheet.background_color.b, stylesheet.background_color.a);
-            if(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0)
+            if(set.graphics_border_radius==TRUE&&(stylesheet.border_radius_top_left!=0||stylesheet.border_radius_top_right!=0||stylesheet.border_radius_bottom_left!=0||stylesheet.border_radius_bottom_right!=0))
             {
                 if(stylesheet.border_radius_top_left==stylesheet.border_radius_top_right&&stylesheet.border_radius_top_right==stylesheet.border_radius_bottom_left&&stylesheet.border_radius_bottom_left==stylesheet.border_radius_bottom_right)
                 {
