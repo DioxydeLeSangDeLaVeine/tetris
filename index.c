@@ -341,10 +341,10 @@ int main()
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
 
+    set = readSettings();
     createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
     drawComponents(set, 0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
-    set = readSettings();
 
     while(quit != TRUE)
     {
