@@ -703,7 +703,7 @@ void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t wid
 void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
 {
     int i, id;
-    style stylesheet, hover_stylesheet, text_stylesheet;
+    style stylesheet, hover_stylesheet, text_stylesheet, stylesheet_body, stylesheet_sidebar;
     char num[4];
     
     stylesheet = STYLESHEET_PODIUM(top, left, height, width);
@@ -740,6 +740,31 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
         createText(components, components_size, texts, texts_size, id-2, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
         id++;
     }
+
+
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    stylesheet_sidebar = STYLESHEET_SIDEBAR(top, left, height, width);
+    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    text_stylesheet.unit_top = UNIT_PX;
+    text_stylesheet.top = 30;
+    text_stylesheet.unit_left = UNIT_PX;
+    text_stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(2000/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    text_stylesheet.unit_height = UNIT_PX;
+    text_stylesheet.height = 125;
+    text_stylesheet.unit_width = UNIT_PX;
+    text_stylesheet.width = 2000;
+    text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
+    text_stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(text_stylesheet.font_family, FONT_POPPINS_BLACK);
+    text_stylesheet.font_size = 100;
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "9018");
+    text_stylesheet.top = 190;
+    text_stylesheet.font_size = 60;
+    text_stylesheet.width = 1500;
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "5082");
+    text_stylesheet.top = 255;
+    text_stylesheet.width = 2500;
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "2932");
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
