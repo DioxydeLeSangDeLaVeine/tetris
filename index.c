@@ -128,6 +128,14 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *actualise = TRUE;
                 }
                 break;
+            case BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS:
+                if(*page != SCOREBOARD_COMPONENTS)
+                {
+                    *page = SCOREBOARD_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
             case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
                 if(*page != SETTINGS_KEYBOARD_COMPONENTS)
                 {

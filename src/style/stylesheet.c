@@ -145,6 +145,122 @@ style STYLESHEET_LOGO(int32_t top, int32_t left, int32_t height, int32_t width) 
     return stylesheet;
 }
 
+style STYLESHEET_PODIUM(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    style stylesheet_sidebar;
+    style stylesheet_body;
+
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    stylesheet_sidebar = STYLESHEET_SIDEBAR();
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = -300;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(2000/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 1000;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 2000;
+    return stylesheet;
+}
+
+style STYLESHEET_BOARD(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    style stylesheet_sidebar;
+    style stylesheet_body;
+
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    stylesheet_sidebar = STYLESHEET_SIDEBAR();
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 0;
+    stylesheet.gap = 20;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 600;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(600/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 1000;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 600;
+    return stylesheet;
+}
+style STYLESHEET_SCORE() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 20;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 35;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    return stylesheet;
+}
+style STYLESHEET_SCORE_NUM() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_WHITE_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 100;
+    stylesheet.border_radius_top_right = 100;
+    stylesheet.border_radius_bottom_left = 100;
+    stylesheet.border_radius_bottom_right = 100;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 35;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 35;
+    return stylesheet;
+}
+
 style STYLESHEET_CONTAINER(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
     style stylesheet_sidebar;
@@ -492,6 +608,7 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
     switch(page) {
         case MENU_COMPONENTS:
         case PLAY_COMPONENTS:
+        case SCOREBOARD_COMPONENTS:
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
@@ -514,6 +631,9 @@ void createComponentsWithSidebar(page_components page, int32_t top, int32_t left
             break;
         case PLAY_COMPONENTS:
             createPlayComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
+            break;
+        case SCOREBOARD_COMPONENTS:
+            createScoreboardComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
@@ -542,7 +662,7 @@ void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t wid
     createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 6 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 7 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS); /* id = 7 */
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS();
     hover_stylesheet.component_justify = JUSTIFY_END;
     createButton(components, components_size, buttons, buttons_size, 2, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT); /* id = 8 */
@@ -578,6 +698,48 @@ void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t wid
     createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode survie"); /* id = 9 */
     createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode marathon"); /* id = 10 */
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode ultra"); /* id = 11 */
+}
+
+void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
+{
+    int i, id;
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    char num[4];
+    
+    stylesheet = STYLESHEET_PODIUM(top, left, height, width);
+    createImage(components, components_size, images, images_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "./src/img/podium.png"); /* id = 3 */
+
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS();
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS();
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 4 */
+
+    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 5 */
+
+    stylesheet = STYLESHEET_BOARD(top, left, height, width);
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 6 */
+
+    stylesheet = STYLESHEET_SCORE();
+    hover_stylesheet = STYLESHEET_SCORE_NUM();
+    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    id = 6;
+    for(i = 4; i<=10; i++) {
+        createFrame(components, components_size, 6, stylesheet, FALSE, FALSE, stylesheet, 0);
+        id++;
+        sprintf(num, "%d", i);
+        createFrame(components, components_size, id, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0);
+        id++;
+        text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
+        text_stylesheet.color = ROOT_BLACK_COLOR();
+        strcpy(text_stylesheet.font_family, FONT_POPPINS_BOLD);
+        createText(components, components_size, texts, texts_size, id, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, num);
+        id++;
+        text_stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+        text_stylesheet.color = ROOT_WHITE_COLOR();
+        strcpy(text_stylesheet.font_family, FONT_POPPINS_MEDIUM);
+        createText(components, components_size, texts, texts_size, id-2, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
+        id++;
+    }
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
