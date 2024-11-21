@@ -757,14 +757,14 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
     text_stylesheet.color = ROOT_WHITE_COLOR();
     strcpy(text_stylesheet.font_family, FONT_POPPINS_BLACK);
     text_stylesheet.font_size = 100;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "9018");
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
     text_stylesheet.top = 190;
     text_stylesheet.font_size = 60;
     text_stylesheet.width = 1500;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "5082");
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
     text_stylesheet.top = 255;
     text_stylesheet.width = 2500;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "2932");
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
