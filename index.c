@@ -120,6 +120,14 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *actualise = TRUE;
                 }
                 break;
+            case BUTTON_ACTION_CREATE_PLAY_COMPONENTS:
+                if(*page != PLAY_COMPONENTS)
+                {
+                    *page = PLAY_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
             case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
                 if(*page != SETTINGS_KEYBOARD_COMPONENTS)
                 {
@@ -157,158 +165,6 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
         }
 }
 
-settings defaultSettings()
-{
-    settings set;
-    set.keyboard_move_left = MLV_KEYBOARD_q;
-    set.keyboard_move_right = MLV_KEYBOARD_d;
-    set.keyboard_turn_left = MLV_KEYBOARD_a;
-    set.keyboard_turn_right = MLV_KEYBOARD_e;
-    set.keyboard_confirm = MLV_KEYBOARD_SPACE;
-    set.video_fps = 30;
-    set.graphics_border_radius = TRUE;
-    set.graphics_animations = TRUE;
-    return set;
-}
-
-void writeSettings(settings set)
-{
-    FILE *file = fopen("./data/settings", "w");
-    char response[64];
-
-    if(file == NULL)
-    {
-        return;
-    }
-
-    fprintf(file, "### KEYBOARD ###\n");
-    getKeyFromMLV(set.keyboard_move_left, response);
-    fprintf(file, "KEY_MOVE_LEFT=%s\n", response);
-    getKeyFromMLV(set.keyboard_move_right, response);
-    fprintf(file, "KEY_MOVE_RIGHT=%s\n", response);
-    getKeyFromMLV(set.keyboard_turn_left, response);
-    fprintf(file, "KEY_TURN_LEFT=%s\n", response);
-    getKeyFromMLV(set.keyboard_turn_right, response);
-    fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
-    getKeyFromMLV(set.keyboard_confirm, response);
-    fprintf(file, "KEY_CONFIRM=%s\n", response);
-    getKeyFromMLV(set.keyboard_pause, response);
-    fprintf(file, "KEY_PAUSE=%s\n\n", response);
-
-    fprintf(file, "### VIDEO ###\n");
-    fprintf(file, "FPS=%u\n\n", set.video_fps);
-    fprintf(file, "### GRAPHICS ###\n\n");
-    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
-    else fprintf(file, "BORDER_RADIUS=FALSE\n");
-    if(set.graphics_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
-    else fprintf(file, "ANIMATIONS=FALSE\n\n");
-    fprintf(file, "### AUDIO ###\n");
-
-    fclose(file);
-}
-
-settings readSettings()
-{
-    FILE *file = fopen("./data/settings", "r");
-    MLV_Keyboard_button key;
-    settings set;
-    char setting_name[65], setting_value[65];
-    char line[130];
-    int i, j;
-    boolean is_value;
-
-    set = defaultSettings();
-    
-    if(file == NULL)
-    {
-        writeSettings(set);
-        return set;
-    }
-
-    while(fgets(line, 130, file) != NULL)
-    {
-        i = 0;
-        j = 0;
-        is_value = FALSE;
-        strcpy(setting_name, "");
-        strcpy(setting_value, "");
-        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#')
-        {
-            while(line[i] != '\0'&&line[i] != '\n')
-            {
-                if(is_value == FALSE)
-                {
-                    if(line[i]=='=')
-                    {
-                        is_value = TRUE;
-                        setting_name[i] = '\0';
-                    } else {
-                        setting_name[i]=line[i];
-                    }
-                } else {
-                    setting_value[j]=line[i];
-                    j++;
-                }
-                i++;
-            }
-            setting_value[j]='\0';
-            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_move_left = key;
-                }
-            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_move_right = key;
-                }
-            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_turn_left = key;
-                }
-            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_turn_right = key;
-                }
-            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_confirm = key;
-                }
-            } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
-            {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_pause = key;
-                }
-            } else if(strcmp(setting_name, "FPS") == 0)
-            {
-                if(atoi(setting_value) > 0) {
-                    set.video_fps = atoi(setting_value);
-                }
-            } else if(strcmp(setting_name, "BORDER_RADIUS") == 0)
-            {
-                if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
-                else set.graphics_border_radius = FALSE;
-            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
-            {
-                if(strcmp(setting_value, "TRUE") == 0) set.graphics_animations = TRUE;
-                else set.graphics_animations = FALSE;
-            }
-        }
-    }
-    fclose(file);
-    writeSettings(set);
-    return set;
-}
-
 int main()
 {
     MLV_Event event = 0;
@@ -317,7 +173,7 @@ int main()
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
-    boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE;
+    boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE;
     int32_t x = 0, y = 0,
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
@@ -362,7 +218,7 @@ int main()
                 case MLV_NONE:
                     break;
                 case MLV_KEY:
-                    if(state == MLV_PRESSED)
+                    if(state == MLV_RELEASED)
                     {
                         if(listen == TRUE) {
                             getKeyFromMLV(sym, key.content);
@@ -400,6 +256,10 @@ int main()
                                 listen = FALSE;
                                 actualise = TRUE;
                             }
+                        } else if(error == TRUE) {
+                            components_size-=2;
+                            error = FALSE;
+                            actualise = TRUE;
                         }
                     }
                     break;
@@ -409,14 +269,23 @@ int main()
                     }
                     if(state == MLV_RELEASED && mouse == MLV_BUTTON_LEFT)
                     {
-                        if(listen != TRUE) {
+                        if(listen == FALSE && error == FALSE) {
                             cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
                             if(cmp.id == clicked_cmp_id) {
                                 switch(cmp.type)
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
+                                        if(button.action_type == BUTTON_ACTION_NONE) {
+                                            stylesheet = STYLESHEET_HIDE(0,0,height,width);
+                                            createFrame(components, &components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
+                                            stylesheet = STYLESHEET_HIDE_TEXT(0,0,height,width);
+                                            createText(components, &components_size, texts, &texts_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "Error 404 : Not found");
+                                            error = TRUE;
+                                            actualise = TRUE;
+                                        } else {
+                                            buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
+                                        }
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);
@@ -431,6 +300,10 @@ int main()
                                         break;
                                 }
                             }
+                        } else if(error == TRUE) {
+                            components_size-=2;
+                            error = FALSE;
+                            actualise = TRUE;
                         }
                     }
                     break;

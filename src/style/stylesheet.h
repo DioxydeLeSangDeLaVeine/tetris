@@ -6,6 +6,7 @@
 
 typedef enum {
     MENU_COMPONENTS,
+    PLAY_COMPONENTS,
     SETTINGS_KEYBOARD_COMPONENTS,
     SETTINGS_VIDEO_COMPONENTS,
     SETTINGS_GRAPHICS_COMPONENTS,
@@ -43,6 +44,7 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
 void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set);
 void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set);
 void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size);
+void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size);
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set);
 void createSettingsKeyboardComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set);
 void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size);

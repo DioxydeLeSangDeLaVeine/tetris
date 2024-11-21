@@ -234,3 +234,155 @@ MLV_Keyboard_button getMLVFromKey(char key[])
     else if (strcmp(key, "F12") == 0) return MLV_KEYBOARD_F12;
     else return MLV_KEYBOARD_UNKNOWN;
 }
+
+settings defaultSettings()
+{
+    settings set;
+    set.keyboard_move_left = MLV_KEYBOARD_q;
+    set.keyboard_move_right = MLV_KEYBOARD_d;
+    set.keyboard_turn_left = MLV_KEYBOARD_a;
+    set.keyboard_turn_right = MLV_KEYBOARD_e;
+    set.keyboard_confirm = MLV_KEYBOARD_SPACE;
+    set.video_fps = 30;
+    set.graphics_border_radius = TRUE;
+    set.graphics_animations = TRUE;
+    return set;
+}
+
+void writeSettings(settings set)
+{
+    FILE *file = fopen("./data/settings", "w");
+    char response[64];
+
+    if(file == NULL)
+    {
+        return;
+    }
+
+    fprintf(file, "### KEYBOARD ###\n");
+    getKeyFromMLV(set.keyboard_move_left, response);
+    fprintf(file, "KEY_MOVE_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_move_right, response);
+    fprintf(file, "KEY_MOVE_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_left, response);
+    fprintf(file, "KEY_TURN_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_right, response);
+    fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_confirm, response);
+    fprintf(file, "KEY_CONFIRM=%s\n", response);
+    getKeyFromMLV(set.keyboard_pause, response);
+    fprintf(file, "KEY_PAUSE=%s\n\n", response);
+
+    fprintf(file, "### VIDEO ###\n");
+    fprintf(file, "FPS=%u\n\n", set.video_fps);
+    fprintf(file, "### GRAPHICS ###\n\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n");
+    if(set.graphics_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
+    else fprintf(file, "ANIMATIONS=FALSE\n\n");
+    fprintf(file, "### AUDIO ###\n");
+
+    fclose(file);
+}
+
+settings readSettings()
+{
+    FILE *file = fopen("./data/settings", "r");
+    MLV_Keyboard_button key;
+    settings set;
+    char setting_name[65], setting_value[65];
+    char line[130];
+    int i, j;
+    boolean is_value;
+
+    set = defaultSettings();
+    
+    if(file == NULL)
+    {
+        writeSettings(set);
+        return set;
+    }
+
+    while(fgets(line, 130, file) != NULL)
+    {
+        i = 0;
+        j = 0;
+        is_value = FALSE;
+        strcpy(setting_name, "");
+        strcpy(setting_value, "");
+        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#')
+        {
+            while(line[i] != '\0'&&line[i] != '\n')
+            {
+                if(is_value == FALSE)
+                {
+                    if(line[i]=='=')
+                    {
+                        is_value = TRUE;
+                        setting_name[i] = '\0';
+                    } else {
+                        setting_name[i]=line[i];
+                    }
+                } else {
+                    setting_value[j]=line[i];
+                    j++;
+                }
+                i++;
+            }
+            setting_value[j]='\0';
+            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_confirm = key;
+                }
+            } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_pause = key;
+                }
+            } else if(strcmp(setting_name, "FPS") == 0)
+            {
+                if(atoi(setting_value) > 0) {
+                    set.video_fps = atoi(setting_value);
+                }
+            } else if(strcmp(setting_name, "BORDER_RADIUS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
+                else set.graphics_border_radius = FALSE;
+            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.graphics_animations = TRUE;
+                else set.graphics_animations = FALSE;
+            }
+        }
+    }
+    fclose(file);
+    writeSettings(set);
+    return set;
+}

@@ -491,6 +491,7 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
 
     switch(page) {
         case MENU_COMPONENTS:
+        case PLAY_COMPONENTS:
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
@@ -510,6 +511,9 @@ void createComponentsWithSidebar(page_components page, int32_t top, int32_t left
     switch(page) {
         case MENU_COMPONENTS:
             createMenuComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
+            break;
+        case PLAY_COMPONENTS:
+            createPlayComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
@@ -531,17 +535,17 @@ void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t wid
 
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 4 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_PLAY_COMPONENTS); /* id = 4 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
     createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 5 */
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 5 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 6 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 6 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 7 */
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS();
     hover_stylesheet.component_justify = JUSTIFY_END;
-    createButton(components, components_size, buttons, buttons_size, 2, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT); /* id = 7 */
+    createButton(components, components_size, buttons, buttons_size, 2, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0, BUTTON_ACTION_QUIT); /* id = 8 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Nouvelle partie"); /* id = 8 */
@@ -549,8 +553,31 @@ void createMenuComponents(int32_t top, int32_t left, int32_t height, int32_t wid
     createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 10 */
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 11 */
     createText(components, components_size, texts, texts_size, 8, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter"); /* id = 12 */
+}
 
+void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
+{
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    
+    stylesheet = STYLESHEET_LOGO(top, left, height, width);
+    createImage(components, components_size, images, images_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "./src/img/logo.png"); /* id = 3 */
 
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 4 */
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 5 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 6 */
+    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
+    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 7 */
+
+    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 8 */
+    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode survie"); /* id = 9 */
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode marathon"); /* id = 10 */
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode ultra"); /* id = 11 */
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)

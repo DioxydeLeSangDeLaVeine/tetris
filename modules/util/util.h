@@ -18,10 +18,20 @@ typedef struct {
     boolean graphics_animations;
 } settings;
 
+typedef enum {
+    GAMEMODE_SURVIVAL,
+    GAMEMODE_MARATHON,
+    GAMEMODE_ULTRA
+} gamemode;
+
 int32_t __min(int32_t a, int32_t b);
 int32_t __max(int32_t a, int32_t b);
 
 void getKeyFromMLV(MLV_Keyboard_button sym, char response[]);
 MLV_Keyboard_button getMLVFromKey(char key[]);
+
+settings defaultSettings();
+void writeSettings(settings set);
+settings readSettings();
 
 #endif
