@@ -22,6 +22,14 @@ rgba ROOT_BUTTON_COLOR() {
     color.a = 255;
     return color;
 }
+rgba ROOT_GREY_COLOR() {
+    rgba color;
+    color.r = 39;
+    color.g = 43;
+    color.b = 54;
+    color.a = 255;
+    return color;
+}
 rgba ROOT_SECONDARY_COLOR() {
     rgba color;
     color.r = 19;
@@ -147,12 +155,10 @@ style STYLESHEET_LOGO(int32_t top, int32_t left, int32_t height, int32_t width) 
 
 style STYLESHEET_PODIUM(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
-    style stylesheet_sidebar;
     style stylesheet_body;
 
     stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
     stylesheet.color = ROOT_TRANSPARENT_COLOR();
-    stylesheet_sidebar = STYLESHEET_SIDEBAR();
     stylesheet_body = STYLESHEET_BODY(top, left, height, width);
     strcpy(stylesheet.font_family, "");
     stylesheet.font_size = 0;
@@ -169,7 +175,7 @@ style STYLESHEET_PODIUM(int32_t top, int32_t left, int32_t height, int32_t width
     stylesheet.unit_top = UNIT_PX;
     stylesheet.top = -300;
     stylesheet.unit_left = UNIT_PX;
-    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(2000/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.left = (stylesheet_body.width/2)-(2000/2);
     stylesheet.unit_height = UNIT_PX;
     stylesheet.height = 1000;
     stylesheet.unit_width = UNIT_PX;
@@ -179,12 +185,10 @@ style STYLESHEET_PODIUM(int32_t top, int32_t left, int32_t height, int32_t width
 
 style STYLESHEET_BOARD(int32_t top, int32_t left, int32_t height, int32_t width) {
     style stylesheet;
-    style stylesheet_sidebar;
     style stylesheet_body;
 
     stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
     stylesheet.color = ROOT_TRANSPARENT_COLOR();
-    stylesheet_sidebar = STYLESHEET_SIDEBAR();
     stylesheet_body = STYLESHEET_BODY(top, left, height, width);
     strcpy(stylesheet.font_family, "");
     stylesheet.font_size = 0;
@@ -201,7 +205,7 @@ style STYLESHEET_BOARD(int32_t top, int32_t left, int32_t height, int32_t width)
     stylesheet.unit_top = UNIT_PX;
     stylesheet.top = 600;
     stylesheet.unit_left = UNIT_PX;
-    stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(600/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    stylesheet.left = (stylesheet_body.width/2)-(600/2);
     stylesheet.unit_height = UNIT_PX;
     stylesheet.height = 1000;
     stylesheet.unit_width = UNIT_PX;
@@ -258,6 +262,87 @@ style STYLESHEET_SCORE_NUM() {
     stylesheet.height = 35;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = 35;
+    return stylesheet;
+}
+
+style STYLESHEET_SCORE_NUM_TEXT() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_BLACK_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_BOLD);
+    stylesheet.font_size = 20;
+    stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PERCENTAGE;
+    stylesheet.height = 100;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    return stylesheet;
+}
+
+style STYLESHEET_SCORE_TEXT() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
+    stylesheet.font_size = 20;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PERCENTAGE;
+    stylesheet.height = 100;
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    return stylesheet;
+}
+
+style STYLESHEET_SCORE_DATE_TEXT() {
+    style stylesheet;
+    stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    stylesheet.color = ROOT_GREY_COLOR();
+    strcpy(stylesheet.font_family, FONT_POPPINS_MEDIUM);
+    stylesheet.font_size = 16;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_END;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PERCENTAGE;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PERCENTAGE;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PERCENTAGE;
+    stylesheet.height = 100;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 0;
     return stylesheet;
 }
 
@@ -623,6 +708,14 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
 void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
+    if(page == SCOREBOARD_COMPONENTS)
+    {
+        stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+        stylesheet.border_radius_top_left = 0;
+        stylesheet.border_radius_top_right = 0;
+        stylesheet.border_radius_bottom_left = 0;
+        stylesheet.border_radius_bottom_right = 0;
+    }
     createFrame(components, components_size, 1, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 2 */
 
     switch(page) {
@@ -703,9 +796,16 @@ void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t wid
 void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
 {
     int i, id;
-    style stylesheet, hover_stylesheet, text_stylesheet, stylesheet_body, stylesheet_sidebar;
+    style stylesheet, hover_stylesheet, text_num_stylesheet, text_stylesheet, text_date_stylesheet, stylesheet_body;
     char num[4];
+    char text[64];
+    char month[32];
+    score tab[10];
+    MLV_Font *font_family;
+    int32_t font_width;
     
+    readScoreboard(tab);
+
     stylesheet = STYLESHEET_PODIUM(top, left, height, width);
     createImage(components, components_size, images, images_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "./src/img/podium.png"); /* id = 3 */
 
@@ -721,7 +821,9 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
 
     stylesheet = STYLESHEET_SCORE();
     hover_stylesheet = STYLESHEET_SCORE_NUM();
-    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    text_num_stylesheet = STYLESHEET_SCORE_NUM_TEXT();
+    text_stylesheet = STYLESHEET_SCORE_TEXT();
+    text_date_stylesheet = STYLESHEET_SCORE_DATE_TEXT();
     id = 6;
     for(i = 4; i<=10; i++) {
         createFrame(components, components_size, 6, stylesheet, FALSE, FALSE, stylesheet, 0);
@@ -729,42 +831,98 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
         sprintf(num, "%d", i);
         createFrame(components, components_size, id, hover_stylesheet, FALSE, FALSE, hover_stylesheet, 0);
         id++;
-        text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
-        text_stylesheet.color = ROOT_BLACK_COLOR();
-        strcpy(text_stylesheet.font_family, FONT_POPPINS_BOLD);
-        createText(components, components_size, texts, texts_size, id, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, num);
+        createText(components, components_size, texts, texts_size, id, text_num_stylesheet, FALSE, TRUE, text_num_stylesheet, 0, num);
         id++;
-        text_stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
-        text_stylesheet.color = ROOT_WHITE_COLOR();
-        strcpy(text_stylesheet.font_family, FONT_POPPINS_MEDIUM);
-        createText(components, components_size, texts, texts_size, id-2, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
+        getMonth(tab[i-1].when.month, month);
+        if(tab[i-1].score == 0) sprintf(text, "---");
+        else sprintf(text, "%d", tab[i-1].score);
+        createText(components, components_size, texts, texts_size, id-2, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+        id++;
+
+        if(tab[i-1].score != 0)
+        {
+            sprintf(text, "%d %s %d", tab[i-1].when.day, month, tab[i-1].when.year);
+            
+            if(MLV_path_exists(text_date_stylesheet.font_family))
+            {
+                font_family = MLV_load_font(text_date_stylesheet.font_family, text_date_stylesheet.font_size);
+                MLV_get_size_of_text_with_font(text, &font_width, NULL, font_family);
+                text_date_stylesheet.unit_width = UNIT_PX;
+                text_date_stylesheet.width = font_width;
+            }
+            createText(components, components_size, texts, texts_size, id-3, text_date_stylesheet, FALSE, TRUE, text_date_stylesheet, 0, text);
+        }
         id++;
     }
 
 
     stylesheet_body = STYLESHEET_BODY(top, left, height, width);
-    stylesheet_sidebar = STYLESHEET_SIDEBAR(top, left, height, width);
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     text_stylesheet.unit_top = UNIT_PX;
-    text_stylesheet.top = 30;
+    text_stylesheet.top = 60;
     text_stylesheet.unit_left = UNIT_PX;
-    text_stylesheet.left = (stylesheet_body.width-(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding*2+stylesheet_body.gap))/2-(2000/2)+(stylesheet_sidebar.left+stylesheet_sidebar.width+stylesheet_body.padding+stylesheet_body.gap);
+    text_stylesheet.left = (stylesheet_body.width/2)-(2000/2);
     text_stylesheet.unit_height = UNIT_PX;
     text_stylesheet.height = 125;
     text_stylesheet.unit_width = UNIT_PX;
     text_stylesheet.width = 2000;
     text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
-    text_stylesheet.color = ROOT_WHITE_COLOR();
+    text_stylesheet.color.r = 241;
+    text_stylesheet.color.g = 204;
+    text_stylesheet.color.b = 76;
+    text_stylesheet.color.a = 255;
     strcpy(text_stylesheet.font_family, FONT_POPPINS_BLACK);
     text_stylesheet.font_size = 100;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
-    text_stylesheet.top = 190;
+    if(tab[0].score == 0) sprintf(text, "---");
+    else sprintf(text, "%d", tab[0].score);
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    text_stylesheet.top = 130;
+    text_stylesheet.font_size = 22;
+    text_stylesheet.color.r = 181;
+    text_stylesheet.color.g = 153;
+    text_stylesheet.color.b = 57;
+    getMonth(tab[0].when.month, month);
+    if(tab[0].score != 0)
+    {
+        sprintf(text, "%d %s %d", tab[0].when.day, month, tab[0].when.year);
+        createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    }
+    text_stylesheet.top = 210;
     text_stylesheet.font_size = 60;
     text_stylesheet.width = 1500;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
-    text_stylesheet.top = 255;
+    text_stylesheet.color.r = 116;
+    text_stylesheet.color.g = 117;
+    text_stylesheet.color.b = 135;
+    if(tab[1].score == 0) sprintf(text, "---");
+    else sprintf(text, "%d", tab[1].score);
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    text_stylesheet.top = 272;
+    text_stylesheet.font_size = 18;
+    text_stylesheet.width = 1475;
+    getMonth(tab[1].when.month, month);
+    if(tab[1].score != 0)
+    {
+        sprintf(text, "%d %s %d", tab[1].when.day, month, tab[1].when.year);
+        createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    }
+    text_stylesheet.top = 275;
+    text_stylesheet.font_size = 60;
     text_stylesheet.width = 2500;
-    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "---");
+    text_stylesheet.color.r = 189;
+    text_stylesheet.color.g = 125;
+    text_stylesheet.color.b = 78;
+    if(tab[2].score == 0) sprintf(text, "---");
+    else sprintf(text, "%d", tab[2].score);
+    createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    text_stylesheet.top = 337;
+    text_stylesheet.font_size = 18;
+    text_stylesheet.width = 2525;
+    getMonth(tab[2].when.month, month);
+    if(tab[2].score != 0)
+    {
+        sprintf(text, "%d %s %d", tab[2].when.day, month, tab[2].when.year);
+        createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
+    }
 }
 
 void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)

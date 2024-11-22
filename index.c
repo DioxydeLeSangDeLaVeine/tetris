@@ -69,7 +69,7 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
                 if(components[i].__transition != 0)
                 {
                     change = TRUE;
-                    if(set.graphics_animations == FALSE) components[i].__transition = 0;
+                    if(set.video_animations == FALSE) components[i].__transition = 0;
                     else {
                         if(components[i].transition_duration==0) components[i].__transition = 0;
                         else {
@@ -90,7 +90,7 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
                 if(components[i].__transition != 1)
                 {
                     change = TRUE;
-                    if(set.graphics_animations == FALSE) components[i].__transition = 1;
+                    if(set.video_animations == FALSE) components[i].__transition = 1;
                     else {
                         if(components[i].transition_duration==0) components[i].__transition = 1;
                         else {

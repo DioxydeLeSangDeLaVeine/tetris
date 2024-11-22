@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
+#include <time.h>
 #include "util.h"
 
 
@@ -29,6 +30,70 @@ int32_t __min(int32_t a, int32_t b)
 int32_t __max(int32_t a, int32_t b)
 {
     return a>=b?a:b;
+}
+
+
+void getMonth(char unsigned month, char result[32])
+{
+    switch(month%12)
+    {
+        case 0:
+            strcpy(result, "Janvier");
+            break;
+        case 1:
+            strcpy(result, "Février");
+            break;
+        case 2:
+            strcpy(result, "Mars");
+            break;
+        case 3:
+            strcpy(result, "Avril");
+            break;
+        case 4:
+            strcpy(result, "Mai");
+            break;
+        case 5:
+            strcpy(result, "Juin");
+            break;
+        case 6:
+            strcpy(result, "Juillet");
+            break;
+        case 7:
+            strcpy(result, "Août");
+            break;
+        case 8:
+            strcpy(result, "Septembre");
+            break;
+        case 9:
+            strcpy(result, "Octobre");
+            break;
+        case 10:
+            strcpy(result, "Novembre");
+            break;
+        case 11:
+            strcpy(result, "Décembre");
+            break;
+        default:
+            strcpy(result, "???");
+            break;
+    }
+}
+
+
+date getDate()
+{
+    date when;
+    time_t current_time;
+    struct tm *local_time;
+
+    time(&current_time);
+
+    local_time = localtime(&current_time);
+
+    when.day = (char)local_time->tm_mday;
+    when.month = (char)(local_time->tm_mon);
+    when.year = (int32_t)(local_time->tm_year + 1900);
+    return when;
 }
 
 
@@ -244,14 +309,14 @@ settings defaultSettings()
     set.keyboard_turn_right = MLV_KEYBOARD_e;
     set.keyboard_confirm = MLV_KEYBOARD_SPACE;
     set.video_fps = 30;
+    set.video_animations = TRUE;
     set.graphics_border_radius = TRUE;
-    set.graphics_animations = TRUE;
     return set;
 }
 
 void writeSettings(settings set)
 {
-    FILE *file = fopen("./data/settings", "w");
+    FILE *file = fopen("./data/settings.txt", "w");
     char response[64];
 
     if(file == NULL)
@@ -274,12 +339,12 @@ void writeSettings(settings set)
     fprintf(file, "KEY_PAUSE=%s\n\n", response);
 
     fprintf(file, "### VIDEO ###\n");
-    fprintf(file, "FPS=%u\n\n", set.video_fps);
+    fprintf(file, "FPS=%u\n", set.video_fps);
+    if(set.video_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
+    else fprintf(file, "ANIMATIONS=FALSE\n\n");
     fprintf(file, "### GRAPHICS ###\n\n");
     if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
-    else fprintf(file, "BORDER_RADIUS=FALSE\n");
-    if(set.graphics_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
-    else fprintf(file, "ANIMATIONS=FALSE\n\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n\n");
     fprintf(file, "### AUDIO ###\n");
 
     fclose(file);
@@ -287,7 +352,7 @@ void writeSettings(settings set)
 
 settings readSettings()
 {
-    FILE *file = fopen("./data/settings", "r");
+    FILE *file = fopen("./data/settings.txt", "r");
     MLV_Keyboard_button key;
     settings set;
     char setting_name[65], setting_value[65];
@@ -371,18 +436,166 @@ settings readSettings()
                 if(atoi(setting_value) > 0) {
                     set.video_fps = atoi(setting_value);
                 }
+            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.video_animations = TRUE;
+                else set.video_animations = FALSE;
             } else if(strcmp(setting_name, "BORDER_RADIUS") == 0)
             {
                 if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
                 else set.graphics_border_radius = FALSE;
-            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
-            {
-                if(strcmp(setting_value, "TRUE") == 0) set.graphics_animations = TRUE;
-                else set.graphics_animations = FALSE;
             }
         }
     }
     fclose(file);
     writeSettings(set);
     return set;
+}
+
+void readScoreboard(score tab[10])
+{
+    FILE *file = fopen("./data/scoreboard.save", "rb");
+    int byte, i = 0, j = 0;
+    uint32_t tmp_score;
+    boolean useful, equal;
+    
+    if(file == NULL)
+    {
+        return;
+    }
+
+    for(i = 0; i<10; i++) {
+        tab[i].score = 0;
+        tab[i].when.day = 0;
+        tab[i].when.month = 0;
+        tab[i].when.year = 0;
+    }
+
+    byte = fgetc(file);
+    i = 0;
+    while(byte != EOF)
+    {
+        tmp_score = byte<<24;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        tmp_score|=byte<<16;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        tmp_score|=byte<<8;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        tmp_score|=byte;
+
+        useful = FALSE;
+        equal = FALSE;
+        for(j = 0; j<10; j++) {
+            if(tab[j].score == tmp_score)
+            {
+                equal = TRUE;
+                break;
+            }
+        }
+        j = ((i-1)<10)?(i-1):9;
+        if(equal == FALSE)
+        {
+            for(j = (i<10)?i:9; j>=0; j--)
+            {
+                if(tab[j].score > tmp_score) break;
+                useful = TRUE;
+                if(j+1<10)
+                {
+                    tab[j+1] = tab[j];
+                }
+                tab[j].score = 0;
+                tab[j].when.day = 0;
+                tab[j].when.month = 0;
+                tab[j].when.year = 0;
+            }
+        }
+        j++;
+        if(useful == TRUE) tab[j].score = tmp_score;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.day = byte;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.month = byte;
+        
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.year = byte<<24;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.year|=byte<<16;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.year|=byte<<8;
+        byte = fgetc(file);
+        if(byte == EOF)return;
+        if(useful == TRUE) tab[j].when.year|=byte;
+        i++;
+        byte = fgetc(file);
+    }
+    fclose(file);
+}
+
+void writeScoreboard(score s)
+{
+    FILE *file;
+    score tab[10];
+    int32_t i, value;
+
+    readScoreboard(tab);
+    file = fopen("./data/scoreboard.save", "wb");
+
+    if(file == NULL)
+    {
+        return;
+    }
+    
+    value = (s.score>>24)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score>>16)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score>>8)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = s.when.day;
+    fwrite(&value, sizeof(char), 1, file);
+    value = s.when.month;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>24)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>16)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>8)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    for(i = 0; i<10; i++)
+    {
+        value = (tab[i].score>>24)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score>>16)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score>>8)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = tab[i].when.day;
+        fwrite(&value, sizeof(char), 1, file);
+        value = tab[i].when.month;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>24)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>16)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>8)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+    }
+
+    fclose(file);
 }
