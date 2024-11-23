@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../../modules/ui/ui.h"
 #include "../../modules/util/util.h"
+#include "../../modules/back/game.h"
 #include "stylesheet.h"
 
 rgba ROOT_PRIMARY_COLOR() {
@@ -150,6 +151,45 @@ style STYLESHEET_LOGO(int32_t top, int32_t left, int32_t height, int32_t width) 
     stylesheet.height = 1000;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = 1000;
+    return stylesheet;
+}
+
+style STYLESHEET_GAME(int32_t top, int32_t left, int32_t height, int32_t width) {
+    style stylesheet;
+    style stylesheet_body;
+
+    int32_t tmp_height, tmp_width;
+
+    stylesheet.background_color = ROOT_BUTTON_COLOR();
+    stylesheet.color = ROOT_TRANSPARENT_COLOR();
+    stylesheet_body = STYLESHEET_BODY(top, left, height, width);
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_CENTER;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 16;
+    stylesheet.border_radius_top_right = 16;
+    stylesheet.border_radius_bottom_left = 16;
+    stylesheet.border_radius_bottom_right = 16;
+    stylesheet.childs_direction = DIRECTION_COLUMN;
+    stylesheet.padding = 0;
+    stylesheet.gap = 10;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = stylesheet_body.padding;
+
+    tmp_height = stylesheet_body.height-2*stylesheet_body.padding;
+
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = (tmp_height-((GAME_HEIGHT-1)*stylesheet.gap))/GAME_HEIGHT;
+
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = stylesheet.height;
+
+    tmp_width = GAME_WIDTH*stylesheet.width+(GAME_WIDTH-1)*stylesheet.gap;
+
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = (stylesheet_body.width/2)-(tmp_width/2);
     return stylesheet;
 }
 
@@ -691,6 +731,9 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
     createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 1 */
 
     switch(page) {
+        case GAME_COMPONENTS:
+            createGameComponents(top, left, height, width, components, components_size, texts, texts_size);
+            break;
         case MENU_COMPONENTS:
         case PLAY_COMPONENTS:
         case SCOREBOARD_COMPONENTS:
@@ -780,17 +823,25 @@ void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t wid
     createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 4 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 5 */
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 6 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS); /* id = 5 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS); /* id = 6 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_NONE); /* id = 7 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 64, BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS); /* id = 7 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 8 */
     createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode survie"); /* id = 9 */
     createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode marathon"); /* id = 10 */
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode ultra"); /* id = 11 */
+}
+
+void createGameComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
+{
+    style stylesheet, text_stylesheet;
+
+    stylesheet = STYLESHEET_GAME(top, left, height, width);
+    createGame(components, components_size, 0, stylesheet);
 }
 
 void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
@@ -872,7 +923,7 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
     text_stylesheet.color.b = 76;
     text_stylesheet.color.a = 255;
     strcpy(text_stylesheet.font_family, FONT_POPPINS_BLACK);
-    text_stylesheet.font_size = 100;
+    text_stylesheet.font_size = 95;
     if(tab[0].score == 0) sprintf(text, "---");
     else sprintf(text, "%d", tab[0].score);
     createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
@@ -887,8 +938,8 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
         sprintf(text, "%d %s %d", tab[0].when.day, month, tab[0].when.year);
         createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
     }
-    text_stylesheet.top = 210;
-    text_stylesheet.font_size = 60;
+    text_stylesheet.top = 213;
+    text_stylesheet.font_size = 52;
     text_stylesheet.width = 1500;
     text_stylesheet.color.r = 116;
     text_stylesheet.color.g = 117;
@@ -905,8 +956,8 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
         sprintf(text, "%d %s %d", tab[1].when.day, month, tab[1].when.year);
         createText(components, components_size, texts, texts_size, 0, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text);
     }
-    text_stylesheet.top = 275;
-    text_stylesheet.font_size = 60;
+    text_stylesheet.top = 278;
+    text_stylesheet.font_size = 52;
     text_stylesheet.width = 2500;
     text_stylesheet.color.r = 189;
     text_stylesheet.color.g = 125;

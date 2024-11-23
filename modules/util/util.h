@@ -1,6 +1,11 @@
 #ifndef H_UTIL_MODULE
 #define H_UTIL_MODULE
 
+#include <MLV/MLV_all.h>
+
+#define MAX_GAME_HEIGHT 20
+#define MAX_GAME_WIDTH 10
+
 typedef enum {
     FALSE,
     TRUE
@@ -29,6 +34,19 @@ typedef struct {
     date when;
 } score;
 
+typedef struct {
+    uint32_t r;
+    uint32_t g;
+    uint32_t b;
+    uint32_t a;
+} rgba;
+
+typedef struct {
+    rgba map[16];
+    char idbox; /* 1x1, 2x2, 3x3, 4x4 */
+    char path[300];
+} tetrimino;
+
 typedef enum {
     GAMEMODE_SURVIVAL,
     GAMEMODE_MARATHON,
@@ -48,5 +66,7 @@ void writeSettings(settings set);
 settings readSettings();
 void readScoreboard(score tab[10]);
 void writeScoreboard(score s);
+
+void loadTetrimino(tetrimino tab[64]);
 
 #endif

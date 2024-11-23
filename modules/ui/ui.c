@@ -4,6 +4,7 @@
 #include <string.h>
 #include "ui.h"
 #include "../util/util.h"
+#include "../back/game.h"
 
 
 /**
@@ -455,6 +456,9 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
  * @param {int32_t} left
  * @param {int32_t} height
  * @param {int32_t} width
+ * @param {component} components[]
+ * @param {uint32_t} components_size
+ * @param {game} g
  * @param {text_component} texts[]
  * @param {uint32_t} texts_size
  * @param {key_component} keys[]
@@ -464,13 +468,13 @@ boolean idboxComponent(style stylesheet, int32_t x, int32_t y)
  *
  * @returns {void}
  */
-void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
+void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     uint32_t i;
 
     for(i = 0; i<components_size; i++)
     {
-        drawComponent(set, components[i], autoLayout(top, left, height, width, components, components_size, components[i]), texts, texts_size, keys, keys_size, images, images_size);
+        drawComponent(set, components[i], autoLayout(top, left, height, width, components, components_size, components[i]), g, texts, texts_size, keys, keys_size, images, images_size);
     }
 }
 
@@ -482,6 +486,7 @@ void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int
  * @param {settings} set
  * @param {component} cmp
  * @param {style} stylesheet
+ * @param {game} g
  * @param {text_component} texts[]
  * @param {uint32_t} texts_size
  * @param {key_component} keys[]
@@ -491,11 +496,12 @@ void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int
  *
  * @returns {void}
  */
-void drawComponent(settings set, component cmp, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
+void drawComponent(settings set, component cmp, style stylesheet, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size)
 {
     MLV_Image *mlv_img;
     MLV_Font *font_family;
     int32_t font_height = 0, font_width = 0, image_height = 0, image_width = 0, horizontal_align = 0, vertical_align = 0, rt, rl, rr, rb;
+    int32_t i, j;
     float image_ratio;
     key_component key_cmp;
     text_component txt_cmp;
@@ -503,9 +509,40 @@ void drawComponent(settings set, component cmp, style stylesheet, text_component
     char content[64];
     MLV_Color background_color;
 
+    style stylesheet_edit;
+    component cmp_edit;
+
     /* Not drawing anything if not visible */
     if(stylesheet.height == 0 || stylesheet.width == 0)return;
-    if(cmp.type == COMPONENT_IMAGE)
+    if(cmp.type == COMPONENT_GAME)
+    {
+        cmp_edit.type = COMPONENT_FRAME;
+        stylesheet_edit = stylesheet;
+
+        for(i = 0; i<GAME_HEIGHT; i++)
+        {
+            stylesheet.left = stylesheet_edit.left;
+            for(j = 0; j<GAME_WIDTH; j++)
+            {
+                if(g.grid[i][j].a == 0) stylesheet.background_color = stylesheet_edit.background_color;
+                else stylesheet.background_color = g.grid[i][j];
+
+                if(i == 0 && j == 0) stylesheet.border_radius_top_left = stylesheet_edit.border_radius_top_left;
+                else stylesheet.border_radius_top_left = 0;
+                if(i == 0 && j == GAME_WIDTH-1) stylesheet.border_radius_top_right = stylesheet_edit.border_radius_top_right;
+                else stylesheet.border_radius_top_right = 0;
+                if(i == GAME_HEIGHT-1 && j == 0) stylesheet.border_radius_bottom_left = stylesheet_edit.border_radius_bottom_left;
+                else stylesheet.border_radius_bottom_left = 0;
+                if(i == GAME_HEIGHT-1 && j == GAME_WIDTH-1) stylesheet.border_radius_bottom_right = stylesheet_edit.border_radius_bottom_right;
+                else stylesheet.border_radius_bottom_right = 0;
+
+
+                drawComponent(set, cmp_edit, stylesheet, g, texts, texts_size, keys, keys_size, images, images_size);
+                stylesheet.left += stylesheet.gap+stylesheet.width;
+            }
+            stylesheet.top += stylesheet.gap+stylesheet.height;
+        }
+    } else if(cmp.type == COMPONENT_IMAGE)
     {
         img_cmp = componentToImageComponent(cmp, images, images_size);
         mlv_img = MLV_load_image(img_cmp.path);
@@ -699,6 +736,8 @@ void createFrame(component components[], uint32_t *components_size, uint32_t par
  *
  * @param {component} components[]
  * @param {uint32_t} *components_size
+ * @param {button_component} buttons[]
+ * @param {uint32_t} *buttons_size
  * @param {uint32_t} parent_id
  * @param {style} stylesheet
  * @param {boolean} is_hoverable
@@ -728,6 +767,8 @@ void createButton(component components[], uint32_t *components_size, button_comp
  *
  * @param {component} components[]
  * @param {uint32_t} *components_size
+ * @param {text_component} texts[]
+ * @param {uint32_t} *texts_size
  * @param {uint32_t} parent_id
  * @param {style} stylesheet
  * @param {boolean} is_hoverable
@@ -757,6 +798,8 @@ void createText(component components[], uint32_t *components_size, text_componen
  *
  * @param {component} components[]
  * @param {uint32_t} *components_size
+ * @param {key_component} keys[]
+ * @param {uint32_t} *keys_size
  * @param {uint32_t} parent_id
  * @param {style} stylesheet
  * @param {boolean} is_hoverable
@@ -788,6 +831,8 @@ void createKey(component components[], uint32_t *components_size, key_component 
  *
  * @param {component} components[]
  * @param {uint32_t} *components_size
+ * @param {image_component} images[]
+ * @param {uint32_t} *images_size
  * @param {uint32_t} parent_id
  * @param {style} stylesheet
  * @param {boolean} is_hoverable
@@ -809,4 +854,22 @@ void createImage(component components[], uint32_t *components_size, image_compon
     (*components_size)++;
     images[*images_size] = img_cmp;
     (*images_size)++;
+}
+
+/**
+ * Initialisation of game component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ *
+ * @returns {void}
+ */
+void createGame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet)
+{
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_GAME, parent_id, stylesheet, FALSE, TRUE, stylesheet, 0);
+    (*components_size)++;
 }

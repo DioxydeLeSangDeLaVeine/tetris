@@ -6,6 +6,7 @@
 #include "./modules/ui/ui.h"
 #include "./modules/util/util.h"
 #include "./src/style/stylesheet.h"
+#include "./modules/back/game.h"
 
 /**
  * Every functions in this project need to contain
@@ -128,6 +129,16 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *actualise = TRUE;
                 }
                 break;
+            case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
+            case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
+            case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
+                if(*page != GAME_COMPONENTS)
+                {
+                    *page = GAME_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
             case BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS:
                 if(*page != SCOREBOARD_COMPONENTS)
                 {
@@ -182,13 +193,10 @@ int main()
     MLV_Button_state state = 0;
 
     boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE;
-    int32_t x = 0, y = 0,
-    width = MLV_get_desktop_width(),
-    height = MLV_get_desktop_height();
+    int32_t x = 0, y = 0, width, height;
     uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0;
     page_components page = MENU_COMPONENTS;
     settings set;
-
     struct timespec start, end;
 
     component components[COMPONENTS_MAX_SIZE];
@@ -196,18 +204,22 @@ int main()
     text_component texts[COMPONENTS_MAX_SIZE];
     key_component keys[COMPONENTS_MAX_SIZE];
     image_component images[COMPONENTS_MAX_SIZE];
-
     component cmp;
     button_component button;
     key_component key;
-
     style stylesheet;
 
-    MLV_create_full_screen_window("Tetris", "tetris", width, height);
+    game g;
 
+    width = MLV_get_desktop_width(),
+    height = MLV_get_desktop_height();
+
+    resetGrid(&g);
     set = readSettings();
+
+    MLV_create_full_screen_window("Tetris", "tetris", width, height);
     createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
-    drawComponents(set, 0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
+    drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
 
     while(quit != TRUE)
@@ -337,7 +349,7 @@ int main()
         }
         if(actualise == TRUE)
         {
-            drawComponents(set, 0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
+            drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
             MLV_actualise_window();
             actualise = FALSE;
         }

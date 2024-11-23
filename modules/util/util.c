@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
 #include <time.h>
+#include <dirent.h>
 #include "util.h"
 
 
@@ -477,13 +478,13 @@ void readScoreboard(score tab[10])
     {
         tmp_score = byte<<24;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         tmp_score|=byte<<16;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         tmp_score|=byte<<8;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         tmp_score|=byte;
 
         useful = FALSE;
@@ -515,23 +516,23 @@ void readScoreboard(score tab[10])
         j++;
         if(useful == TRUE) tab[j].score = tmp_score;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.day = byte;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.month = byte;
         
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.year = byte<<24;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.year|=byte<<16;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.year|=byte<<8;
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)break;
         if(useful == TRUE) tab[j].when.year|=byte;
         i++;
         byte = fgetc(file);
@@ -598,4 +599,75 @@ void writeScoreboard(score s)
     }
 
     fclose(file);
+}
+
+void loadTetrimino(tetrimino tab[64])
+{
+    DIR *folder = opendir("./data/tetrimino");
+    FILE *file;
+    struct dirent *entry;
+    char file_path[300];
+    int byte, i, j;
+
+    if(folder == NULL) {
+        return;
+    }
+    for(i = 0; i<64; i++)
+    {
+        tab[i].idbox = 0;
+        tab[i].path[0] = '\0';
+    }
+
+    i = 0;
+    while((entry = readdir(folder)) != NULL && i < 64)
+    {
+        if(entry->d_type == DT_REG)
+        {
+            j = 0;
+            snprintf(file_path, sizeof(file_path), "./data/tetrimino/%s", entry->d_name);
+
+            file = fopen(file_path, "rb");
+            if(file == NULL) {
+                continue;
+            }
+            byte = fgetc(file);
+            j = 0;
+            tab[i].idbox = 0;
+            while(byte != EOF && j<16)
+            {
+                tab[i].map[j].r = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].g = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].b = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].a = byte;
+                j++;
+                if(j == 16) tab[i].idbox = 4;
+                else
+                {
+                    if(j >= 9) tab[i].idbox = 3;
+                    else
+                    {
+                        if(j >= 4) tab[i].idbox = 2;
+                        else
+                        {
+                            if(j >= 1) tab[i].idbox = 1;
+                        }
+                    }
+                }
+                byte = fgetc(file);
+            }
+            if(tab[i].idbox != 0)
+            {
+                strcpy(tab[i].path, file_path);
+                i++;
+            }
+            fclose(file);
+        }
+    }
+    closedir(folder);
 }
