@@ -10,6 +10,8 @@ void resetGrid(game *g)
     color.g = 0;
     color.b = 0;
 
+    g->actual_tetr.idbox = 0;
+
     for(i = 0; i<GAME_HEIGHT; i++)
     {
         for(j = 0; j<GAME_WIDTH; j++)

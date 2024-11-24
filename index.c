@@ -209,12 +209,18 @@ int main()
     key_component key;
     style stylesheet;
 
+    tetrimino tab[64];
     game g;
 
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
 
     resetGrid(&g);
+    loadTetrimino(tab);
+    g.actual_tetr = tab[6];
+    g.pos_x = 2+g.actual_tetr.idbox;
+    g.pos_y = 2+g.actual_tetr.idbox;
+
     set = readSettings();
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);

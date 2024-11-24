@@ -511,6 +511,7 @@ void drawComponent(settings set, component cmp, style stylesheet, game g, text_c
 
     style stylesheet_edit;
     component cmp_edit;
+    rgba tmp_color;
 
     /* Not drawing anything if not visible */
     if(stylesheet.height == 0 || stylesheet.width == 0)return;
@@ -527,6 +528,31 @@ void drawComponent(settings set, component cmp, style stylesheet, game g, text_c
                 if(g.grid[i][j].a == 0) stylesheet.background_color = stylesheet_edit.background_color;
                 else stylesheet.background_color = g.grid[i][j];
 
+                if(g.actual_tetr.idbox != 0)
+                {
+                    if(g.actual_tetr.idbox == 1)
+                    {
+                        if(g.pos_y == i && g.pos_x == j)
+                        {
+                            tmp_color = g.actual_tetr.map[(i-g.pos_y)*g.actual_tetr.idbox+(j-g.pos_x)];
+                            if(tmp_color.a != 0)
+                            {
+                                stylesheet.background_color = tmp_color;
+                            }
+                        }
+                    } else {
+                        if(g.pos_y-g.actual_tetr.idbox+1<=i && g.pos_y>=i
+                        && g.pos_x-g.actual_tetr.idbox+1<=j && g.pos_x>=j)
+                        {
+                            tmp_color = g.actual_tetr.map[(i-(g.pos_y-g.actual_tetr.idbox+1))*g.actual_tetr.idbox+(j-(g.pos_x-g.actual_tetr.idbox+1))];
+                            if(tmp_color.a != 0)
+                            {
+                                stylesheet.background_color = tmp_color;
+                            }
+                        }
+                    }
+                }
+
                 if(i == 0 && j == 0) stylesheet.border_radius_top_left = stylesheet_edit.border_radius_top_left;
                 else stylesheet.border_radius_top_left = 0;
                 if(i == 0 && j == GAME_WIDTH-1) stylesheet.border_radius_top_right = stylesheet_edit.border_radius_top_right;
@@ -535,7 +561,6 @@ void drawComponent(settings set, component cmp, style stylesheet, game g, text_c
                 else stylesheet.border_radius_bottom_left = 0;
                 if(i == GAME_HEIGHT-1 && j == GAME_WIDTH-1) stylesheet.border_radius_bottom_right = stylesheet_edit.border_radius_bottom_right;
                 else stylesheet.border_radius_bottom_right = 0;
-
 
                 drawComponent(set, cmp_edit, stylesheet, g, texts, texts_size, keys, keys_size, images, images_size);
                 stylesheet.left += stylesheet.gap+stylesheet.width;
