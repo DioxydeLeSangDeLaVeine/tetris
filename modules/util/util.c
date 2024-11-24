@@ -308,7 +308,8 @@ settings defaultSettings()
     set.keyboard_move_right = MLV_KEYBOARD_d;
     set.keyboard_turn_left = MLV_KEYBOARD_a;
     set.keyboard_turn_right = MLV_KEYBOARD_e;
-    set.keyboard_confirm = MLV_KEYBOARD_SPACE;
+    set.keyboard_fast_drop = MLV_KEYBOARD_SPACE;
+    set.keyboard_pause = MLV_KEYBOARD_ESCAPE;
     set.video_fps = 30;
     set.video_animations = TRUE;
     set.graphics_border_radius = TRUE;
@@ -334,8 +335,8 @@ void writeSettings(settings set)
     fprintf(file, "KEY_TURN_LEFT=%s\n", response);
     getKeyFromMLV(set.keyboard_turn_right, response);
     fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
-    getKeyFromMLV(set.keyboard_confirm, response);
-    fprintf(file, "KEY_CONFIRM=%s\n", response);
+    getKeyFromMLV(set.keyboard_fast_drop, response);
+    fprintf(file, "KEY_FAST_DROP=%s\n", response);
     getKeyFromMLV(set.keyboard_pause, response);
     fprintf(file, "KEY_PAUSE=%s\n\n", response);
 
@@ -343,8 +344,8 @@ void writeSettings(settings set)
     fprintf(file, "FPS=%u\n", set.video_fps);
     if(set.video_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
     else fprintf(file, "ANIMATIONS=FALSE\n\n");
-    fprintf(file, "### GRAPHICS ###\n\n");
-    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
+    fprintf(file, "### GRAPHICS ###\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n\n");
     else fprintf(file, "BORDER_RADIUS=FALSE\n\n");
     fprintf(file, "### AUDIO ###\n");
 
@@ -420,11 +421,11 @@ settings readSettings()
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_turn_right = key;
                 }
-            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0)
+            } else if(strcmp(setting_name, "KEY_FAST_DROP") == 0)
             {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_confirm = key;
+                    set.keyboard_fast_drop = key;
                 }
             } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
             {

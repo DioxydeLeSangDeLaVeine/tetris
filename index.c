@@ -106,12 +106,13 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
     return change;
 }
 
-void buttonAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate)
+void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, boolean *actualise, boolean *recreate)
 {
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
                 *quit = TRUE;
+                *game_started = FALSE;
                 break;
             case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
                 if(*page != MENU_COMPONENTS)
@@ -119,6 +120,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = MENU_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_PLAY_COMPONENTS:
@@ -127,6 +129,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = PLAY_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
@@ -137,6 +140,21 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = GAME_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = TRUE;
+                    *game_paused = FALSE;
+
+                    resetGrid(g);
+                    loadTetrimino(tab);
+                    (*g).time = 0;
+                    (*g).score = 0;
+                    (*g).lines = 0;
+
+                    (*g).actual_tetr.idbox = 0;
+                    /*
+                    g.actual_tetr = tab[6];
+                    g.pos_x = 2+g.actual_tetr.idbox;
+                    g.pos_y = 2+g.actual_tetr.idbox;
+                    */
                 }
                 break;
             case BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS:
@@ -145,6 +163,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = SCOREBOARD_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
@@ -153,6 +172,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = SETTINGS_KEYBOARD_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS:
@@ -161,6 +181,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = SETTINGS_VIDEO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS:
@@ -169,6 +190,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = SETTINGS_GRAPHICS_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS:
@@ -177,6 +199,7 @@ void buttonAction(button_action_type action_type, boolean *quit, page_components
                     *page = SETTINGS_AUDIO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             default:
@@ -192,9 +215,9 @@ int main()
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
-    boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE;
+    boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE;
     int32_t x = 0, y = 0, width, height;
-    uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0;
+    uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_time;
     page_components page = MENU_COMPONENTS;
     settings set;
     struct timespec start, end;
@@ -215,16 +238,10 @@ int main()
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
 
-    resetGrid(&g);
-    loadTetrimino(tab);
-    g.actual_tetr = tab[6];
-    g.pos_x = 2+g.actual_tetr.idbox;
-    g.pos_y = 2+g.actual_tetr.idbox;
-
     set = readSettings();
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+    createComponents(page, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
     drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
 
@@ -267,8 +284,8 @@ int main()
                                     case KEY_TAKE_TURN_RIGHT:
                                         set.keyboard_turn_right = sym;
                                         break;
-                                    case KEY_TAKE_CONFIRM:
-                                        set.keyboard_confirm = sym;
+                                    case KEY_TAKE_FAST_DROP:
+                                        set.keyboard_fast_drop = sym;
                                         break;
                                     case KEY_TAKE_PAUSE:
                                         set.keyboard_pause = sym;
@@ -282,10 +299,37 @@ int main()
                                 listen = FALSE;
                                 actualise = TRUE;
                             }
-                        } else if(error == TRUE) {
-                            components_size-=2;
-                            error = FALSE;
-                            actualise = TRUE;
+                        } else if(game_started == TRUE) {
+                            if(game_paused == TRUE)
+                            {
+                                if(sym == set.keyboard_pause)
+                                {
+                                    game_paused = FALSE;
+                                    page = GAME_COMPONENTS;
+
+                                    recreate = TRUE;
+                                    actualise = TRUE;
+                                }
+                            } else {
+                                if(sym == set.keyboard_pause)
+                                {
+                                    game_paused = TRUE;
+                                    page = GAME_POPUP_COMPONENTS;
+
+                                    recreate = TRUE;
+                                    actualise = TRUE;
+                                } else if(sym == set.keyboard_move_right) {
+
+                                } else if(sym == set.keyboard_move_left) {
+
+                                } else if(sym == set.keyboard_turn_right) {
+
+                                } else if(sym == set.keyboard_turn_left) {
+
+                                } else if(sym == set.keyboard_fast_drop) {
+
+                                }
+                            }
                         }
                     }
                     break;
@@ -302,16 +346,7 @@ int main()
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        if(button.action_type == BUTTON_ACTION_NONE) {
-                                            stylesheet = STYLESHEET_HIDE(0,0,height,width);
-                                            createFrame(components, &components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0);
-                                            stylesheet = STYLESHEET_HIDE_TEXT(0,0,height,width);
-                                            createText(components, &components_size, texts, &texts_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0, "Error 404 : Not found");
-                                            error = TRUE;
-                                            actualise = TRUE;
-                                        } else {
-                                            buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
-                                        }
+                                        buttonAction(button.action_type, &g, tab, &game_started, &game_paused, &quit, &page, &actualise, &recreate);
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);
@@ -339,12 +374,21 @@ int main()
                     break;
             }
         } while((event != MLV_NONE)&&!quit);
-        clock_gettime(CLOCK_REALTIME, &end);
-        if((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
+
+        if(game_started == TRUE && game_paused == FALSE)
+        {
+            tmp_time = g.time;
+            g.time += (10000/set.video_fps);
+            if(g.time/10000 != tmp_time/10000)
+            {
+                recreate = TRUE;
+                actualise = TRUE;
+            }
+        }
 
         actualise |= hover(set, 0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
         if(recreate == TRUE) {
-            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+            createComponents(page, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
             MLV_flush_event_queue();
             recreate = FALSE;
             if(listen == TRUE) {
@@ -359,6 +403,9 @@ int main()
             MLV_actualise_window();
             actualise = FALSE;
         }
+        clock_gettime(CLOCK_REALTIME, &end);
+        if((1000/set.video_fps)-(((end.tv_sec*1000)+(end.tv_nsec/1000000))-((start.tv_sec*1000)+(start.tv_nsec/1000000)))>0) MLV_wait_milliseconds((1000/set.video_fps)-(((end.tv_sec*1000)+(end.tv_nsec/1000000))-((start.tv_sec*1000)+(start.tv_nsec/1000000))));
+        
     }
     MLV_free_window();
     

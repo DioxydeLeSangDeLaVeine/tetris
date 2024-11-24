@@ -12,8 +12,9 @@ typedef struct {
     int32_t pos_x;
     int32_t pos_y;
     uint32_t score;
+    uint32_t lines;
     gamemode mode;
-    uint32_t time;
+    uint64_t time;
     uint8_t level;
 } game;
 

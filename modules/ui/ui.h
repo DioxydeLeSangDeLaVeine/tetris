@@ -80,7 +80,7 @@ typedef enum {
     KEY_TAKE_MOVE_RIGHT,
     KEY_TAKE_TURN_LEFT,
     KEY_TAKE_TURN_RIGHT,
-    KEY_TAKE_CONFIRM,
+    KEY_TAKE_FAST_DROP,
     KEY_TAKE_PAUSE
 } key_take_type;
 

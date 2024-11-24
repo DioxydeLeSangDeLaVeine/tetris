@@ -16,7 +16,7 @@ typedef struct {
     MLV_Keyboard_button keyboard_move_right;
     MLV_Keyboard_button keyboard_turn_left;
     MLV_Keyboard_button keyboard_turn_right;
-    MLV_Keyboard_button keyboard_confirm;
+    MLV_Keyboard_button keyboard_fast_drop;
     MLV_Keyboard_button keyboard_pause;
     uint32_t video_fps;
     boolean video_animations;
