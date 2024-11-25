@@ -699,7 +699,7 @@ style STYLESHEET_HIDE(int32_t top, int32_t left, int32_t height, int32_t width) 
     stylesheet.background_color.r = 0;
     stylesheet.background_color.g = 0;
     stylesheet.background_color.b = 0;
-    stylesheet.background_color.a = 192;
+    stylesheet.background_color.a = 182;
     stylesheet.color = ROOT_WHITE_COLOR();
     strcpy(stylesheet.font_family, "");
     stylesheet.font_size = 0;
@@ -750,7 +750,7 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     return stylesheet;
 }
 
-void createComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
     (*buttons_size) = 0;
@@ -772,14 +772,14 @@ void createComponents(page_components page, int32_t top, int32_t left, int32_t h
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createComponentsWithSidebar(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
+            createComponentsWithSidebar(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
             break;
         default:
             break;
     }
 }
 
-void createComponentsWithSidebar(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponentsWithSidebar(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
     if(page == SCOREBOARD_COMPONENTS)
@@ -800,13 +800,13 @@ void createComponentsWithSidebar(page_components page, int32_t top, int32_t left
             createPlayComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case SCOREBOARD_COMPONENTS:
-            createScoreboardComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
+            createScoreboardComponents(lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createSettingsComponents(page, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
+            createSettingsComponents(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
             break;
         default:
             break;
@@ -985,13 +985,13 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     stylesheet.left = body_stylesheet.width/2-stylesheet.width/2;
     createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 17 */
 
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_NONE); /* id = 18 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_RESUME_GAME); /* id = 18 */
     button_stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_NONE); /* id = 19 */
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_NONE); /* id = 20 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 19 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 20 */
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 17, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_NONE); /* id = 21 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 21 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     /* text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER; */
@@ -1002,7 +1002,7 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 25 */
 }
 
-void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
+void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
 {
     int i, id;
     style stylesheet, hover_stylesheet, text_num_stylesheet, text_stylesheet, text_date_stylesheet, stylesheet_body;
@@ -1020,7 +1020,7 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
 
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 4 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 100, lastPage); /* id = 4 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 5 */
@@ -1134,7 +1134,7 @@ void createScoreboardComponents(int32_t top, int32_t left, int32_t height, int32
     }
 }
 
-void createSettingsComponents(page_components page, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
+void createSettingsComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
 
@@ -1142,7 +1142,7 @@ void createSettingsComponents(page_components page, int32_t top, int32_t left, i
     createFrame(components, components_size, 1, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 3 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
-    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 4 */
+    createButton(components, components_size, buttons, buttons_size, 2, stylesheet, TRUE, FALSE, hover_stylesheet, 100, lastPage); /* id = 4 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
     createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_KEYBOARD_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_KEYBOARD_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 5 */

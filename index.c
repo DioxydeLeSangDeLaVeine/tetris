@@ -106,7 +106,7 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
     return change;
 }
 
-void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, boolean *actualise, boolean *recreate)
+void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
 {
     switch(action_type)
         {
@@ -118,44 +118,58 @@ void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], bo
                 if(*page != MENU_COMPONENTS)
                 {
                     *page = MENU_COMPONENTS;
+                    *game_started = FALSE;
+                    *lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
-                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_PLAY_COMPONENTS:
                 if(*page != PLAY_COMPONENTS)
                 {
                     *page = PLAY_COMPONENTS;
+                    *game_started = FALSE;
                     *recreate = TRUE;
                     *actualise = TRUE;
-                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
             case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
             case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
+            case BUTTON_ACTION_RESUME_GAME:
                 if(*page != GAME_COMPONENTS)
                 {
                     *page = GAME_COMPONENTS;
-                    *recreate = TRUE;
-                    *actualise = TRUE;
+                    *lastPage = BUTTON_ACTION_RESUME_GAME;
                     *game_started = TRUE;
                     *game_paused = FALSE;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
 
-                    resetGrid(g);
-                    loadTetrimino(tab);
-                    (*g).time = 0;
-                    (*g).score = 0;
-                    (*g).lines = 0;
+                    if(action_type != BUTTON_ACTION_RESUME_GAME)
+                    {
+                        resetGrid(g);
+                        loadTetrimino(tab);
+                        (*g).time = 0;
+                        (*g).score = 0;
+                        (*g).lines = 0;
 
-                    (*g).actual_tetr.idbox = 0;
-                    /*
-                    g.actual_tetr = tab[6];
-                    g.pos_x = 2+g.actual_tetr.idbox;
-                    g.pos_y = 2+g.actual_tetr.idbox;
-                    */
+                        (*g).actual_tetr.idbox = 0;
+                        /*
+                        g.actual_tetr = tab[6];
+                        g.pos_x = 2+g.actual_tetr.idbox;
+                        g.pos_y = 2+g.actual_tetr.idbox;
+                        */
+                    }
                 }
+                break;
+            case BUTTON_ACTION_PAUSE_GAME:
+                *page = GAME_POPUP_COMPONENTS;
+                *lastPage = BUTTON_ACTION_PAUSE_GAME;
+                *game_started = TRUE;
+                *game_paused = TRUE;
+                *recreate = TRUE;
+                *actualise = TRUE;
                 break;
             case BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS:
                 if(*page != SCOREBOARD_COMPONENTS)
@@ -219,6 +233,7 @@ int main()
     int32_t x = 0, y = 0, width, height;
     uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_time;
     page_components page = MENU_COMPONENTS;
+    button_action_type lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
     settings set;
     struct timespec start, end;
 
@@ -241,7 +256,7 @@ int main()
     set = readSettings();
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    createComponents(page, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+    createComponents(page, lastPage, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
     drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
     MLV_actualise_window();
 
@@ -306,6 +321,7 @@ int main()
                                 {
                                     game_paused = FALSE;
                                     page = GAME_COMPONENTS;
+                                    lastPage = BUTTON_ACTION_RESUME_GAME;
 
                                     recreate = TRUE;
                                     actualise = TRUE;
@@ -315,6 +331,7 @@ int main()
                                 {
                                     game_paused = TRUE;
                                     page = GAME_POPUP_COMPONENTS;
+                                    lastPage = BUTTON_ACTION_PAUSE_GAME;
 
                                     recreate = TRUE;
                                     actualise = TRUE;
@@ -346,7 +363,7 @@ int main()
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        buttonAction(button.action_type, &g, tab, &game_started, &game_paused, &quit, &page, &actualise, &recreate);
+                                        buttonAction(button.action_type, &g, tab, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);
@@ -388,7 +405,7 @@ int main()
 
         actualise |= hover(set, 0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
         if(recreate == TRUE) {
-            createComponents(page, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+            createComponents(page, lastPage, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
             MLV_flush_event_queue();
             recreate = FALSE;
             if(listen == TRUE) {
