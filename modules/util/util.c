@@ -602,7 +602,7 @@ void writeScoreboard(score s)
     fclose(file);
 }
 
-void loadTetrimino(tetrimino tab[64])
+uint32_t loadTetrimino(tetrimino tab[64])
 {
     DIR *folder = opendir("./data/tetrimino");
     FILE *file;
@@ -611,7 +611,7 @@ void loadTetrimino(tetrimino tab[64])
     int byte, i, j;
 
     if(folder == NULL) {
-        return;
+        return 0;
     }
     for(i = 0; i<64; i++)
     {
@@ -671,4 +671,6 @@ void loadTetrimino(tetrimino tab[64])
         }
     }
     closedir(folder);
+
+    return i;
 }

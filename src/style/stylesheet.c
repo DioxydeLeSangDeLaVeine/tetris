@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
 #include <string.h>
+#include "../../modules/back/game.h"
 #include "../../modules/ui/ui.h"
 #include "../../modules/util/util.h"
-#include "../../modules/back/game.h"
 #include "stylesheet.h"
 
 rgba ROOT_PRIMARY_COLOR() {

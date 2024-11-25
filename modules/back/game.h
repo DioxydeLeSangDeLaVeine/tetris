@@ -16,8 +16,17 @@ typedef struct {
     gamemode mode;
     uint64_t time;
     uint8_t level;
+    uint8_t drop;
+    boolean fastdrop;
 } game;
 
-void resetGrid(game *g);
+void newGrid(game *g);
+void newGame(game *g);
+void moveRight(game *g);
+void moveLeft(game *g);
+void turnRight(game *g);
+void turnLeft(game *g);
+void fastDrop(game *g);
+boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate);
 
 #endif

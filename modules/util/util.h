@@ -67,6 +67,6 @@ settings readSettings();
 void readScoreboard(score tab[10]);
 void writeScoreboard(score s);
 
-void loadTetrimino(tetrimino tab[64]);
+uint32_t loadTetrimino(tetrimino tab[64]);
 
 #endif
