@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -W -Wall -std=c89 -pedantic -O2 `pkg-config --cflags MLV` `pkg-config --libs-only-other --libs-only-L MLV`
 LDFLAGS = `pkg-config --libs-only-l MLV` -lX11
-OBJ = ./index.o ./modules/ui/ui.o ./modules/util/util.o ./src/style/stylesheet.o
+OBJ = ./index.o ./modules/ui/ui.o ./modules/util/util.o ./src/style/stylesheet.o ./modules/back/game.o
 TARGET = index
 
 $(TARGET) : $(OBJ)
@@ -16,6 +16,9 @@ $(TARGET) : $(OBJ)
 
 ./modules/util/util.o : ./modules/util/util.c
 	$(CC) $(CFLAGS) -c ./modules/util/util.c -o ./modules/util/util.o
+	
+./modules/back/game.o : ./modules/back/game.c
+	$(CC) $(CFLAGS) -c ./modules/back/game.c -o ./modules/back/game.o
 
 
 ./src/style/stylesheet.o : ./src/style/stylesheet.c

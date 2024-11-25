@@ -1,16 +1,113 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
+#include <time.h>
+#include <dirent.h>
 #include "util.h"
 
-int32_t __min(int32_t a, int32_t b) {
+
+/**
+ * Minimum of a and b.
+ *
+ * @param {int32_t} a
+ * @param {int32_t} b
+ *
+ * @returns {int32_t}
+ */
+int32_t __min(int32_t a, int32_t b)
+{
     return a<=b?a:b;
 }
-int32_t __max(int32_t a, int32_t b) {
+
+
+/**
+ * Maximum of a and b.
+ *
+ * @param {int32_t} a
+ * @param {int32_t} b
+ *
+ * @returns {int32_t}
+ */
+int32_t __max(int32_t a, int32_t b)
+{
     return a>=b?a:b;
 }
 
-void getKeyFromMLV(MLV_Keyboard_button sym, char response[]) {
+
+void getMonth(char unsigned month, char result[32])
+{
+    switch(month%12)
+    {
+        case 0:
+            strcpy(result, "Janvier");
+            break;
+        case 1:
+            strcpy(result, "Février");
+            break;
+        case 2:
+            strcpy(result, "Mars");
+            break;
+        case 3:
+            strcpy(result, "Avril");
+            break;
+        case 4:
+            strcpy(result, "Mai");
+            break;
+        case 5:
+            strcpy(result, "Juin");
+            break;
+        case 6:
+            strcpy(result, "Juillet");
+            break;
+        case 7:
+            strcpy(result, "Août");
+            break;
+        case 8:
+            strcpy(result, "Septembre");
+            break;
+        case 9:
+            strcpy(result, "Octobre");
+            break;
+        case 10:
+            strcpy(result, "Novembre");
+            break;
+        case 11:
+            strcpy(result, "Décembre");
+            break;
+        default:
+            strcpy(result, "???");
+            break;
+    }
+}
+
+
+date getDate()
+{
+    date when;
+    time_t current_time;
+    struct tm *local_time;
+
+    time(&current_time);
+
+    local_time = localtime(&current_time);
+
+    when.day = (char)local_time->tm_mday;
+    when.month = (char)(local_time->tm_mon);
+    when.year = (int32_t)(local_time->tm_year + 1900);
+    return when;
+}
+
+
+/**
+ * Returns char[] from a MLV_Keyboard_button.
+ *
+ * @param {MLV_Keyboard_button} sym
+ * @param {char} response[]
+ *
+ * @returns {void}
+ */
+void getKeyFromMLV(MLV_Keyboard_button sym, char response[])
+{
     switch(sym)
     {
         case MLV_KEYBOARD_a: strcpy(response, "A"); break;
@@ -103,7 +200,17 @@ void getKeyFromMLV(MLV_Keyboard_button sym, char response[]) {
         default: strcpy(response, ""); break;
     }
 }
-MLV_Keyboard_button getMLVFromKey(char key[]) {
+
+
+/**
+ * Returns MLV_Keyboard_button from a char[].
+ *
+ * @param {char} key[]
+ *
+ * @returns {MLV_Keyboard_button}
+ */
+MLV_Keyboard_button getMLVFromKey(char key[])
+{
     if (strcmp(key, "A") == 0) return MLV_KEYBOARD_a;
     else if (strcmp(key, "B") == 0) return MLV_KEYBOARD_b;
     else if (strcmp(key, "C") == 0) return MLV_KEYBOARD_c;
@@ -192,4 +299,378 @@ MLV_Keyboard_button getMLVFromKey(char key[]) {
     else if (strcmp(key, "F11") == 0) return MLV_KEYBOARD_F11;
     else if (strcmp(key, "F12") == 0) return MLV_KEYBOARD_F12;
     else return MLV_KEYBOARD_UNKNOWN;
+}
+
+settings defaultSettings()
+{
+    settings set;
+    set.keyboard_move_left = MLV_KEYBOARD_q;
+    set.keyboard_move_right = MLV_KEYBOARD_d;
+    set.keyboard_turn_left = MLV_KEYBOARD_a;
+    set.keyboard_turn_right = MLV_KEYBOARD_e;
+    set.keyboard_fast_drop = MLV_KEYBOARD_SPACE;
+    set.keyboard_pause = MLV_KEYBOARD_ESCAPE;
+    set.video_fps = 30;
+    set.video_animations = TRUE;
+    set.graphics_border_radius = TRUE;
+    return set;
+}
+
+void writeSettings(settings set)
+{
+    FILE *file = fopen("./data/settings.txt", "w");
+    char response[64];
+
+    if(file == NULL)
+    {
+        return;
+    }
+
+    fprintf(file, "### KEYBOARD ###\n");
+    getKeyFromMLV(set.keyboard_move_left, response);
+    fprintf(file, "KEY_MOVE_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_move_right, response);
+    fprintf(file, "KEY_MOVE_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_left, response);
+    fprintf(file, "KEY_TURN_LEFT=%s\n", response);
+    getKeyFromMLV(set.keyboard_turn_right, response);
+    fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
+    getKeyFromMLV(set.keyboard_fast_drop, response);
+    fprintf(file, "KEY_FAST_DROP=%s\n", response);
+    getKeyFromMLV(set.keyboard_pause, response);
+    fprintf(file, "KEY_PAUSE=%s\n\n", response);
+
+    fprintf(file, "### VIDEO ###\n");
+    fprintf(file, "FPS=%u\n", set.video_fps);
+    if(set.video_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
+    else fprintf(file, "ANIMATIONS=FALSE\n\n");
+    fprintf(file, "### GRAPHICS ###\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n\n");
+    fprintf(file, "### AUDIO ###\n");
+
+    fclose(file);
+}
+
+settings readSettings()
+{
+    FILE *file = fopen("./data/settings.txt", "r");
+    MLV_Keyboard_button key;
+    settings set;
+    char setting_name[65], setting_value[65];
+    char line[130];
+    int i, j;
+    boolean is_value;
+
+    set = defaultSettings();
+    
+    if(file == NULL)
+    {
+        writeSettings(set);
+        return set;
+    }
+
+    while(fgets(line, 130, file) != NULL)
+    {
+        i = 0;
+        j = 0;
+        is_value = FALSE;
+        strcpy(setting_name, "");
+        strcpy(setting_value, "");
+        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#')
+        {
+            while(line[i] != '\0'&&line[i] != '\n')
+            {
+                if(is_value == FALSE)
+                {
+                    if(line[i]=='=')
+                    {
+                        is_value = TRUE;
+                        setting_name[i] = '\0';
+                    } else {
+                        setting_name[i]=line[i];
+                    }
+                } else {
+                    setting_value[j]=line[i];
+                    j++;
+                }
+                i++;
+            }
+            setting_value[j]='\0';
+            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_move_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_left = key;
+                }
+            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_turn_right = key;
+                }
+            } else if(strcmp(setting_name, "KEY_FAST_DROP") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_fast_drop = key;
+                }
+            } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_pause = key;
+                }
+            } else if(strcmp(setting_name, "FPS") == 0)
+            {
+                if(atoi(setting_value) > 0) {
+                    set.video_fps = atoi(setting_value);
+                }
+            } else if(strcmp(setting_name, "ANIMATIONS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.video_animations = TRUE;
+                else set.video_animations = FALSE;
+            } else if(strcmp(setting_name, "BORDER_RADIUS") == 0)
+            {
+                if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
+                else set.graphics_border_radius = FALSE;
+            }
+        }
+    }
+    fclose(file);
+    writeSettings(set);
+    return set;
+}
+
+void readScoreboard(score tab[10])
+{
+    FILE *file = fopen("./data/scoreboard.save", "rb");
+    int byte, i = 0, j = 0;
+    uint32_t tmp_score;
+    boolean useful, equal;
+    
+    if(file == NULL)
+    {
+        return;
+    }
+
+    for(i = 0; i<10; i++) {
+        tab[i].score = 0;
+        tab[i].when.day = 0;
+        tab[i].when.month = 0;
+        tab[i].when.year = 0;
+    }
+
+    byte = fgetc(file);
+    i = 0;
+    while(byte != EOF)
+    {
+        tmp_score = byte<<24;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tmp_score|=byte<<16;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tmp_score|=byte<<8;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tmp_score|=byte;
+
+        useful = FALSE;
+        equal = FALSE;
+        for(j = 0; j<10; j++) {
+            if(tab[j].score == tmp_score)
+            {
+                equal = TRUE;
+                break;
+            }
+        }
+        j = ((i-1)<10)?(i-1):9;
+        if(equal == FALSE)
+        {
+            for(j = (i<10)?i:9; j>=0; j--)
+            {
+                if(tab[j].score > tmp_score) break;
+                useful = TRUE;
+                if(j+1<10)
+                {
+                    tab[j+1] = tab[j];
+                }
+                tab[j].score = 0;
+                tab[j].when.day = 0;
+                tab[j].when.month = 0;
+                tab[j].when.year = 0;
+            }
+        }
+        j++;
+        if(useful == TRUE) tab[j].score = tmp_score;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.day = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.month = byte;
+        
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.year = byte<<24;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.year|=byte<<16;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.year|=byte<<8;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        if(useful == TRUE) tab[j].when.year|=byte;
+        i++;
+        byte = fgetc(file);
+    }
+    fclose(file);
+}
+
+void writeScoreboard(score s)
+{
+    FILE *file;
+    score tab[10];
+    int32_t i, value;
+
+    readScoreboard(tab);
+    file = fopen("./data/scoreboard.save", "wb");
+
+    if(file == NULL)
+    {
+        return;
+    }
+    
+    value = (s.score>>24)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score>>16)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score>>8)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.score)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = s.when.day;
+    fwrite(&value, sizeof(char), 1, file);
+    value = s.when.month;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>24)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>16)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year>>8)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    value = (s.when.year)&0xFF;
+    fwrite(&value, sizeof(char), 1, file);
+    for(i = 0; i<10; i++)
+    {
+        value = (tab[i].score>>24)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score>>16)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score>>8)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].score)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = tab[i].when.day;
+        fwrite(&value, sizeof(char), 1, file);
+        value = tab[i].when.month;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>24)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>16)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year>>8)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+        value = (tab[i].when.year)&0xFF;
+        fwrite(&value, sizeof(char), 1, file);
+    }
+
+    fclose(file);
+}
+
+uint32_t loadTetrimino(tetrimino tab[64])
+{
+    DIR *folder = opendir("./data/tetrimino");
+    FILE *file;
+    struct dirent *entry;
+    char file_path[300];
+    int byte, i, j;
+
+    if(folder == NULL) {
+        return 0;
+    }
+    for(i = 0; i<64; i++)
+    {
+        tab[i].idbox = 0;
+        tab[i].path[0] = '\0';
+    }
+
+    i = 0;
+    while((entry = readdir(folder)) != NULL && i < 64)
+    {
+        if(entry->d_type == DT_REG)
+        {
+            j = 0;
+            snprintf(file_path, sizeof(file_path), "./data/tetrimino/%s", entry->d_name);
+
+            file = fopen(file_path, "rb");
+            if(file == NULL) {
+                continue;
+            }
+            byte = fgetc(file);
+            j = 0;
+            tab[i].idbox = 0;
+            while(byte != EOF && j<16)
+            {
+                tab[i].map[j].r = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].g = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].b = byte;
+                byte = fgetc(file);
+                if(byte == EOF)break;
+                tab[i].map[j].a = byte;
+                j++;
+                if(j == 16) tab[i].idbox = 4;
+                else
+                {
+                    if(j >= 9) tab[i].idbox = 3;
+                    else
+                    {
+                        if(j >= 4) tab[i].idbox = 2;
+                        else
+                        {
+                            if(j >= 1) tab[i].idbox = 1;
+                        }
+                    }
+                }
+                byte = fgetc(file);
+            }
+            if(tab[i].idbox != 0)
+            {
+                strcpy(tab[i].path, file_path);
+                i++;
+            }
+            fclose(file);
+        }
+    }
+    closedir(folder);
+
+    return i;
 }

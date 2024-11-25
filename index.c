@@ -1,18 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <MLV/MLV_all.h>
-#include <X11/Xlib.h>
-#include <X11/cursorfont.h>
 #include <time.h>
 
 #include "./modules/ui/ui.h"
 #include "./modules/util/util.h"
 #include "./src/style/stylesheet.h"
+#include "./modules/back/game.h"
 
 /**
  * Every functions in this project need to contain
- * at the first line, a comment like this one,
- * containing the @param, and @returns.
+ * upside, a comment like this one,
+ * containing every @param, and @returns.
  *
  * Example :
  * @param {YOUR_SUPER_DUPER_COOL_TYPE} VARIABLE_NAME
@@ -42,7 +41,7 @@ component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, 
     cmp.id = 0;
     for(i = 0; i<components_size; i++)
     {
-        if(idboxComponent(styleReal(top, left, height, width, components, components_size, components[i]), x, y) == TRUE)
+        if(idboxComponent(autoLayout(top, left, height, width, components, components_size, components[i]), x, y) == TRUE)
         {
             if(!components[i].ignore_hover) cmp = components[i];
         }
@@ -50,42 +49,55 @@ component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, 
     return cmp;
 }
 
-boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
+boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
 {
     int i;
     component cmp;
     boolean change = FALSE;
-
     cmp = lastHovered(top, left, height, width, components, components_size, x, y);
 
-    for(i = 0; i<components_size; i++) {
-        if(components[i].id != cmp.id) {
-            if(components[i].is_hoverable == TRUE) {
-                if(components[i].is_hovered != FALSE) {
+    for(i = 0; i<components_size; i++)
+    {
+        if(components[i].id != cmp.id)
+        {
+            if(components[i].is_hoverable == TRUE)
+            {
+                if(components[i].is_hovered != FALSE)
+                {
                     change = TRUE;
                     components[i].is_hovered = FALSE;
                 }
-                if(components[i].__transition != 0) {
+                if(components[i].__transition != 0)
+                {
                     change = TRUE;
-                    if(components[i].transition_duration==0) components[i].__transition = 0;
+                    if(set.video_animations == FALSE) components[i].__transition = 0;
                     else {
-                        if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
-                        else components[i].__transition-=(float)fps/components[i].transition_duration;
+                        if(components[i].transition_duration==0) components[i].__transition = 0;
+                        else {
+                            if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
+                            else components[i].__transition-=(float)fps/components[i].transition_duration;
+                        }
                     }
                 }
             }
         } else {
-            if(components[i].is_hoverable == TRUE) {
-                if(components[i].is_hovered != TRUE) {
+            if(components[i].is_hoverable == TRUE)
+            {
+                if(components[i].is_hovered != TRUE)
+                {
                     change = TRUE;
                     components[i].is_hovered = TRUE;
                 }
-                if(components[i].__transition != 1) {
+                if(components[i].__transition != 1)
+                {
                     change = TRUE;
-                    if(components[i].transition_duration==0) components[i].__transition = 1;
+                    if(set.video_animations == FALSE) components[i].__transition = 1;
                     else {
-                        if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
-                        else components[i].__transition+=(float)fps/components[i].transition_duration;
+                        if(components[i].transition_duration==0) components[i].__transition = 1;
+                        else {
+                            if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
+                            else components[i].__transition+=(float)fps/components[i].transition_duration;
+                        }
                     }
                 }
             }
@@ -94,173 +106,124 @@ boolean hover(int32_t top, int32_t left, int32_t height, int32_t width, componen
     return change;
 }
 
-void buttonAction(button_action_type action_type, boolean *quit, page_components *page, boolean *actualise, boolean *recreate) {
+void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], uint32_t *tab_size, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
+{
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
                 *quit = TRUE;
+                *game_started = FALSE;
                 break;
             case BUTTON_ACTION_CREATE_MENU_COMPONENTS:
-                if(*page != MENU_COMPONENTS) {
+                if(*page != MENU_COMPONENTS)
+                {
                     *page = MENU_COMPONENTS;
+                    *game_started = FALSE;
+                    *lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_PLAY_COMPONENTS:
+                if(*page != PLAY_COMPONENTS)
+                {
+                    *page = PLAY_COMPONENTS;
+                    *game_started = FALSE;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
+            case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
+            case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
+            case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
+            case BUTTON_ACTION_RESUME_GAME:
+                if(*page != GAME_COMPONENTS)
+                {
+                    switch(action_type)
+                    {
+                        case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
+                            (*g).mode = GAMEMODE_SURVIVAL;
+                            break;
+                        case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
+                            (*g).mode = GAMEMODE_MARATHON;
+                            break;
+                        case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
+                            (*g).mode = GAMEMODE_ULTRA;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    *page = GAME_COMPONENTS;
+                    *lastPage = BUTTON_ACTION_RESUME_GAME;
+                    *game_started = TRUE;
+                    *game_paused = FALSE;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                    *tab_size = loadTetrimino(tab);
+
+                    if(action_type != BUTTON_ACTION_RESUME_GAME)
+                    {
+                        newGame(g);
+                    }
+                }
+                break;
+            case BUTTON_ACTION_PAUSE_GAME:
+                *page = GAME_POPUP_COMPONENTS;
+                *lastPage = BUTTON_ACTION_PAUSE_GAME;
+                *game_started = TRUE;
+                *game_paused = TRUE;
+                *recreate = TRUE;
+                *actualise = TRUE;
+                break;
+            case BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS:
+                if(*page != SCOREBOARD_COMPONENTS)
+                {
+                    *page = SCOREBOARD_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS:
-                if(*page != SETTINGS_KEYBOARD_COMPONENTS) {
+                if(*page != SETTINGS_KEYBOARD_COMPONENTS)
+                {
                     *page = SETTINGS_KEYBOARD_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS:
-                if(*page != SETTINGS_VIDEO_COMPONENTS) {
+                if(*page != SETTINGS_VIDEO_COMPONENTS)
+                {
                     *page = SETTINGS_VIDEO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS:
-                if(*page != SETTINGS_GRAPHICS_COMPONENTS) {
+                if(*page != SETTINGS_GRAPHICS_COMPONENTS)
+                {
                     *page = SETTINGS_GRAPHICS_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             case BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS:
-                if(*page != SETTINGS_AUDIO_COMPONENTS) {
+                if(*page != SETTINGS_AUDIO_COMPONENTS)
+                {
                     *page = SETTINGS_AUDIO_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *game_started = FALSE;
                 }
                 break;
             default:
                 break;
         }
-}
-
-settings defaultSettings() {
-    settings set;
-    set.keyboard_move_left = MLV_KEYBOARD_q;
-    set.keyboard_move_right = MLV_KEYBOARD_d;
-    set.keyboard_turn_left = MLV_KEYBOARD_a;
-    set.keyboard_turn_right = MLV_KEYBOARD_e;
-    set.keyboard_confirm = MLV_KEYBOARD_SPACE;
-    set.video_fps = 30;
-    return set;
-}
-
-void writeSettings(settings set) {
-    FILE *file = fopen("./data/settings", "w");
-    char response[64];
-
-    if(file == NULL) {
-        return;
-    }
-
-    fprintf(file, "### KEYBOARD ###\n");
-    getKeyFromMLV(set.keyboard_move_left, response);
-    fprintf(file, "KEY_MOVE_LEFT=%s\n", response);
-    getKeyFromMLV(set.keyboard_move_right, response);
-    fprintf(file, "KEY_MOVE_RIGHT=%s\n", response);
-    getKeyFromMLV(set.keyboard_turn_left, response);
-    fprintf(file, "KEY_TURN_LEFT=%s\n", response);
-    getKeyFromMLV(set.keyboard_turn_right, response);
-    fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
-    getKeyFromMLV(set.keyboard_confirm, response);
-    fprintf(file, "KEY_CONFIRM=%s\n", response);
-    getKeyFromMLV(set.keyboard_pause, response);
-    fprintf(file, "KEY_PAUSE=%s\n\n", response);
-
-    fprintf(file, "### VIDEO ###\n");
-    fprintf(file, "FPS=%u\n\n", set.video_fps);
-
-    fprintf(file, "### GRAPHICS ###\n\n");
-    fprintf(file, "### AUDIO ###\n");
-
-    fclose(file);
-}
-
-settings readSettings() {
-    FILE *file = fopen("./data/settings", "r");
-    MLV_Keyboard_button key;
-    settings set;
-    char setting_name[65], setting_value[65];
-    char line[130];
-    int i, j;
-    boolean is_value;
-
-    set = defaultSettings();
-    
-    if(file == NULL) {
-        writeSettings(set);
-        return set;
-    }
-
-    while(fgets(line, 130, file) != NULL) {
-        i = 0;
-        j = 0;
-        is_value = FALSE;
-        strcpy(setting_name, "");
-        strcpy(setting_value, "");
-        if(line[0] != '\0'&&line[0] != '\n'&&line[0] != ' '&&line[0] != '#') {
-            while(line[i] != '\0'&&line[i] != '\n') {
-                if(is_value == FALSE) {
-                    if(line[i]=='=')
-                    {
-                        is_value = TRUE;
-                        setting_name[i] = '\0';
-                    } else {
-                        setting_name[i]=line[i];
-                    }
-                } else {
-                    setting_value[j]=line[i];
-                    j++;
-                }
-                i++;
-            }
-            setting_value[j]='\0';
-            if(strcmp(setting_name, "KEY_MOVE_LEFT") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_move_left = key;
-                }
-            } else if(strcmp(setting_name, "KEY_MOVE_RIGHT") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_move_right = key;
-                }
-            } else if(strcmp(setting_name, "KEY_TURN_LEFT") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_turn_left = key;
-                }
-            } else if(strcmp(setting_name, "KEY_TURN_RIGHT") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_turn_right = key;
-                }
-            } else if(strcmp(setting_name, "KEY_CONFIRM") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_confirm = key;
-                }
-            } else if(strcmp(setting_name, "KEY_PAUSE") == 0) {
-                key = getMLVFromKey(setting_value);
-                if(key != MLV_KEYBOARD_UNKNOWN) {
-                    set.keyboard_pause = key;
-                }
-            } else if(strcmp(setting_name, "FPS") == 0) {
-                if(atoi(setting_value) > 0) {
-                    set.video_fps = atoi(setting_value);
-                }
-            }
-        }
-    }
-    fclose(file);
-    writeSettings(set);
-    return set;
 }
 
 int main()
@@ -271,18 +234,12 @@ int main()
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
-    Display *display = XOpenDisplay(NULL);
-    Window window;
-    Cursor current_cursor = 0, cursor_default, cursor_pointer;
-
-    boolean recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE;
-    int32_t x = 0, y = 0,
-    width = MLV_get_desktop_width(),
-    height = MLV_get_desktop_height();
-    uint32_t i = 0, clicked_cmp_id = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0;
+    boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE;
+    int32_t x = 0, y = 0, width, height;
+    uint32_t i = 0, clicked_cmp_id = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_time;
     page_components page = MENU_COMPONENTS;
+    button_action_type lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
     settings set;
-
     struct timespec start, end;
 
     component components[COMPONENTS_MAX_SIZE];
@@ -290,27 +247,23 @@ int main()
     text_component texts[COMPONENTS_MAX_SIZE];
     key_component keys[COMPONENTS_MAX_SIZE];
     image_component images[COMPONENTS_MAX_SIZE];
-
     component cmp;
     button_component button;
     key_component key;
-
     style stylesheet;
 
-    MLV_create_full_screen_window("Tetris", "tetris", width, height);
+    tetrimino tab[64];
+    game g;
 
-    if(display != NULL) {
-        window = DefaultRootWindow(display);
-        cursor_default = XCreateFontCursor(display, XC_arrow);
-        cursor_pointer = XCreateFontCursor(display, XC_hand2);
-        XDefineCursor(display, window, cursor_default);
-        current_cursor = cursor_default;
-        XFlush(display);
-    }
-    createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
-    drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
-    MLV_actualise_window();
+    width = MLV_get_desktop_width(),
+    height = MLV_get_desktop_height();
+
     set = readSettings();
+
+    MLV_create_full_screen_window("Tetris", "tetris", width, height);
+    createComponents(page, lastPage, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+    drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
+    MLV_actualise_window();
 
     while(quit != TRUE)
     {
@@ -328,7 +281,7 @@ int main()
                 case MLV_NONE:
                     break;
                 case MLV_KEY:
-                    if(state == MLV_PRESSED)
+                    if(state == MLV_RELEASED)
                     {
                         if(listen == TRUE) {
                             getKeyFromMLV(sym, key.content);
@@ -351,8 +304,8 @@ int main()
                                     case KEY_TAKE_TURN_RIGHT:
                                         set.keyboard_turn_right = sym;
                                         break;
-                                    case KEY_TAKE_CONFIRM:
-                                        set.keyboard_confirm = sym;
+                                    case KEY_TAKE_FAST_DROP:
+                                        set.keyboard_fast_drop = sym;
                                         break;
                                     case KEY_TAKE_PAUSE:
                                         set.keyboard_pause = sym;
@@ -366,6 +319,39 @@ int main()
                                 listen = FALSE;
                                 actualise = TRUE;
                             }
+                        } else if(game_started == TRUE) {
+                            if(game_paused == TRUE)
+                            {
+                                if(sym == set.keyboard_pause)
+                                {
+                                    game_paused = FALSE;
+                                    page = GAME_COMPONENTS;
+                                    lastPage = BUTTON_ACTION_RESUME_GAME;
+
+                                    recreate = TRUE;
+                                    actualise = TRUE;
+                                }
+                            } else {
+                                if(sym == set.keyboard_pause)
+                                {
+                                    game_paused = TRUE;
+                                    page = GAME_POPUP_COMPONENTS;
+                                    lastPage = BUTTON_ACTION_PAUSE_GAME;
+
+                                    recreate = TRUE;
+                                    actualise = TRUE;
+                                } else if(sym == set.keyboard_move_right) {
+                                    moveRight(&g);
+                                } else if(sym == set.keyboard_move_left) {
+                                    moveLeft(&g);
+                                } else if(sym == set.keyboard_turn_right) {
+                                    turnRight(&g);
+                                } else if(sym == set.keyboard_turn_left) {
+                                    turnLeft(&g);
+                                } else if(sym == set.keyboard_fast_drop) {
+                                    fastDrop(&g);
+                                }
+                            }
                         }
                     }
                     break;
@@ -375,14 +361,14 @@ int main()
                     }
                     if(state == MLV_RELEASED && mouse == MLV_BUTTON_LEFT)
                     {
-                        if(listen != TRUE) {
+                        if(listen == FALSE && error == FALSE) {
                             cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
                             if(cmp.id == clicked_cmp_id) {
                                 switch(cmp.type)
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        buttonAction(button.action_type, &quit, &page, &actualise, &recreate);
+                                        buttonAction(button.action_type, &g, tab, &tab_size, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);
@@ -397,6 +383,10 @@ int main()
                                         break;
                                 }
                             }
+                        } else if(error == TRUE) {
+                            components_size-=2;
+                            error = FALSE;
+                            actualise = TRUE;
                         }
                     }
                     break;
@@ -406,29 +396,29 @@ int main()
                     break;
             }
         } while((event != MLV_NONE)&&!quit);
-        clock_gettime(CLOCK_REALTIME, &end);
-        if((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000)>0) MLV_wait_milliseconds((1000/set.video_fps)-((end.tv_nsec)/1000000-(start.tv_nsec)/1000000));
 
-        actualise |= hover(0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
-        if(display != NULL) {
-            cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
-            if(cmp.type == COMPONENT_BUTTON || cmp.type == COMPONENT_KEY)
+        if(game_started == TRUE && game_paused == FALSE)
+        {
+            tmp_time = g.time;
+            g.time += (10000/set.video_fps);
+            if(g.time/10000 != tmp_time/10000)
             {
-                if(current_cursor != cursor_pointer) {
-                    XDefineCursor(display, window, cursor_pointer);
-                    current_cursor = cursor_pointer;
-                    XFlush(display);
-                }
-            } else {
-                if(current_cursor != cursor_default) {
-                    XDefineCursor(display, window, cursor_default);
-                    current_cursor = cursor_default;
-                    XFlush(display);
-                }
+                recreate = TRUE;
+                actualise = TRUE;
+            }
+            if(tick(&g, tab, tab_size, 1000/set.video_fps) == TRUE)
+            {
+                /* Finir le jeu en conséquence */
+                game_started = FALSE;
+                page = MENU_COMPONENTS;
+                recreate = TRUE;
+                actualise = TRUE;
             }
         }
+
+        actualise |= hover(set, 0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
         if(recreate == TRUE) {
-            createComponents(page, 0, 0, height, width, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+            createComponents(page, lastPage, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
             MLV_flush_event_queue();
             recreate = FALSE;
             if(listen == TRUE) {
@@ -439,15 +429,13 @@ int main()
         }
         if(actualise == TRUE)
         {
-            drawComponents(0, 0, height, width, components, components_size, texts, texts_size, keys, keys_size, images, images_size);
+            drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
             MLV_actualise_window();
             actualise = FALSE;
         }
-    }
-    if(display != NULL) {
-        XFreeCursor(display, cursor_default);
-        XFreeCursor(display, cursor_pointer);
-        XCloseDisplay(display);
+        clock_gettime(CLOCK_REALTIME, &end);
+        if((1000/set.video_fps)-(((end.tv_sec*1000)+(end.tv_nsec/1000000))-((start.tv_sec*1000)+(start.tv_nsec/1000000)))>0) MLV_wait_milliseconds((1000/set.video_fps)-(((end.tv_sec*1000)+(end.tv_nsec/1000000))-((start.tv_sec*1000)+(start.tv_nsec/1000000))));
+        
     }
     MLV_free_window();
     

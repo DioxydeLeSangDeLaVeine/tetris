@@ -2,6 +2,7 @@
 #define H_UI_MODULE
 
 #include "../util/util.h"
+#include "../back/game.h"
 
 #define COMPONENTS_MAX_SIZE 64
 
@@ -30,7 +31,8 @@ typedef enum {
     COMPONENT_BUTTON,
     COMPONENT_TEXT,
     COMPONENT_KEY,
-    COMPONENT_IMAGE
+    COMPONENT_IMAGE,
+    COMPONENT_GAME
 } component_type;
 
 typedef enum {
@@ -60,6 +62,13 @@ typedef enum {
     BUTTON_ACTION_NONE,
     BUTTON_ACTION_QUIT,
     BUTTON_ACTION_CREATE_MENU_COMPONENTS,
+    BUTTON_ACTION_CREATE_PLAY_COMPONENTS,
+    BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS,
+    BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS,
+    BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS,
+    BUTTON_ACTION_RESUME_GAME,
+    BUTTON_ACTION_PAUSE_GAME,
+    BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS,
     BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS,
     BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS,
     BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS,
@@ -73,7 +82,7 @@ typedef enum {
     KEY_TAKE_MOVE_RIGHT,
     KEY_TAKE_TURN_LEFT,
     KEY_TAKE_TURN_RIGHT,
-    KEY_TAKE_CONFIRM,
+    KEY_TAKE_FAST_DROP,
     KEY_TAKE_PAUSE
 } key_take_type;
 
@@ -81,13 +90,6 @@ typedef enum {
     UNIT_PX,
     UNIT_PERCENTAGE
 } unit;
-
-typedef struct {
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
-} rgba;
 
 typedef struct {
     rgba background_color;
@@ -160,20 +162,20 @@ typedef struct {
     int32_t width;
 } __ref;
 
-button_component componentToButtonComponent(component component, button_component buttons[], int buttons_size);
-text_component componentToTextComponent(component component, text_component texts[], int texts_size);
-key_component componentToKeyComponent(component component, key_component keys[], int keys_size);
-image_component componentToImageComponent(component cmp, image_component images[], int images_size);
+button_component componentToButtonComponent(component component, button_component buttons[], uint32_t buttons_size);
+text_component componentToTextComponent(component component, text_component texts[], uint32_t texts_size);
+key_component componentToKeyComponent(component component, key_component keys[], uint32_t keys_size);
+image_component componentToImageComponent(component cmp, image_component images[], uint32_t images_size);
 
-style styleTransition(component component);
+style styleTransition(component cmp);
 void transformUnit(int32_t *value, unit *value_unit, int32_t reference);
 style transformUnits(style stylesheet, style parentStylesheet);
-style styleReal(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component component);
+style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, component component);
 
 boolean idboxComponent(style stylesheet, int32_t x, int32_t y);
 
-void drawComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
-void drawComponent(component component, style stylesheet, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
+void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
+void drawComponent(settings set, component cmp, style stylesheet, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
 
 component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
 
@@ -182,5 +184,6 @@ void createButton(component components[], uint32_t *components_size, button_comp
 void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[]);
 void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[]);
 void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[]);
+void createGame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet);
 
 #endif
