@@ -975,7 +975,7 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
 
     stylesheet = STYLESHEET_MINI_CONTAINER(top, left, height, width);
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = stylesheet.padding*2+stylesheet.gap*3+button_stylesheet.height*4;
+    stylesheet.height = stylesheet.padding*2+stylesheet.gap*4+button_stylesheet.height*5;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = 400;
 
@@ -989,17 +989,19 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     button_stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
     createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS); /* id = 19 */
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 20 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS); /* id = 20 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 21 */
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 17, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 21 */
+    createButton(components, components_size, buttons, buttons_size, 17, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS); /* id = 22 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     /* text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER; */
 
-    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre"); /* id = 22 */
-    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 23 */
-    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Sauvegarder et quitter"); /* id = 24 */
-    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 24 */
+    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Sauvegarder et quitter"); /* id = 26 */
+    createText(components, components_size, texts, texts_size, 22, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 27 */
 }
 
 void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
