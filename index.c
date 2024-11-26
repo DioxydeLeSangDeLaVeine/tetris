@@ -108,6 +108,7 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
 
 void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], uint32_t *tab_size, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
 {
+    char path[320] = "./data/saves/test.save";
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
@@ -160,11 +161,12 @@ void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], ui
                     *game_paused = FALSE;
                     *recreate = TRUE;
                     *actualise = TRUE;
-                    *tab_size = loadTetrimino(tab);
+                    *tab_size = loadTetriminos(tab);
 
                     if(action_type != BUTTON_ACTION_RESUME_GAME)
                     {
-                        newGame(g);
+                        /*newGame(g);*/
+                        loadGame(g, path);
                     }
                 }
                 break;
@@ -342,12 +344,16 @@ int main()
                                     actualise = TRUE;
                                 } else if(sym == set.keyboard_move_right) {
                                     moveRight(&g);
+                                    actualise = TRUE;
                                 } else if(sym == set.keyboard_move_left) {
                                     moveLeft(&g);
+                                    actualise = TRUE;
                                 } else if(sym == set.keyboard_turn_right) {
                                     turnRight(&g);
+                                    actualise = TRUE;
                                 } else if(sym == set.keyboard_turn_left) {
                                     turnLeft(&g);
+                                    actualise = TRUE;
                                 } else if(sym == set.keyboard_fast_drop) {
                                     fastDrop(&g);
                                 }
@@ -406,7 +412,7 @@ int main()
                 recreate = TRUE;
                 actualise = TRUE;
             }
-            if(tick(&g, tab, tab_size, 1000/set.video_fps) == TRUE)
+            if(tick(&g, tab, tab_size, 1000/set.video_fps, &actualise) == TRUE)
             {
                 /* Finir le jeu en conséquence */
                 game_started = FALSE;

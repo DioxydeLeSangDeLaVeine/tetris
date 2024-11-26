@@ -602,12 +602,12 @@ void writeScoreboard(score s)
     fclose(file);
 }
 
-uint32_t loadTetrimino(tetrimino tab[64])
+uint32_t loadTetriminos(tetrimino tab[64])
 {
     DIR *folder = opendir("./data/tetrimino");
     FILE *file;
     struct dirent *entry;
-    char file_path[300];
+    char file_path[320];
     int byte, i, j;
 
     if(folder == NULL) {
@@ -673,4 +673,50 @@ uint32_t loadTetrimino(tetrimino tab[64])
     closedir(folder);
 
     return i;
+}
+
+tetrimino loadTetrimino(char path[320])
+{
+    FILE *file = fopen(path, "rb");
+    tetrimino tetr;
+    int byte, j;
+
+    strcpy(tetr.path, path);
+    tetr.idbox = 0;
+    if(file == NULL) {
+        return tetr;
+    }
+    byte = fgetc(file);
+    j = 0;
+    while(byte != EOF && j<16)
+    {
+        tetr.map[j].r = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].g = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].b = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].a = byte;
+        j++;
+        if(j == 16) tetr.idbox = 4;
+        else
+        {
+            if(j >= 9) tetr.idbox = 3;
+            else
+            {
+                if(j >= 4) tetr.idbox = 2;
+                else
+                {
+                    if(j >= 1) tetr.idbox = 1;
+                }
+            }
+        }
+        byte = fgetc(file);
+    }
+    fclose(file);
+
+    return tetr;
 }

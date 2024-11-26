@@ -44,7 +44,7 @@ typedef struct {
 typedef struct {
     rgba map[16];
     char idbox; /* 1x1, 2x2, 3x3, 4x4 */
-    char path[300];
+    char path[320];
 } tetrimino;
 
 typedef enum {
@@ -67,6 +67,7 @@ settings readSettings();
 void readScoreboard(score tab[10]);
 void writeScoreboard(score s);
 
-uint32_t loadTetrimino(tetrimino tab[64]);
+uint32_t loadTetriminos(tetrimino tab[64]);
+tetrimino loadTetrimino(char path[320]);
 
 #endif

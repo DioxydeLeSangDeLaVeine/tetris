@@ -9,24 +9,25 @@
 typedef struct {
     rgba grid [GAME_HEIGHT][GAME_WIDTH];
     tetrimino actual_tetr;
-    int32_t pos_x;
     int32_t pos_y;
+    int32_t pos_x;
     uint32_t score;
     uint32_t lines;
     gamemode mode;
     uint64_t time;
     uint8_t level;
-    uint8_t drop;
+    double drop;
     boolean fastdrop;
 } game;
 
 void newGrid(game *g);
 void newGame(game *g);
+void loadGame(game *g, char path[320]);
 void moveRight(game *g);
 void moveLeft(game *g);
 void turnRight(game *g);
 void turnLeft(game *g);
 void fastDrop(game *g);
-boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate);
+boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise);
 
 #endif
