@@ -770,16 +770,18 @@ void createFrame(component components[], uint32_t *components_size, uint32_t par
  * @param {style} hover_stylesheet
  * @param {uint32_t} transition_duration
  * @param {button_action_type} action_type
+ * @param {char} path[]
  *
  * @returns {void}
  */
-void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type)
+void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type, char path[])
 {
     button_component btn_cmp;
     if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
 
     btn_cmp.id = (*components_size)+1;
     btn_cmp.action_type = action_type;
+    strcpy(btn_cmp.path, path);
     components[*components_size] = initComponent((*components_size)+1, COMPONENT_BUTTON, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
     (*components_size)++;
     buttons[*buttons_size] = btn_cmp;

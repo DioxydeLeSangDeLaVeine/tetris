@@ -7,6 +7,15 @@
 #include "../util/util.h"
 
 typedef struct {
+    int32_t id;
+    char name[24];
+    int64_t time;
+    uint32_t score;
+    uint32_t lines;
+    char path[320];
+} load;
+
+typedef struct {
     rgba grid [GAME_HEIGHT][GAME_WIDTH];
     tetrimino actual_tetr;
     int32_t pos_y;
@@ -23,6 +32,7 @@ typedef struct {
 void newGrid(game *g);
 void newGame(game *g);
 void loadGame(game *g, char path[320]);
+uint32_t loadGames(load tab[64]);
 void moveRight(game *g);
 void moveLeft(game *g);
 void turnRight(game *g);

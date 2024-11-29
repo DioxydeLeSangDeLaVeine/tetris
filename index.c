@@ -106,9 +106,8 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
     return change;
 }
 
-void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], uint32_t *tab_size, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
+void buttonAction(button_action_type action_type, char path[320], game *g, tetrimino tab[64], uint32_t *tab_size, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
 {
-    char path[320] = "./data/saves/test.save";
     switch(action_type)
         {
             case BUTTON_ACTION_QUIT:
@@ -134,27 +133,21 @@ void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], ui
                     *actualise = TRUE;
                 }
                 break;
+            case BUTTON_ACTION_CREATE_LOAD_COMPONENTS:
+                if(*page != LOAD_COMPONENTS)
+                {
+                    *page = LOAD_COMPONENTS;
+                    *game_started = FALSE;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
             case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
             case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
             case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
             case BUTTON_ACTION_RESUME_GAME:
                 if(*page != GAME_COMPONENTS)
                 {
-                    switch(action_type)
-                    {
-                        case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
-                            (*g).mode = GAMEMODE_SURVIVAL;
-                            break;
-                        case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
-                            (*g).mode = GAMEMODE_MARATHON;
-                            break;
-                        case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
-                            (*g).mode = GAMEMODE_ULTRA;
-                            break;
-                        default:
-                            break;
-                    }
-
                     *page = GAME_COMPONENTS;
                     *lastPage = BUTTON_ACTION_RESUME_GAME;
                     *game_started = TRUE;
@@ -165,9 +158,35 @@ void buttonAction(button_action_type action_type, game *g, tetrimino tab[64], ui
 
                     if(action_type != BUTTON_ACTION_RESUME_GAME)
                     {
-                        /*newGame(g);*/
-                        loadGame(g, path);
+                        switch(action_type)
+                        {
+                            case BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS:
+                                (*g).mode = GAMEMODE_SURVIVAL;
+                                break;
+                            case BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS:
+                                (*g).mode = GAMEMODE_MARATHON;
+                                break;
+                            case BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS:
+                                (*g).mode = GAMEMODE_ULTRA;
+                                break;
+                            default:
+                                break;
+                        }
+                        newGame(g);
                     }
+                }
+                break;
+            case BUTTON_ACTION_LOAD_GAME:
+                if(*page != GAME_COMPONENTS)
+                {
+                    *page = GAME_COMPONENTS;
+                    *lastPage = BUTTON_ACTION_RESUME_GAME;
+                    *game_started = TRUE;
+                    *game_paused = FALSE;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                    *tab_size = loadTetriminos(tab);
+                    loadGame(g, path);
                 }
                 break;
             case BUTTON_ACTION_PAUSE_GAME:
@@ -256,6 +275,8 @@ int main()
 
     tetrimino tab[64];
     game g;
+
+    srand(time(NULL));
 
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
@@ -374,7 +395,7 @@ int main()
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        buttonAction(button.action_type, &g, tab, &tab_size, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
+                                        buttonAction(button.action_type, button.path, &g, tab, &tab_size, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);

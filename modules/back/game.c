@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include "./game.h"
 #include "../ui/ui.h"
 #include "../util/util.h"
@@ -132,6 +133,49 @@ void loadGame(game *g, char path[320])
             (*g).grid[i][j].a = byte;
         }
     }
+}
+
+uint32_t loadGames(load tab[64])
+{
+    DIR *folder = opendir("./data/saves");
+    struct dirent *entry;
+    char *dot;
+    int i;
+    game g;
+
+    if(folder == NULL) {
+        return 0;
+    }
+    for(i = 0; i<64; i++)
+    {
+        tab[i].id = 0;
+    }
+
+    i = 0;
+    while((entry = readdir(folder)) != NULL && i < 64)
+    {
+        if(entry->d_type == DT_REG)
+        {
+            snprintf(tab[i].path, sizeof(tab[i].path), "./data/saves/%s", entry->d_name);
+            strcpy(tab[i].name, entry->d_name);
+            dot = strrchr(tab[i].name, '.');
+            if(dot != NULL)
+            {
+                *dot = '\0';
+            }
+
+            loadGame(&g, tab[i].path);
+
+            tab[i].time = g.time;
+            tab[i].score = g.score;
+            tab[i].lines = g.lines;
+            tab[i].id = i+1;
+            i++;
+        }
+    }
+    closedir(folder);
+
+    return i;
 }
 
 void moveRight(game *g)

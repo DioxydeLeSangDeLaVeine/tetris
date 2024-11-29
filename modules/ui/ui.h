@@ -4,7 +4,7 @@
 #include "../util/util.h"
 #include "../back/game.h"
 
-#define COMPONENTS_MAX_SIZE 64
+#define COMPONENTS_MAX_SIZE 128
 
 #define FONT_POPPINS_BLACK "./src/font/Poppins-Black.ttf"
 #define FONT_POPPINS_BLACK_ITALIC "./src/font/Poppins-BlackItalic.ttf"
@@ -63,10 +63,12 @@ typedef enum {
     BUTTON_ACTION_QUIT,
     BUTTON_ACTION_CREATE_MENU_COMPONENTS,
     BUTTON_ACTION_CREATE_PLAY_COMPONENTS,
+    BUTTON_ACTION_CREATE_LOAD_COMPONENTS,
     BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS,
     BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS,
     BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS,
     BUTTON_ACTION_RESUME_GAME,
+    BUTTON_ACTION_LOAD_GAME,
     BUTTON_ACTION_PAUSE_GAME,
     BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS,
     BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS,
@@ -132,6 +134,7 @@ typedef struct {
 typedef struct {
     unsigned short id; /* Equal to his component ID */
     button_action_type action_type;
+    char path[320];
 } button_component;
 
 typedef struct {
@@ -180,7 +183,7 @@ void drawComponent(settings set, component cmp, style stylesheet, game g, text_c
 component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
 
 void createFrame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
-void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type);
+void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type, char path[]);
 void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[]);
 void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[]);
 void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[]);
