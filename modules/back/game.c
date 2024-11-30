@@ -196,12 +196,7 @@ void turnLeft(game *g)
 }
 void fastDrop(game *g)
 {
-    if((*g).fastdrop == TRUE)
-    {
-        (*g).fastdrop = FALSE;
-    } else {
-        (*g).fastdrop = TRUE;
-    }
+    (*g).fastdrop = TRUE;
 }
 
 boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise)
@@ -219,6 +214,7 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             if((*g).fastdrop == TRUE)
             {
                 (*g).drop += 100;
+                (*g).fastdrop = FALSE;
             } else {
                 (*g).drop += framerate/10.; /* /1000*100 -> /10, 1000 = seconde d'attente avant drop, 100 = pourcentage */
             }

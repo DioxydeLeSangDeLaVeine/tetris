@@ -18,6 +18,8 @@ typedef struct {
     MLV_Keyboard_button keyboard_turn_right;
     MLV_Keyboard_button keyboard_fast_drop;
     MLV_Keyboard_button keyboard_pause;
+    MLV_Keyboard_button keyboard_scroll_up;
+    MLV_Keyboard_button keyboard_scroll_down;
     uint32_t video_fps;
     boolean video_animations;
     boolean graphics_border_radius;
@@ -67,7 +69,6 @@ settings readSettings();
 void readScoreboard(score tab[10]);
 void writeScoreboard(score s);
 
-uint32_t loadTetriminos(tetrimino tab[64]);
 tetrimino loadTetrimino(char path[320]);
-
+uint32_t loadTetriminos(tetrimino tab[64]);
 #endif

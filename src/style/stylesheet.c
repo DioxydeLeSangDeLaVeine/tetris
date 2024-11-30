@@ -774,7 +774,7 @@ style STYLESHEET_TITLE() {
     stylesheet.unit_left = UNIT_PX;
     stylesheet.left = 0;
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = 150;
+    stylesheet.height = 100;
     stylesheet.unit_width = UNIT_PERCENTAGE;
     stylesheet.width = 100;
     return stylesheet;
@@ -836,6 +836,36 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     return stylesheet;
 }
 
+style STYLESHEET_VOID() {
+    style stylesheet;
+    stylesheet.background_color.r = 0;
+    stylesheet.background_color.g = 0;
+    stylesheet.background_color.b = 0;
+    stylesheet.background_color.a = 0;
+    stylesheet.color = ROOT_WHITE_COLOR();
+    strcpy(stylesheet.font_family, "");
+    stylesheet.font_size = 0;
+    stylesheet.font_horizontal_align = HORIZONTAL_LEFT;
+    stylesheet.font_vertical_align = VERTICAL_TOP;
+    stylesheet.component_justify = JUSTIFY_START;
+    stylesheet.border_radius_top_left = 0;
+    stylesheet.border_radius_top_right = 0;
+    stylesheet.border_radius_bottom_left = 0;
+    stylesheet.border_radius_bottom_right = 0;
+    stylesheet.childs_direction = DIRECTION_ROW;
+    stylesheet.padding = 0;
+    stylesheet.gap = 0;
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = 0;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = 0;
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = 0;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 0;
+    return stylesheet;
+}
+
 void createComponents(page_components page, button_action_type lastPage, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
@@ -858,7 +888,6 @@ void createComponents(page_components page, button_action_type lastPage, double 
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
-        case SETTINGS_AUDIO_COMPONENTS:
             createComponentsWithSidebar(page, lastPage, scroll, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
             break;
         default:
@@ -895,7 +924,6 @@ void createComponentsWithSidebar(page_components page, button_action_type lastPa
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
-        case SETTINGS_AUDIO_COMPONENTS:
             createSettingsComponents(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
             break;
         default:
@@ -1165,14 +1193,6 @@ void createGameComponents(page_components page, int32_t top, int32_t left, int32
     createFrame(components, components_size, 5, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 6 */
     createFrame(components, components_size, 5, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 7 */
 
-    container_stylesheet.top += container_stylesheet.height+2*body_stylesheet.gap;
-    createFrame(components, components_size, 0, container_stylesheet, FALSE, FALSE, container_stylesheet, 0); /* id = 8 */
-
-    stylesheet =  STYLESHEET_MINI_CONTAINER(top, left, height, width);
-    stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = (container_stylesheet.height-container_stylesheet.gap-2*container_stylesheet.padding)/2;
-    createFrame(components, components_size, 8, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 9 */
-
     title_stylesheet = STYLESHEET_BUTTONS_TEXT();
     title_stylesheet.font_horizontal_align = HORIZONTAL_CENTER;
     title_stylesheet.height = 40;
@@ -1183,21 +1203,21 @@ void createGameComponents(page_components page, int32_t top, int32_t left, int32
     text_stylesheet.height = 40;
     text_stylesheet.font_size = 60;
 
-    createText(components, components_size, texts, texts_size, 4, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Temps de jeu"); /* id = 10 */
+    createText(components, components_size, texts, texts_size, 4, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Temps de jeu"); /* id = 8 */
     g.time = g.time / 10000;
     hours = g.time / 3600;
     minutes = (g.time % 3600) / 60;
     seconds = g.time % 60;
     sprintf(text, "%02d:%02d:%02d", hours, minutes, seconds);
-    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 11 */
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 9 */
 
-    createText(components, components_size, texts, texts_size, 6, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Score"); /* id = 12 */
+    createText(components, components_size, texts, texts_size, 6, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Score"); /* id = 10 */
     sprintf(text, "%d", g.score);
-    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 13 */
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 11 */
 
-    createText(components, components_size, texts, texts_size, 7, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Lignes"); /* id = 14 */
+    createText(components, components_size, texts, texts_size, 7, title_stylesheet, FALSE, TRUE, title_stylesheet, 0, "Lignes"); /* id = 12 */
     sprintf(text, "%d", g.lines);
-    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 15 */
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 13 */
 
     if(page == GAME_POPUP_COMPONENTS) createGamePopupComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size);
 }
@@ -1207,7 +1227,7 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     style stylesheet, body_stylesheet, button_stylesheet, button_hover_stylesheet, text_stylesheet;
     
     body_stylesheet = STYLESHEET_HIDE(top, left, height, width);
-    createFrame(components, components_size, 0, body_stylesheet, FALSE, FALSE, body_stylesheet, 0); /* id = 16 */
+    createFrame(components, components_size, 0, body_stylesheet, FALSE, FALSE, body_stylesheet, 0); /* id = 14 */
 
     button_stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
@@ -1222,25 +1242,25 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     stylesheet.top = body_stylesheet.height/2-stylesheet.height/2;
     stylesheet.unit_left = UNIT_PX;
     stylesheet.left = body_stylesheet.width/2-stylesheet.width/2;
-    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 17 */
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 15 */
 
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_RESUME_GAME, ""); /* id = 18 */
+    createButton(components, components_size, buttons, buttons_size, 15, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_RESUME_GAME, ""); /* id = 16 */
     button_stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS, ""); /* id = 19 */
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS, ""); /* id = 20 */
-    createButton(components, components_size, buttons, buttons_size, 17, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS, ""); /* id = 21 */
+    createButton(components, components_size, buttons, buttons_size, 15, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS, ""); /* id = 17 */
+    createButton(components, components_size, buttons, buttons_size, 15, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_SCOREBOARD_COMPONENTS, ""); /* id = 18 */
+    createButton(components, components_size, buttons, buttons_size, 15, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, BUTTON_ACTION_CREATE_MENU_COMPONENTS, ""); /* id = 19 */
     button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 17, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS, ""); /* id = 22 */
+    createButton(components, components_size, buttons, buttons_size, 15, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS, ""); /* id = 20 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
     /* text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER; */
 
-    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre"); /* id = 23 */
-    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 24 */
-    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 25 */
-    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Sauvegarder et quitter"); /* id = 26 */
-    createText(components, components_size, texts, texts_size, 22, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 27 */
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Reprendre"); /* id = 21 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres"); /* id = 22 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Sauvegarder et quitter"); /* id = 24 */
+    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 25 */
 }
 
 void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
@@ -1387,22 +1407,16 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
     createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_KEYBOARD_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_KEYBOARD_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_KEYBOARD_COMPONENTS, ""); /* id = 5 */
-    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
     createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_VIDEO_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_VIDEO_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS, ""); /* id = 6 */
-    stylesheet = STYLESHEET_SIDEBAR_BUTTONS_MIDDLE();
-    hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_MIDDLE();
-    createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_GRAPHICS_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_GRAPHICS_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS, ""); /* id = 7 */
     stylesheet = STYLESHEET_SIDEBAR_BUTTONS_BOTTOM();
     hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
-    createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_AUDIO_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_AUDIO_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS, ""); /* id = 8 */
+    createButton(components, components_size, buttons, buttons_size, 2, (page==SETTINGS_GRAPHICS_COMPONENTS)?hover_stylesheet:stylesheet, (page==SETTINGS_GRAPHICS_COMPONENTS)?FALSE:TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS, ""); /* id = 7 */
 
     text_stylesheet = STYLESHEET_BUTTONS_TEXT();
-    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 9 */
-    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Clavier & Souris"); /* id = 10 */
-    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 11 */
-    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 12 */
-    createText(components, components_size, texts, texts_size, 8, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres audio"); /* id = 13 */
+    createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 8 */
+    createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Clavier & Souris"); /* id = 9 */
+    createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 10 */
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 11 */
 
     switch(page) {
         case SETTINGS_KEYBOARD_COMPONENTS:
@@ -1414,9 +1428,6 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
         case SETTINGS_GRAPHICS_COMPONENTS:
             createSettingsGraphicsComponents(components, components_size, texts, texts_size);
             break;
-        case SETTINGS_AUDIO_COMPONENTS:
-            createSettingsAudioComponents(components, components_size, texts, texts_size);
-            break;
         default:
             break;
     }
@@ -1425,63 +1436,102 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
 void createSettingsKeyboardComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
+    MLV_Font *font_family;
+    int font_height = 0;
     char key[16];
 
     text_stylesheet = STYLESHEET_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Commandes clavier & souris"); /* id = 14 */
+    if(MLV_path_exists(text_stylesheet.font_family))
+    {
+        font_family = MLV_load_font(text_stylesheet.font_family, text_stylesheet.font_size);
+        MLV_get_size_of_text_with_font("Scroll", NULL, &font_height, font_family);
+    }
+    text_stylesheet.height = font_height;
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Commandes clavier & souris"); /* id = 12 */
+
+    stylesheet = STYLESHEET_VOID();
+    stylesheet.height = 20;
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 13 */
 
     text_stylesheet = STYLESHEET_MINI_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacement"); /* id = 15 */
+    if(MLV_path_exists(text_stylesheet.font_family))
+    {
+        font_family = MLV_load_font(text_stylesheet.font_family, text_stylesheet.font_size);
+        MLV_get_size_of_text_with_font("Déplacement", NULL, &font_height, font_family);
+    }
+    text_stylesheet.height = font_height;
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacement"); /* id = 14 */
 
     stylesheet = STYLESHEET_ROW();
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 15 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 16 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 17 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 18 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 19 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 20 */
-    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 21 */
     
     text_stylesheet = STYLESHEET_TEXT();
-    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 22 */
-    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 23 */
-    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 24 */
-    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 25 */
-    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente rapide"); /* id = 26 */
-    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mettre pause"); /* id = 27 */
+    createText(components, components_size, texts, texts_size, 15, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 21 */
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 22 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 24 */
+    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente rapide"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mettre pause"); /* id = 26 */
 
     stylesheet = STYLESHEET_KEY();
     hover_stylesheet = STYLESHEET_HOVERED_KEY();
     getKeyFromMLV(set.keyboard_move_left, key);
-    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_LEFT, key); /* id = 27 */
+    createKey(components, components_size, keys, keys_size, 15, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_LEFT, key); /* id = 27 */
     getKeyFromMLV(set.keyboard_move_right, key);
-    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_RIGHT, key); /* id = 28 */
+    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_RIGHT, key); /* id = 28 */
     getKeyFromMLV(set.keyboard_turn_left, key);
-    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_LEFT, key); /* id = 29 */
+    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_LEFT, key); /* id = 29 */
     getKeyFromMLV(set.keyboard_turn_right, key);
-    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_RIGHT, key); /* id = 30 */
+    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_RIGHT, key); /* id = 30 */
     getKeyFromMLV(set.keyboard_fast_drop, key);
-    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_FAST_DROP, key); /* id = 31 */
+    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_FAST_DROP, key); /* id = 31 */
     getKeyFromMLV(set.keyboard_pause, key);
-    createKey(components, components_size, keys, keys_size, 21, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_PAUSE, key); /* id = 32 */
+    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_PAUSE, key); /* id = 32 */
+
+    stylesheet = STYLESHEET_VOID();
+    stylesheet.height = 20;
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 33 */
+
+    text_stylesheet = STYLESHEET_MINI_TITLE();
+    if(MLV_path_exists(text_stylesheet.font_family))
+    {
+        font_family = MLV_load_font(text_stylesheet.font_family, text_stylesheet.font_size);
+        MLV_get_size_of_text_with_font("Scroll", NULL, &font_height, font_family);
+    }
+    text_stylesheet.height = font_height;
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll"); /* id = 34 */
+
+    stylesheet = STYLESHEET_ROW();
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 35 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 36 */
+    
+    text_stylesheet = STYLESHEET_TEXT();
+    createText(components, components_size, texts, texts_size, 35, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le haut"); /* id = 37 */
+    createText(components, components_size, texts, texts_size, 36, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le bas"); /* id = 38 */
+
+    stylesheet = STYLESHEET_KEY();
+    hover_stylesheet = STYLESHEET_HOVERED_KEY();
+    getKeyFromMLV(set.keyboard_scroll_up, key);
+    createKey(components, components_size, keys, keys_size, 35, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_UP, key); /* id = 39 */
+    getKeyFromMLV(set.keyboard_scroll_down, key);
+    createKey(components, components_size, keys, keys_size, 36, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_DOWN, key); /* id = 40 */
 }
 void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
 {
     style text_stylesheet;
 
     text_stylesheet = STYLESHEET_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 14 */
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 12 */
 }
 void createSettingsGraphicsComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
 {
     style text_stylesheet;
 
     text_stylesheet = STYLESHEET_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 14 */
-}
-void createSettingsAudioComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
-{
-    style text_stylesheet;
-
-    text_stylesheet = STYLESHEET_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres audio"); /* id = 14 */
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 12 */
 }

@@ -246,16 +246,6 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *scroll = 0;
                 }
                 break;
-            case BUTTON_ACTION_CREATE_SETTINGS_AUDIO_COMPONENTS:
-                if(*page != SETTINGS_AUDIO_COMPONENTS)
-                {
-                    *page = SETTINGS_AUDIO_COMPONENTS;
-                    *recreate = TRUE;
-                    *actualise = TRUE;
-                    *game_started = FALSE;
-                    *scroll = 0;
-                }
-                break;
             default:
                 break;
         }
@@ -264,14 +254,15 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
 int main()
 {
     MLV_Event event = 0;
-    MLV_Keyboard_button sym = 0;
+    MLV_Keyboard_button sym = 0, pressed_key = 0;
     MLV_Keyboard_modifier mod = 0;
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
     boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE, grab = FALSE;
     int32_t x = 0, y = 0, oldy = 0, width, height;
-    uint32_t i = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_time, tmp_top;
+    uint32_t i = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_top;
+    uint64_t tmp_time = 0;
     double scroll = 0, oldscroll = 0;
     page_components page = MENU_COMPONENTS;
     button_action_type lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
@@ -287,12 +278,10 @@ int main()
     button_component button;
     key_component key;
     style stylesheet, grab_stylesheet;
-
     tetrimino tab[64];
     game g;
 
     srand(time(NULL));
-
     width = MLV_get_desktop_width(),
     height = MLV_get_desktop_height();
 
@@ -320,6 +309,14 @@ int main()
                 case MLV_NONE:
                     break;
                 case MLV_KEY:
+                    if(state == MLV_PRESSED)
+                    {
+                        if(sym == set.keyboard_scroll_down
+                        || sym == set.keyboard_scroll_up
+                        || sym == set.keyboard_fast_drop) {
+                            pressed_key = sym;
+                        }
+                    }
                     if(state == MLV_RELEASED)
                     {
                         if(listen == TRUE) {
@@ -349,6 +346,12 @@ int main()
                                     case KEY_TAKE_PAUSE:
                                         set.keyboard_pause = sym;
                                         break;
+                                    case KEY_TAKE_SCROLL_UP:
+                                        set.keyboard_scroll_up = sym;
+                                        break;
+                                    case KEY_TAKE_SCROLL_DOWN:
+                                        set.keyboard_scroll_down = sym;
+                                        break;
                                     default:
                                         break;
                                 }
@@ -358,41 +361,45 @@ int main()
                                 listen = FALSE;
                                 actualise = TRUE;
                             }
-                        } else if(game_started == TRUE) {
-                            if(game_paused == TRUE)
+                        } else {
+                            if(sym == pressed_key) {
+                                pressed_key = 0;
+                            }
+                            if(game_started == TRUE)
                             {
-                                if(sym == set.keyboard_pause)
+                                if(game_paused == TRUE)
                                 {
-                                    game_paused = FALSE;
-                                    page = GAME_COMPONENTS;
-                                    lastPage = BUTTON_ACTION_RESUME_GAME;
+                                    if(sym == set.keyboard_pause)
+                                    {
+                                        game_paused = FALSE;
+                                        page = GAME_COMPONENTS;
+                                        lastPage = BUTTON_ACTION_RESUME_GAME;
 
-                                    recreate = TRUE;
-                                    actualise = TRUE;
-                                }
-                            } else {
-                                if(sym == set.keyboard_pause)
-                                {
-                                    game_paused = TRUE;
-                                    page = GAME_POPUP_COMPONENTS;
-                                    lastPage = BUTTON_ACTION_PAUSE_GAME;
+                                        recreate = TRUE;
+                                        actualise = TRUE;
+                                    }
+                                } else {
+                                    if(sym == set.keyboard_pause)
+                                    {
+                                        game_paused = TRUE;
+                                        page = GAME_POPUP_COMPONENTS;
+                                        lastPage = BUTTON_ACTION_PAUSE_GAME;
 
-                                    recreate = TRUE;
-                                    actualise = TRUE;
-                                } else if(sym == set.keyboard_move_right) {
-                                    moveRight(&g);
-                                    actualise = TRUE;
-                                } else if(sym == set.keyboard_move_left) {
-                                    moveLeft(&g);
-                                    actualise = TRUE;
-                                } else if(sym == set.keyboard_turn_right) {
-                                    turnRight(&g);
-                                    actualise = TRUE;
-                                } else if(sym == set.keyboard_turn_left) {
-                                    turnLeft(&g);
-                                    actualise = TRUE;
-                                } else if(sym == set.keyboard_fast_drop) {
-                                    fastDrop(&g);
+                                        recreate = TRUE;
+                                        actualise = TRUE;
+                                    } else if(sym == set.keyboard_move_right) {
+                                        moveRight(&g);
+                                        actualise = TRUE;
+                                    } else if(sym == set.keyboard_move_left) {
+                                        moveLeft(&g);
+                                        actualise = TRUE;
+                                    } else if(sym == set.keyboard_turn_right) {
+                                        turnRight(&g);
+                                        actualise = TRUE;
+                                    } else if(sym == set.keyboard_turn_left) {
+                                        turnLeft(&g);
+                                        actualise = TRUE;
+                                    }
                                 }
                             }
                         }
@@ -454,6 +461,27 @@ int main()
                     break;
             }
         } while((event != MLV_NONE)&&!quit);
+        
+        if(pressed_key == set.keyboard_fast_drop && (game_started == TRUE && game_paused != TRUE))
+        {
+            fastDrop(&g);
+        } else if(pressed_key == set.keyboard_scroll_down) {
+            if(scroll != 1)
+            {
+                scroll+=0.01;
+                if(scroll>1) scroll = 1;
+                recreate = TRUE;
+                actualise = TRUE;
+            }
+        } else if(pressed_key == set.keyboard_scroll_up) {
+            if(scroll != 0)
+            {
+                scroll-=0.01;
+                if(scroll<0) scroll = 0;
+                recreate = TRUE;
+                actualise = TRUE;
+            }
+        }
 
         if(grab == TRUE)
         {

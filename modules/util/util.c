@@ -310,6 +310,8 @@ settings defaultSettings()
     set.keyboard_turn_right = MLV_KEYBOARD_e;
     set.keyboard_fast_drop = MLV_KEYBOARD_SPACE;
     set.keyboard_pause = MLV_KEYBOARD_ESCAPE;
+    set.keyboard_scroll_up = MLV_KEYBOARD_UP;
+    set.keyboard_scroll_down = MLV_KEYBOARD_DOWN;
     set.video_fps = 30;
     set.video_animations = TRUE;
     set.graphics_border_radius = TRUE;
@@ -339,6 +341,10 @@ void writeSettings(settings set)
     fprintf(file, "KEY_FAST_DROP=%s\n", response);
     getKeyFromMLV(set.keyboard_pause, response);
     fprintf(file, "KEY_PAUSE=%s\n\n", response);
+    getKeyFromMLV(set.keyboard_scroll_up, response);
+    fprintf(file, "KEY_SCROLL_UP=%s\n\n", response);
+    getKeyFromMLV(set.keyboard_scroll_down, response);
+    fprintf(file, "KEY_SCROLL_DOWN=%s\n\n", response);
 
     fprintf(file, "### VIDEO ###\n");
     fprintf(file, "FPS=%u\n", set.video_fps);
@@ -432,6 +438,18 @@ settings readSettings()
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_pause = key;
+                }
+            } else if(strcmp(setting_name, "KEY_SCROLL_UP") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_scroll_up = key;
+                }
+            } else if(strcmp(setting_name, "KEY_SCROLL_DOWN") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_scroll_down = key;
                 }
             } else if(strcmp(setting_name, "FPS") == 0)
             {
@@ -598,81 +616,7 @@ void writeScoreboard(score s)
         value = (tab[i].when.year)&0xFF;
         fwrite(&value, sizeof(char), 1, file);
     }
-
     fclose(file);
-}
-
-uint32_t loadTetriminos(tetrimino tab[64])
-{
-    DIR *folder = opendir("./data/tetrimino");
-    FILE *file;
-    struct dirent *entry;
-    char file_path[320];
-    int byte, i, j;
-
-    if(folder == NULL) {
-        return 0;
-    }
-    for(i = 0; i<64; i++)
-    {
-        tab[i].idbox = 0;
-        tab[i].path[0] = '\0';
-    }
-
-    i = 0;
-    while((entry = readdir(folder)) != NULL && i < 64)
-    {
-        if(entry->d_type == DT_REG)
-        {
-            j = 0;
-            snprintf(file_path, sizeof(file_path), "./data/tetrimino/%s", entry->d_name);
-
-            file = fopen(file_path, "rb");
-            if(file == NULL) {
-                continue;
-            }
-            byte = fgetc(file);
-            j = 0;
-            tab[i].idbox = 0;
-            while(byte != EOF && j<16)
-            {
-                tab[i].map[j].r = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].g = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].b = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].a = byte;
-                j++;
-                if(j == 16) tab[i].idbox = 4;
-                else
-                {
-                    if(j >= 9) tab[i].idbox = 3;
-                    else
-                    {
-                        if(j >= 4) tab[i].idbox = 2;
-                        else
-                        {
-                            if(j >= 1) tab[i].idbox = 1;
-                        }
-                    }
-                }
-                byte = fgetc(file);
-            }
-            if(tab[i].idbox != 0)
-            {
-                strcpy(tab[i].path, file_path);
-                i++;
-            }
-            fclose(file);
-        }
-    }
-    closedir(folder);
-
-    return i;
 }
 
 tetrimino loadTetrimino(char path[320])
@@ -719,4 +663,38 @@ tetrimino loadTetrimino(char path[320])
     fclose(file);
 
     return tetr;
+}
+
+uint32_t loadTetriminos(tetrimino tab[64])
+{
+    DIR *folder = opendir("./data/tetrimino");
+    struct dirent *entry;
+    char file_path[320];
+    int i;
+
+    if(folder == NULL) {
+        return 0;
+    }
+    for(i = 0; i<64; i++)
+    {
+        tab[i].idbox = 0;
+        tab[i].path[0] = '\0';
+    }
+
+    i = 0;
+    while((entry = readdir(folder)) != NULL && i < 64)
+    {
+        if(entry->d_type == DT_REG)
+        {
+            tab[i] = loadTetrimino(file_path);
+            if(tab[i].idbox != 0)
+            {
+                strcpy(tab[i].path, file_path);
+                i++;
+            }
+        }
+    }
+    closedir(folder);
+
+    return i;
 }
