@@ -310,8 +310,8 @@ style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, compo
                             offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
                             offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
 
-                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
-                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left;
                             offsets[components[i].parent_id-1].left_offset += stylesheets[i].width+stylesheets[components[i].parent_id-1].gap;
                             break;
                         case JUSTIFY_END:
@@ -320,8 +320,8 @@ style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, compo
                             offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
                             offsets[i].right_offset = offsets[components[i].parent_id-1].right_offset-stylesheets[i].padding+stylesheets[i].left;
 
-                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
-                            stylesheets[i].left = offsets[components[i].parent_id-1].right_offset-stylesheets[i].width;
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].right_offset-stylesheets[i].width+stylesheets[i].left;
                             offsets[components[i].parent_id-1].right_offset -= stylesheets[i].width+stylesheets[components[i].parent_id-1].gap;
                             break;
                     }
@@ -335,8 +335,8 @@ style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, compo
                             offsets[i].bottom_offset = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top+stylesheets[i].height-stylesheets[i].padding;
                             offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
 
-                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset;
-                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            stylesheets[i].top = offsets[components[i].parent_id-1].top_offset+stylesheets[i].top;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left;
                             offsets[components[i].parent_id-1].top_offset += stylesheets[i].height+stylesheets[components[i].parent_id-1].gap;
                             break;
                         case JUSTIFY_END:
@@ -345,8 +345,8 @@ style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, compo
                             offsets[i].bottom_offset = offsets[components[i].parent_id-1].bottom_offset-stylesheets[i].padding+stylesheets[i].top;
                             offsets[i].right_offset = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left+stylesheets[i].width-stylesheets[i].padding;
 
-                            stylesheets[i].top = offsets[components[i].parent_id-1].bottom_offset-stylesheets[i].height;
-                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset;
+                            stylesheets[i].top = offsets[components[i].parent_id-1].bottom_offset-stylesheets[i].height+stylesheets[i].top;
+                            stylesheets[i].left = offsets[components[i].parent_id-1].left_offset+stylesheets[i].left;
                             offsets[components[i].parent_id-1].bottom_offset -= stylesheets[i].height+stylesheets[components[i].parent_id-1].gap;
                             break;
                     }
@@ -881,6 +881,27 @@ void createImage(component components[], uint32_t *components_size, image_compon
     (*components_size)++;
     images[*images_size] = img_cmp;
     (*images_size)++;
+}
+
+/**
+ * Initialisation of grab component structure.
+ *
+ * @param {component} components[]
+ * @param {uint32_t} *components_size
+ * @param {uint32_t} parent_id
+ * @param {style} stylesheet
+ * @param {boolean} is_hoverable
+ * @param {boolean} ignore_hover ( let parent component take the hover )
+ * @param {style} hover_stylesheet
+ * @param {uint32_t} transition_duration
+ *
+ * @returns {void}
+ */
+void createGrab(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration)
+{
+    if((*components_size)+1 >= COMPONENTS_MAX_SIZE)return;
+    components[*components_size] = initComponent((*components_size)+1, COMPONENT_GRAB, parent_id, stylesheet, is_hoverable, ignore_hover, hover_stylesheet, transition_duration);
+    (*components_size)++;
 }
 
 /**

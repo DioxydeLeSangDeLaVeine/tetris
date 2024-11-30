@@ -836,7 +836,7 @@ style STYLESHEET_HIDE_TEXT(int32_t top, int32_t left, int32_t height, int32_t wi
     return stylesheet;
 }
 
-void createComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponents(page_components page, button_action_type lastPage, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
     (*buttons_size) = 0;
@@ -859,14 +859,14 @@ void createComponents(page_components page, button_action_type lastPage, int32_t
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
         case SETTINGS_AUDIO_COMPONENTS:
-            createComponentsWithSidebar(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
+            createComponentsWithSidebar(page, lastPage, scroll, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
             break;
         default:
             break;
     }
 }
 
-void createComponentsWithSidebar(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponentsWithSidebar(page_components page, button_action_type lastPage, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
     if(page == SCOREBOARD_COMPONENTS)
@@ -887,7 +887,7 @@ void createComponentsWithSidebar(page_components page, button_action_type lastPa
             createPlayComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
             break;
         case LOAD_COMPONENTS:
-            createLoadComponents(lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size);
+            createLoadComponents(lastPage, scroll, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size);
             break;
         case SCOREBOARD_COMPONENTS:
             createScoreboardComponents(lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, images, images_size);
@@ -957,11 +957,11 @@ void createPlayComponents(int32_t top, int32_t left, int32_t height, int32_t wid
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode ultra"); /* id = 11 */
 }
 
-void createLoadComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
+void createLoadComponents(button_action_type lastPage, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
 {
     style body_stylesheet, stylesheet, stylesheet2, stylesheet3, hover_stylesheet, text_stylesheet;
     int font_height = 0, font_width = 0;
-    int id = 0, i, j;
+    int id = 0, tmp_id = -1, i, j;
     uint32_t tab_size = 0;
     load tab[64];
     MLV_Font *font_family;
@@ -1014,33 +1014,66 @@ void createLoadComponents(button_action_type lastPage, int32_t top, int32_t left
     stylesheet.padding = 0;
     createFrame(components, components_size, 7, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 8 */
 
+    tab_size = loadGames(tab);
+
     stylesheet = STYLESHEET_SCROLL();
     createFrame(components, components_size, 7, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 9 */
-    id = 9;
+    stylesheet.background_color = ROOT_WHITE_COLOR();
+    stylesheet3 = STYLESHEET_ROW();
+    stylesheet3.height = 200;
+    stylesheet2.height -= 100;
+    stylesheet.height = (int32_t)((stylesheet2.height*100)/(stylesheet3.height*ceil(tab_size/3.)+stylesheet3.gap*(ceil(tab_size/3.)-1)));
+    if(stylesheet.height >= 100) {
+        stylesheet.height = 100;
+        stylesheet.background_color = ROOT_TRANSPARENT_COLOR();
+    } else if(stylesheet.height <= 0) {
+        stylesheet.height = 1;
+    }
+    stylesheet.unit_height = UNIT_PERCENTAGE;
+    stylesheet.top = (scroll*(100-stylesheet.height));
+    createGrab(components, components_size, 9, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 10 */
+    id = 10;
 
-    tab_size = loadGames(tab);
     for(i = 0; i<ceil(tab_size/3.); i++)
     {
-        stylesheet  = STYLESHEET_ROW();
-        stylesheet.height = 200;
-        stylesheet2.gap = stylesheet.gap;
-        createFrame(components, components_size, 8, stylesheet, FALSE, FALSE, stylesheet, 0);
-        id++;
-        for(j = 0; j<3; j++)
-        {
-            if(tab[i*3+j].id != 0) {
-                stylesheet = STYLESHEET_BOX(top, left, height, width);
-                stylesheet.width = (stylesheet2.width-2*stylesheet2.gap)/3;
-                hover_stylesheet = stylesheet;
-                hover_stylesheet.background_color = ROOT_GREY_COLOR();
-                createButton(components, components_size, buttons, buttons_size, id-2*j, stylesheet, TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_LOAD_GAME, tab[i*3+j].path);
-                id++;
+        stylesheet = STYLESHEET_ROW();
+        stylesheet.unit_top = UNIT_PX;
+        stylesheet.top = -((int32_t)(((stylesheet3.height*ceil(tab_size/3.)+stylesheet3.gap*(ceil(tab_size/3.)-1))-stylesheet2.height)*scroll));
+        if(stylesheet.top > 0) stylesheet.top = 0;
 
-                text_stylesheet = STYLESHEET_BUTTONS_TEXT();
-                text_stylesheet.font_vertical_align = VERTICAL_TOP;
-                text_stylesheet.font_size = 24;
-                createText(components, components_size, texts, texts_size, id, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, tab[i*3+j].name);
+        stylesheet.height = stylesheet3.height;
+        stylesheet2.gap = stylesheet3.gap;
+
+        if((i*(stylesheet.height+stylesheet.gap))+stylesheet.top+stylesheet.height>=-50) {
+            if((i*(stylesheet.height+stylesheet.gap))+stylesheet.top+stylesheet.height<=stylesheet2.height+stylesheet3.height+50) {
+                createFrame(components, components_size, 8, stylesheet, FALSE, FALSE, stylesheet, 0);
                 id++;
+                for(j = 0; j<3; j++)
+                {
+                    if(tab[i*3+j].id != 0) {
+                        stylesheet = STYLESHEET_BOX(top, left, height, width);
+                        stylesheet.width = (stylesheet2.width-2*stylesheet2.gap)/3;
+                        hover_stylesheet = stylesheet;
+                        hover_stylesheet.background_color = ROOT_GREY_COLOR();
+                        createButton(components, components_size, buttons, buttons_size, id-2*j, stylesheet, TRUE, FALSE, hover_stylesheet, 100, BUTTON_ACTION_LOAD_GAME, tab[i*3+j].path);
+                        id++;
+
+                        text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+                        text_stylesheet.font_vertical_align = VERTICAL_TOP;
+                        text_stylesheet.font_size = 24;
+                        createText(components, components_size, texts, texts_size, id, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, tab[i*3+j].name);
+                        id++;
+                    }
+                }
+            }
+        } else {
+            if(tmp_id == -1) {
+                createFrame(components, components_size, 8, stylesheet, FALSE, FALSE, stylesheet, 0);
+                tmp_id = id;
+                id++;
+            } else {
+                components[tmp_id].stylesheet.height += stylesheet3.height+stylesheet3.gap;
+                components[tmp_id].hover_stylesheet.height += stylesheet3.height+stylesheet3.gap;
             }
         }
     }

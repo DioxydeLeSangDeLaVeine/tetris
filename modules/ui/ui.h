@@ -32,6 +32,7 @@ typedef enum {
     COMPONENT_TEXT,
     COMPONENT_KEY,
     COMPONENT_IMAGE,
+    COMPONENT_GRAB,
     COMPONENT_GAME
 } component_type;
 
@@ -187,6 +188,7 @@ void createButton(component components[], uint32_t *components_size, button_comp
 void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[]);
 void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[]);
 void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[]);
+void createGrab(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
 void createGame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet);
 
 #endif
