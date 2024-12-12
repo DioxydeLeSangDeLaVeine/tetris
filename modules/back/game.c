@@ -178,21 +178,116 @@ uint32_t loadGames(load tab[64])
     return i;
 }
 
+int32_t LeftFromMap(tetrimino actual_tetr) {
+    int32_t i, j;
+    for(i = 0; i<actual_tetr.idbox; i++) {
+        for(j = 0; j<actual_tetr.idbox; j++) {
+            if(actual_tetr.map[j*actual_tetr.idbox+i].a != 0)return i;
+        }
+    }
+    return 0;
+}
+int32_t RightFromMap(tetrimino actual_tetr) {
+    int32_t i, j;
+    for(i = actual_tetr.idbox-1; i>=0; i--) {
+        for(j = 0; j<actual_tetr.idbox; j++) {
+            if(actual_tetr.map[j*actual_tetr.idbox+i].a != 0)return (actual_tetr.idbox-1)-i;
+        }
+    }
+    return 0;
+}
+
 void moveRight(game *g)
 {
-
+    if(g->pos_x < GAME_WIDTH-1+RightFromMap(g->actual_tetr))
+    {
+        g->pos_x++;
+    }
 }
 void moveLeft(game *g)
 {
-
+    if(g->pos_x-g->actual_tetr.idbox >= 0-LeftFromMap(g->actual_tetr))
+    {
+        g->pos_x--;
+    }
 }
 void turnRight(game *g)
 {
+    int i, j;
+    rgba newmap[16];
+    rgba oldmap[16];
 
-}
+    if(g->actual_tetr.idbox%2 == 0) {
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                oldmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[i*g->actual_tetr.idbox+j];
+                newmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[j*g->actual_tetr.idbox+i];
+            }
+        }
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                g->actual_tetr.map[i*g->actual_tetr.idbox+j] = newmap[i*g->actual_tetr.idbox+j];
+            }
+        }
+    } else {
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                oldmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[i*g->actual_tetr.idbox+j];
+                newmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[j*g->actual_tetr.idbox+i];
+            }
+        }
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                g->actual_tetr.map[i*g->actual_tetr.idbox+j] = newmap[i*g->actual_tetr.idbox+g->actual_tetr.idbox-j-1];
+            }
+        }
+    }
+    while(g->pos_x >= GAME_WIDTH+RightFromMap(g->actual_tetr))
+    {
+        g->pos_x--;
+    }
+    while(g->pos_x-g->actual_tetr.idbox < 0-LeftFromMap(g->actual_tetr)-1)
+    {
+        g->pos_x++;
+    }
+} 
+
 void turnLeft(game *g)
 {
+    int i, j;
+    rgba newmap[16];
 
+    if(g->actual_tetr.idbox%2 == 0) {
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                newmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[j*g->actual_tetr.idbox+i];
+            }
+        }
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                g->actual_tetr.map[i*g->actual_tetr.idbox+j] = newmap[i*g->actual_tetr.idbox+j];
+            }
+        }
+    } else {
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                newmap[i*g->actual_tetr.idbox+j] = g->actual_tetr.map[j*g->actual_tetr.idbox+i];
+            }
+        }
+        for(i = 0; i<g->actual_tetr.idbox; i++) {
+            for(j = 0; j<g->actual_tetr.idbox; j++) {
+                g->actual_tetr.map[i*g->actual_tetr.idbox+j] = newmap[(g->actual_tetr.idbox-i-1)*g->actual_tetr.idbox+j];
+            }
+        }
+    }
+    while(g->pos_x >= GAME_WIDTH+RightFromMap(g->actual_tetr))
+    {
+        g->pos_x--;
+    }
+    while(g->pos_x-g->actual_tetr.idbox < 0-LeftFromMap(g->actual_tetr)-1)
+    {
+        g->pos_x++;
+    }
 }
 void fastDrop(game *g)
 {
@@ -203,7 +298,11 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
 {
     if((*g).actual_tetr.idbox == 0)
     {
-        /* Ajout d'un tetrimino random + vérifications */
+        (*g).actual_tetr = tab[rand()%tab_size];
+        (*g).pos_x = ((GAME_WIDTH/2)-1)-(((*g).actual_tetr.idbox-RightFromMap((*g).actual_tetr)-LeftFromMap((*g).actual_tetr))/2)+(*g).actual_tetr.idbox-LeftFromMap((*g).actual_tetr);
+        (*g).pos_y = (*g).actual_tetr.idbox+1;
+
+        if(((*g).actual_tetr.idbox-RightFromMap((*g).actual_tetr)-LeftFromMap((*g).actual_tetr))%2 == 1) (*g).pos_x--;
     } else {
         if((*g).drop >= 100) {
             /* Drop d'une case + vérifications */
@@ -213,7 +312,7 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
         } else {
             if((*g).fastdrop == TRUE)
             {
-                (*g).drop += 100;
+                (*g).drop += 75;
                 (*g).fastdrop = FALSE;
             } else {
                 (*g).drop += framerate/10.; /* /1000*100 -> /10, 1000 = seconde d'attente avant drop, 100 = pourcentage */

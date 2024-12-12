@@ -251,18 +251,50 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
         }
 }
 
+boolean is_pressed(MLV_Keyboard_button pressed_keys[], uint32_t pressed_keys_size, MLV_Keyboard_button key)
+{
+    uint32_t i;
+    for(i = 0; i<pressed_keys_size; i++)
+    {
+        if(pressed_keys[i] == key)return TRUE;
+    }
+    return FALSE;
+}
+void remove_key(MLV_Keyboard_button pressed_keys[], uint32_t *pressed_keys_size, MLV_Keyboard_button key)
+{
+    uint32_t i, j = 0;
+    uint32_t tmp_size = *pressed_keys_size;
+    for(i = 0; i<tmp_size&&j<tmp_size; i++)
+    {
+        while(pressed_keys[j] == key && j<tmp_size)
+        {
+            j++;
+            (*pressed_keys_size)--;
+            if(j>=tmp_size)return;
+        }
+        pressed_keys[i] = pressed_keys[j];
+        j++;
+    }
+}
+void add_key(MLV_Keyboard_button pressed_keys[], uint32_t *pressed_keys_size, MLV_Keyboard_button key)
+{
+    pressed_keys[*pressed_keys_size] = key;
+    (*pressed_keys_size)++;
+}
+
 int main()
 {
     MLV_Event event = 0;
-    MLV_Keyboard_button sym = 0, pressed_key = 0;
+    MLV_Keyboard_button sym = 0;
+    MLV_Keyboard_button pressed_keys[64];
     MLV_Keyboard_modifier mod = 0;
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
     boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE, grab = FALSE;
     int32_t x = 0, y = 0, oldy = 0, width, height;
-    uint32_t i = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_top;
-    uint64_t tmp_time = 0;
+    uint32_t i = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_top, pressed_keys_size = 0;
+    uint64_t tmp_time = 0, move_time = 0, turn_time = 0;
     double scroll = 0, oldscroll = 0;
     page_components page = MENU_COMPONENTS;
     button_action_type lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
@@ -311,14 +343,28 @@ int main()
                 case MLV_KEY:
                     if(state == MLV_PRESSED)
                     {
-                        if(sym == set.keyboard_scroll_down
-                        || sym == set.keyboard_scroll_up
-                        || sym == set.keyboard_fast_drop) {
-                            pressed_key = sym;
+                        if(!is_pressed(pressed_keys, pressed_keys_size, sym))
+                        {
+                            if(sym == set.keyboard_scroll_down
+                            || sym == set.keyboard_scroll_up
+                            || sym == set.keyboard_move_left
+                            || sym == set.keyboard_move_right
+                            || sym == set.keyboard_turn_left
+                            || sym == set.keyboard_turn_right
+                            || sym == set.keyboard_fast_drop) {
+                                add_key(pressed_keys, &pressed_keys_size, sym);
+                            }
                         }
                     }
                     if(state == MLV_RELEASED)
                     {
+                        remove_key(pressed_keys, &pressed_keys_size, sym);
+                        if(sym == set.keyboard_move_left || sym == set.keyboard_move_right) {
+                            move_time = 0;
+                        }
+                        if(sym == set.keyboard_turn_left || sym == set.keyboard_turn_right) {
+                            turn_time = 0;
+                        }
                         if(listen == TRUE) {
                             getKeyFromMLV(sym, key.content);
                             if(strcmp(key.content, "") != 0) {
@@ -362,9 +408,6 @@ int main()
                                 actualise = TRUE;
                             }
                         } else {
-                            if(sym == pressed_key) {
-                                pressed_key = 0;
-                            }
                             if(game_started == TRUE)
                             {
                                 if(game_paused == TRUE)
@@ -386,18 +429,6 @@ int main()
                                         lastPage = BUTTON_ACTION_PAUSE_GAME;
 
                                         recreate = TRUE;
-                                        actualise = TRUE;
-                                    } else if(sym == set.keyboard_move_right) {
-                                        moveRight(&g);
-                                        actualise = TRUE;
-                                    } else if(sym == set.keyboard_move_left) {
-                                        moveLeft(&g);
-                                        actualise = TRUE;
-                                    } else if(sym == set.keyboard_turn_right) {
-                                        turnRight(&g);
-                                        actualise = TRUE;
-                                    } else if(sym == set.keyboard_turn_left) {
-                                        turnLeft(&g);
                                         actualise = TRUE;
                                     }
                                 }
@@ -462,10 +493,46 @@ int main()
             }
         } while((event != MLV_NONE)&&!quit);
         
-        if(pressed_key == set.keyboard_fast_drop && (game_started == TRUE && game_paused != TRUE))
+        if(game_started == TRUE && game_paused != TRUE)
         {
-            fastDrop(&g);
-        } else if(pressed_key == set.keyboard_scroll_down) {
+            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_fast_drop))
+            {
+                fastDrop(&g);
+            }
+            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_right))
+            {
+                if(g.time >= move_time+1000)
+                {
+                    move_time = g.time;
+                    moveRight(&g);
+                    actualise = TRUE;
+                }
+            } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_left)) {
+                if(g.time >= move_time+1000)
+                {
+                    move_time = g.time;
+                    moveLeft(&g);
+                    actualise = TRUE;
+                }
+            }
+            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_right))
+            {
+                if(g.time >= turn_time+2000)
+                {
+                    turn_time = g.time;
+                    turnRight(&g);
+                    actualise = TRUE;
+                }
+            } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_left)) {
+                if(g.time >= turn_time+2000)
+                {
+                    turn_time = g.time;
+                    turnLeft(&g);
+                    actualise = TRUE;
+                }
+            }
+        }
+        if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_down)) {
             if(scroll != 1)
             {
                 scroll+=0.01;
@@ -473,7 +540,8 @@ int main()
                 recreate = TRUE;
                 actualise = TRUE;
             }
-        } else if(pressed_key == set.keyboard_scroll_up) {
+        }
+        if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_up)) {
             if(scroll != 0)
             {
                 scroll-=0.01;

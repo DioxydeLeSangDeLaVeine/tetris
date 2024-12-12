@@ -33,7 +33,6 @@ int32_t __max(int32_t a, int32_t b)
     return a>=b?a:b;
 }
 
-
 void getMonth(char unsigned month, char result[32])
 {
     switch(month%12)
@@ -669,7 +668,6 @@ uint32_t loadTetriminos(tetrimino tab[64])
 {
     DIR *folder = opendir("./data/tetrimino");
     struct dirent *entry;
-    char file_path[320];
     int i;
 
     if(folder == NULL) {
@@ -686,15 +684,14 @@ uint32_t loadTetriminos(tetrimino tab[64])
     {
         if(entry->d_type == DT_REG)
         {
-            tab[i] = loadTetrimino(file_path);
+            snprintf(tab[i].path, sizeof(tab[i].path), "./data/tetrimino/%s", entry->d_name);
+            tab[i] = loadTetrimino(tab[i].path);
             if(tab[i].idbox != 0)
             {
-                strcpy(tab[i].path, file_path);
                 i++;
             }
         }
     }
     closedir(folder);
-
     return i;
 }
