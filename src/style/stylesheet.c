@@ -1057,6 +1057,7 @@ void createLoadComponents(button_action_type lastPage, double scroll, int32_t to
     } else if(stylesheet.height <= 0) {
         stylesheet.height = 1;
     }
+    if(tab_size == 0) stylesheet.height = 0;
     stylesheet.unit_height = UNIT_PERCENTAGE;
     stylesheet.top = (scroll*(100-stylesheet.height));
     createGrab(components, components_size, 9, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 10 */

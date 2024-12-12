@@ -575,7 +575,7 @@ int main()
                 recreate = TRUE;
                 actualise = TRUE;
             }
-            if(tick(&g, tab, tab_size, 1000/set.video_fps, &actualise) == TRUE)
+            if(tick(&g, tab, tab_size, 1000/set.video_fps, &actualise, &recreate) == TRUE)
             {
                 /* Finir le jeu en conséquence */
                 game_started = FALSE;
