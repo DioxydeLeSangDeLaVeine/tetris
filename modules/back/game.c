@@ -344,7 +344,7 @@ void turnRight(game *g)
         g->pos_x++;
         right_move++;
     }
-    if(verifyLose(g))
+    if(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr)||verifyLose(g))
     {
         for(i = 0; i<g->actual_tetr.idbox; i++)
         {
@@ -414,7 +414,7 @@ void turnLeft(game *g)
         g->pos_x++;
         right_move++;
     }
-    if(verifyLose(g))
+    if(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr)||verifyLose(g))
     {
         for(i = 0; i<g->actual_tetr.idbox; i++)
         {
@@ -437,6 +437,30 @@ void turnLeft(game *g)
 void fastDrop(game *g)
 {
     g->fastdrop = TRUE;
+}
+
+void instantDrop(game *g, boolean *recreate)
+{
+    int32_t i, j;
+    boolean vactualise;
+    while(!(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr) || verifyBottom(g)))
+    {
+        g->pos_y++;
+    }
+    for(i = 0; i<g->actual_tetr.idbox; i++)
+    {
+        for(j = 0; j<g->actual_tetr.idbox; j++)
+        {
+            if(g->actual_tetr.map[i*g->actual_tetr.idbox+j].a != 0) {
+                if(g->pos_y-g->actual_tetr.idbox+i+1<GAME_HEIGHT) {
+                    g->grid[g->pos_y-g->actual_tetr.idbox+i+1][g->pos_x-g->actual_tetr.idbox+j+1] = g->actual_tetr.map[i*g->actual_tetr.idbox+j];
+                }
+            }
+        }
+    }
+    g->actual_tetr.idbox = 0;
+    recalculateScore(g, &vactualise, recreate);
+    (void)vactualise;
 }
 
 void recalculateScore(game *g, boolean *actualise, boolean *recreate)
@@ -553,7 +577,7 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             }
             if(g->mode == GAMEMODE_ULTRA)
             {
-                g->drop += (framerate/100.)*100;
+                g->drop += (framerate/300.)*100;
             } else {
                 if(level >= 15)
                 {

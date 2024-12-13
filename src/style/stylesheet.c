@@ -524,7 +524,7 @@ style STYLESHEET_ROW() {
     stylesheet.unit_left = UNIT_PERCENTAGE;
     stylesheet.left = 0;
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = 60;
+    stylesheet.height = 54;
     stylesheet.unit_width = UNIT_PERCENTAGE;
     stylesheet.width = 100;
     return stylesheet;
@@ -688,7 +688,7 @@ style STYLESHEET_KEY() {
     stylesheet.unit_left = UNIT_PX;
     stylesheet.left = 0;
     stylesheet.unit_height = UNIT_PX;
-    stylesheet.height = 56;
+    stylesheet.height = 54;
     stylesheet.unit_width = UNIT_PX;
     stylesheet.width = 200;
     return stylesheet;
@@ -1509,33 +1509,37 @@ void createSettingsKeyboardComponents(component components[], uint32_t *componen
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 18 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 19 */
     createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 20 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 21 */
     
     text_stylesheet = STYLESHEET_TEXT();
-    createText(components, components_size, texts, texts_size, 15, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 21 */
-    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 22 */
-    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 23 */
-    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 24 */
-    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente rapide"); /* id = 25 */
-    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mettre pause"); /* id = 26 */
+    createText(components, components_size, texts, texts_size, 15, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à gauche"); /* id = 22 */
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Déplacer à droite"); /* id = 23 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à gauche"); /* id = 24 */
+    createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Tourner à droite"); /* id = 25 */
+    createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente rapide"); /* id = 26 */
+    createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Descente instantanée"); /* id = 27 */
+    createText(components, components_size, texts, texts_size, 21, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mettre pause"); /* id = 28 */
 
     stylesheet = STYLESHEET_KEY();
     hover_stylesheet = STYLESHEET_HOVERED_KEY();
     getKeyFromMLV(set.keyboard_move_left, key);
-    createKey(components, components_size, keys, keys_size, 15, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_LEFT, key); /* id = 27 */
+    createKey(components, components_size, keys, keys_size, 15, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_LEFT, key); /* id = 29 */
     getKeyFromMLV(set.keyboard_move_right, key);
-    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_RIGHT, key); /* id = 28 */
+    createKey(components, components_size, keys, keys_size, 16, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_MOVE_RIGHT, key); /* id = 30 */
     getKeyFromMLV(set.keyboard_turn_left, key);
-    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_LEFT, key); /* id = 29 */
+    createKey(components, components_size, keys, keys_size, 17, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_LEFT, key); /* id = 31 */
     getKeyFromMLV(set.keyboard_turn_right, key);
-    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_RIGHT, key); /* id = 30 */
+    createKey(components, components_size, keys, keys_size, 18, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_TURN_RIGHT, key); /* id = 32 */
     getKeyFromMLV(set.keyboard_fast_drop, key);
-    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_FAST_DROP, key); /* id = 31 */
+    createKey(components, components_size, keys, keys_size, 19, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_FAST_DROP, key); /* id = 33 */
+    getKeyFromMLV(set.keyboard_instant_drop, key);
+    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_INSTANT_DROP, key); /* id = 34 */
     getKeyFromMLV(set.keyboard_pause, key);
-    createKey(components, components_size, keys, keys_size, 20, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_PAUSE, key); /* id = 32 */
+    createKey(components, components_size, keys, keys_size, 21, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_PAUSE, key); /* id = 35 */
 
     stylesheet = STYLESHEET_VOID();
     stylesheet.height = 20;
-    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 33 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 36 */
 
     text_stylesheet = STYLESHEET_MINI_TITLE();
     if(MLV_path_exists(text_stylesheet.font_family))
@@ -1544,22 +1548,22 @@ void createSettingsKeyboardComponents(component components[], uint32_t *componen
         MLV_get_size_of_text_with_font("Scroll", NULL, &font_height, font_family);
     }
     text_stylesheet.height = font_height;
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll"); /* id = 34 */
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll"); /* id = 37 */
 
     stylesheet = STYLESHEET_ROW();
-    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 35 */
-    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 36 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 38 */
+    createFrame(components, components_size, 3, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 39 */
     
     text_stylesheet = STYLESHEET_TEXT();
-    createText(components, components_size, texts, texts_size, 35, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le haut"); /* id = 37 */
-    createText(components, components_size, texts, texts_size, 36, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le bas"); /* id = 38 */
+    createText(components, components_size, texts, texts_size, 38, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le haut"); /* id = 40 */
+    createText(components, components_size, texts, texts_size, 39, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scroll vers le bas"); /* id = 41 */
 
     stylesheet = STYLESHEET_KEY();
     hover_stylesheet = STYLESHEET_HOVERED_KEY();
     getKeyFromMLV(set.keyboard_scroll_up, key);
-    createKey(components, components_size, keys, keys_size, 35, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_UP, key); /* id = 39 */
+    createKey(components, components_size, keys, keys_size, 38, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_UP, key); /* id = 42 */
     getKeyFromMLV(set.keyboard_scroll_down, key);
-    createKey(components, components_size, keys, keys_size, 36, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_DOWN, key); /* id = 40 */
+    createKey(components, components_size, keys, keys_size, 39, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_DOWN, key); /* id = 43 */
 }
 void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
 {

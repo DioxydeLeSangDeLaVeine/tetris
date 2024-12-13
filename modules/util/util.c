@@ -307,7 +307,8 @@ settings defaultSettings()
     set.keyboard_move_right = MLV_KEYBOARD_d;
     set.keyboard_turn_left = MLV_KEYBOARD_a;
     set.keyboard_turn_right = MLV_KEYBOARD_e;
-    set.keyboard_fast_drop = MLV_KEYBOARD_SPACE;
+    set.keyboard_fast_drop = MLV_KEYBOARD_s;
+    set.keyboard_instant_drop = MLV_KEYBOARD_SPACE;
     set.keyboard_pause = MLV_KEYBOARD_ESCAPE;
     set.keyboard_scroll_up = MLV_KEYBOARD_UP;
     set.keyboard_scroll_down = MLV_KEYBOARD_DOWN;
@@ -338,6 +339,8 @@ void writeSettings(settings set)
     fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
     getKeyFromMLV(set.keyboard_fast_drop, response);
     fprintf(file, "KEY_FAST_DROP=%s\n", response);
+    getKeyFromMLV(set.keyboard_instant_drop, response);
+    fprintf(file, "KEY_INSTANT_DROP=%s\n", response);
     getKeyFromMLV(set.keyboard_pause, response);
     fprintf(file, "KEY_PAUSE=%s\n\n", response);
     getKeyFromMLV(set.keyboard_scroll_up, response);
@@ -431,6 +434,12 @@ settings readSettings()
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_fast_drop = key;
+                }
+            } else if(strcmp(setting_name, "KEY_INSTANT_DROP") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_instant_drop = key;
                 }
             } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
             {

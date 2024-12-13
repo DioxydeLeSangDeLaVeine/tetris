@@ -44,6 +44,7 @@ void moveLeft(game *g);
 void turnRight(game *g);
 void turnLeft(game *g);
 void fastDrop(game *g);
+void instantDrop(game *g, boolean *recreate);
 void recalculateScore(game *g, boolean *actualise, boolean *recreate);
 boolean verifyLose(game *g);
 boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise, boolean *recreate);

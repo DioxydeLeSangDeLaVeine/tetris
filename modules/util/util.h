@@ -17,6 +17,7 @@ typedef struct {
     MLV_Keyboard_button keyboard_turn_left;
     MLV_Keyboard_button keyboard_turn_right;
     MLV_Keyboard_button keyboard_fast_drop;
+    MLV_Keyboard_button keyboard_instant_drop;
     MLV_Keyboard_button keyboard_pause;
     MLV_Keyboard_button keyboard_scroll_up;
     MLV_Keyboard_button keyboard_scroll_down;

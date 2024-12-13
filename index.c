@@ -433,6 +433,10 @@ int main()
 
                                         recreate = TRUE;
                                         actualise = TRUE;
+                                    } else if(sym == set.keyboard_instant_drop)
+                                    {
+                                        instantDrop(&g, &recreate);
+                                        actualise = TRUE;
                                     }
                                 }
                             }
@@ -504,14 +508,14 @@ int main()
             }
             if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_right))
             {
-                if(g.time >= move_time+1000)
+                if(g.time >= move_time+2000)
                 {
                     move_time = g.time;
                     moveRight(&g);
                     actualise = TRUE;
                 }
             } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_left)) {
-                if(g.time >= move_time+1000)
+                if(g.time >= move_time+2000)
                 {
                     move_time = g.time;
                     moveLeft(&g);
