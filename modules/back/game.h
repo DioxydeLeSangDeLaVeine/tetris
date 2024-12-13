@@ -24,7 +24,7 @@ typedef struct {
     uint32_t lines;
     gamemode mode;
     uint64_t time;
-    uint8_t level;
+    char rotation;
     double drop;
     boolean fastdrop;
 } game;

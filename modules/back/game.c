@@ -31,7 +31,7 @@ void newGame(game *g)
     g->time = 0;
     g->score = 0;
     g->lines = 0;
-    g->level = 0;
+    g->rotation = 0;
 
     g->actual_tetr.idbox = 0;
     g->pos_y = 0;
@@ -84,7 +84,11 @@ void loadGame(game *g, char path[320])
     }
     byte = fgetc(file);
     if(byte == EOF)return;
-    g->level = byte;
+    g->rotation = byte;
+    for(i = 0; i<g->rotation; i++)
+    {
+        turnRight(g);
+    }
 
     for(i = 3; i>=0; i--)
     {
@@ -355,6 +359,8 @@ void turnRight(game *g)
         for(i = 0; i<right_move; i++) {
             g->pos_x--;
         }
+    } else {
+        g->rotation = (g->rotation+1)%4;
     }
 } 
 
@@ -423,6 +429,8 @@ void turnLeft(game *g)
         for(i = 0; i<right_move; i++) {
             g->pos_x--;
         }
+    } else {
+        g->rotation = (g->rotation+3)%4;
     }
 
 }
@@ -494,14 +502,18 @@ boolean verifyLose(game *g)
 
 boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise, boolean *recreate)
 {
-    int32_t i, j;
+    int32_t i, j, level;
     if(g->actual_tetr.idbox == 0)
     {
         g->actual_tetr = tab[rand()%tab_size];
-        g->pos_x = ((GAME_WIDTH/2)-1)-((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))/2)+g->actual_tetr.idbox-LeftFromMap(g->actual_tetr);
+        if(g->mode==GAMEMODE_SURVIVAL)
+        {
+            g->pos_x = rand()%((GAME_WIDTH-1+RightFromMap(g->actual_tetr))-(g->actual_tetr.idbox-LeftFromMap(g->actual_tetr)-1))+(g->actual_tetr.idbox-LeftFromMap(g->actual_tetr)-1);
+        } else {
+            g->pos_x = ((GAME_WIDTH/2)-1)-((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))/2)+g->actual_tetr.idbox-LeftFromMap(g->actual_tetr);
+            if((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))%2 == 1) g->pos_x--;
+        }
         g->pos_y = g->actual_tetr.idbox;
-
-        if((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))%2 == 1) g->pos_x--;
 
         if(verifyLose(g))
         {
@@ -533,15 +545,28 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             }
             *actualise = TRUE;
         } else {
+            level = g->lines/10;
             if(g->fastdrop == TRUE)
             {
-                g->drop += 75;
+                g->drop += 50;
                 g->fastdrop = FALSE;
+            }
+            if(g->mode == GAMEMODE_ULTRA)
+            {
+                g->drop += (framerate/100.)*100;
             } else {
-                g->drop += (framerate/1000.)*100;
+                if(level >= 15)
+                {
+                    g->drop += (framerate/100.)*100;
+                } else if(level >= 10) {
+                    g->drop += (framerate/300.)*100;
+                } else if(level >= 5) {
+                    g->drop += (framerate/500.)*100;
+                } else {
+                    g->drop += (framerate/1000.)*100;
+                }
             }
         }
     }
-
     return FALSE;
 }

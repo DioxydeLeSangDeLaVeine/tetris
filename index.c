@@ -300,6 +300,8 @@ int main()
     button_action_type lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
     settings set;
     struct timespec start, end;
+    time_t now;
+    struct tm *localTime;
 
     component components[COMPONENTS_MAX_SIZE];
     button_component buttons[COMPONENTS_MAX_SIZE];
@@ -312,6 +314,7 @@ int main()
     style stylesheet, grab_stylesheet;
     tetrimino tab[64];
     game g;
+    score s;
 
     srand(time(NULL));
     width = MLV_get_desktop_width(),
@@ -575,11 +578,23 @@ int main()
                 recreate = TRUE;
                 actualise = TRUE;
             }
-            if(tick(&g, tab, tab_size, 1000/set.video_fps, &actualise, &recreate) == TRUE)
+            if(tick(&g, tab, tab_size, 1000/set.video_fps, &actualise, &recreate) == TRUE||(g.time/10000 >= 180 && g.mode == GAMEMODE_ULTRA))
             {
+
+                now = time(NULL);
+                localTime = localtime(&now);
+
+                s.score = g.score;
+                s.when.day = localTime->tm_mday;
+                s.when.month = localTime->tm_mon;
+                s.when.year = localTime->tm_year+1900;
+                writeScoreboard(s);
+
                 /* Finir le jeu en conséquence */
+                
                 game_started = FALSE;
-                page = MENU_COMPONENTS;
+                page = GAME_END_COMPONENTS;
+                lastPage = BUTTON_ACTION_CREATE_END_GAME_COMPONENTS;
                 recreate = TRUE;
                 actualise = TRUE;
             }

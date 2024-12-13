@@ -879,6 +879,7 @@ void createComponents(page_components page, button_action_type lastPage, double 
     switch(page) {
         case GAME_COMPONENTS:
         case GAME_POPUP_COMPONENTS:
+        case GAME_END_COMPONENTS:
             createGameComponents(page, top, left, height, width, g, components, components_size, buttons, buttons_size, texts, texts_size);
             break;
         case MENU_COMPONENTS:
@@ -1221,6 +1222,7 @@ void createGameComponents(page_components page, int32_t top, int32_t left, int32
     createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, text); /* id = 13 */
 
     if(page == GAME_POPUP_COMPONENTS) createGamePopupComponents(top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size);
+    if(page == GAME_END_COMPONENTS) createGameEndComponents(top, left, height, width, g, components, components_size, buttons, buttons_size, texts, texts_size);
 }
 
 void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
@@ -1262,6 +1264,43 @@ void createGamePopupComponents(int32_t top, int32_t left, int32_t height, int32_
     createText(components, components_size, texts, texts_size, 18, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Scoreboard"); /* id = 23 */
     createText(components, components_size, texts, texts_size, 19, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Sauvegarder et quitter"); /* id = 24 */
     createText(components, components_size, texts, texts_size, 20, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 25 */
+}
+
+void createGameEndComponents(int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size)
+{
+    style stylesheet, body_stylesheet, button_stylesheet, button_hover_stylesheet, text_stylesheet;
+    button_action_type action_type = BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS;
+    
+    body_stylesheet = STYLESHEET_HIDE(top, left, height, width);
+    createFrame(components, components_size, 0, body_stylesheet, FALSE, FALSE, body_stylesheet, 0); /* id = 14 */
+
+    button_stylesheet = STYLESHEET_SIDEBAR_BUTTONS_TOP();
+    button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_TOP();
+
+    stylesheet = STYLESHEET_MINI_CONTAINER(top, left, height, width);
+    stylesheet.unit_height = UNIT_PX;
+    stylesheet.height = stylesheet.padding*2+stylesheet.gap*1+button_stylesheet.height*2;
+    stylesheet.unit_width = UNIT_PX;
+    stylesheet.width = 400;
+
+    stylesheet.unit_top = UNIT_PX;
+    stylesheet.top = body_stylesheet.height/2-stylesheet.height/2;
+    stylesheet.unit_left = UNIT_PX;
+    stylesheet.left = body_stylesheet.width/2-stylesheet.width/2;
+    createFrame(components, components_size, 0, stylesheet, FALSE, FALSE, stylesheet, 0); /* id = 15 */
+
+    if(g.mode == GAMEMODE_SURVIVAL) action_type = BUTTON_ACTION_CREATE_GAME_SURVIVAL_COMPONENTS;
+    if(g.mode == GAMEMODE_MARATHON) action_type = BUTTON_ACTION_CREATE_GAME_MARATHON_COMPONENTS;
+    if(g.mode == GAMEMODE_ULTRA) action_type = BUTTON_ACTION_CREATE_GAME_ULTRA_COMPONENTS;
+    createButton(components, components_size, buttons, buttons_size, 15, button_stylesheet, TRUE, FALSE, button_hover_stylesheet, 100, action_type, ""); /* id = 16 */
+    button_hover_stylesheet = STYLESHEET_PRIMARY_SIDEBAR_BUTTONS_BOTTOM();
+    createButton(components, components_size, buttons, buttons_size, 15, button_hover_stylesheet, FALSE, FALSE, button_hover_stylesheet, 0, BUTTON_ACTION_CREATE_MENU_COMPONENTS, ""); /* id = 17 */
+
+    text_stylesheet = STYLESHEET_BUTTONS_TEXT();
+    /* text_stylesheet.font_horizontal_align = HORIZONTAL_CENTER; */
+
+    createText(components, components_size, texts, texts_size, 16, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Réessayer"); /* id = 18 */
+    createText(components, components_size, texts, texts_size, 17, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Quitter la partie"); /* id = 19 */
 }
 
 void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size)
@@ -1322,8 +1361,8 @@ void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_
                 text_date_stylesheet.width = font_width;
             }
             createText(components, components_size, texts, texts_size, id-3, text_date_stylesheet, FALSE, TRUE, text_date_stylesheet, 0, text);
+            id++;
         }
-        id++;
     }
 
 
