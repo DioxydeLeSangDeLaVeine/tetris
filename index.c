@@ -106,7 +106,7 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
     return change;
 }
 
-void buttonAction(button_action_type action_type, char path[320], game *g, tetrimino tab[64], uint32_t *tab_size, double *scroll, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
+void buttonAction(button_action_type action_type, char path[320], game *g, tetrimino tab[64], uint32_t *tab_size, double *scroll, boolean *scrollable, boolean *game_started, boolean *game_paused, boolean *quit, page_components *page, button_action_type *lastPage, boolean *actualise, boolean *recreate)
 {
     switch(action_type)
         {
@@ -122,6 +122,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -132,6 +133,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *game_started = FALSE;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -142,6 +144,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *game_started = FALSE;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *scrollable = TRUE;
                     *scroll = 0;
                 }
                 break;
@@ -158,6 +161,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *recreate = TRUE;
                     *actualise = TRUE;
                     *tab_size = loadTetriminos(tab);
+                    *scrollable = FALSE;
                     *scroll = 0;
 
                     if(action_type != BUTTON_ACTION_RESUME_GAME)
@@ -191,6 +195,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *actualise = TRUE;
                     *tab_size = loadTetriminos(tab);
                     loadGame(g, path);
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -203,6 +208,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *game_paused = TRUE;
                     *recreate = TRUE;
                     *actualise = TRUE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -213,6 +219,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *recreate = TRUE;
                     *actualise = TRUE;
                     *game_started = FALSE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -223,6 +230,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *recreate = TRUE;
                     *actualise = TRUE;
                     *game_started = FALSE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -233,6 +241,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *recreate = TRUE;
                     *actualise = TRUE;
                     *game_started = FALSE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -243,6 +252,7 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *recreate = TRUE;
                     *actualise = TRUE;
                     *game_started = FALSE;
+                    *scrollable = FALSE;
                     *scroll = 0;
                 }
                 break;
@@ -291,7 +301,7 @@ int main()
     MLV_Mouse_button mouse = 0;
     MLV_Button_state state = 0;
 
-    boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE, grab = FALSE;
+    boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE, grab = FALSE, scrollable = FALSE;
     int32_t x = 0, y = 0, oldy = 0, width, height;
     uint32_t i = 0, tab_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_top, pressed_keys_size = 0;
     uint64_t tmp_time = 0, move_time = 0, turn_time = 0;
@@ -471,7 +481,7 @@ int main()
                                 {
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
-                                        buttonAction(button.action_type, button.path, &g, tab, &tab_size, &scroll, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
+                                        buttonAction(button.action_type, button.path, &g, tab, &tab_size, &scroll, &scrollable, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
                                         break;
                                     case COMPONENT_KEY:
                                         key = componentToKeyComponent(cmp, keys, keys_size);
@@ -500,64 +510,79 @@ int main()
             }
         } while((event != MLV_NONE)&&!quit);
         
-        if(game_started == TRUE && game_paused != TRUE)
+        if(listen != TRUE)
         {
-            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_fast_drop))
+            if(game_started == TRUE && game_paused != TRUE)
             {
-                fastDrop(&g);
-            }
-            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_right))
-            {
-                if(g.time >= move_time+2000)
+                if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_fast_drop))
                 {
-                    move_time = g.time;
-                    moveRight(&g);
-                    actualise = TRUE;
+                    fastDrop(&g);
                 }
-            } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_left)) {
-                if(g.time >= move_time+2000)
+                if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_right))
                 {
-                    move_time = g.time;
-                    moveLeft(&g);
-                    actualise = TRUE;
+                    if(g.time >= move_time+2000)
+                    {
+                        move_time = g.time;
+                        moveRight(&g);
+                        actualise = TRUE;
+                    }
+                } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_left)) {
+                    if(g.time >= move_time+2000)
+                    {
+                        move_time = g.time;
+                        moveLeft(&g);
+                        actualise = TRUE;
+                    }
                 }
-            }
-            if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_right))
-            {
-                if(g.time >= turn_time+2000)
+                if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_right))
                 {
-                    turn_time = g.time;
-                    turnRight(&g);
-                    actualise = TRUE;
+                    if(g.time >= turn_time+2000)
+                    {
+                        turn_time = g.time;
+                        turnRight(&g);
+                        actualise = TRUE;
+                    }
+                } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_left)) {
+                    if(g.time >= turn_time+2000)
+                    {
+                        turn_time = g.time;
+                        turnLeft(&g);
+                        actualise = TRUE;
+                    }
                 }
-            } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_left)) {
-                if(g.time >= turn_time+2000)
-                {
-                    turn_time = g.time;
-                    turnLeft(&g);
-                    actualise = TRUE;
+            }
+            if(scrollable == TRUE)
+            {
+                if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_down)) {
+                    if(scroll != 1)
+                    {
+                        oldscroll = scroll;
+                        scroll+=0.01;
+                        if(scroll>1) scroll = 1;
+                        
+                        if(scroll != oldscroll)
+                        {
+                            recreate = TRUE;
+                            actualise = TRUE;
+                        }
+                    }
                 }
-            }
-        }
-        if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_down)) {
-            if(scroll != 1)
-            {
-                scroll+=0.01;
-                if(scroll>1) scroll = 1;
-                recreate = TRUE;
-                actualise = TRUE;
-            }
-        }
-        if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_up)) {
-            if(scroll != 0)
-            {
-                scroll-=0.01;
-                if(scroll<0) scroll = 0;
-                recreate = TRUE;
-                actualise = TRUE;
-            }
-        }
+                if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_scroll_up)) {
+                    if(scroll != 0)
+                    {
+                        oldscroll = scroll;
+                        scroll-=0.01;
+                        if(scroll<0) scroll = 0;
 
+                        if(scroll != oldscroll)
+                        {
+                            recreate = TRUE;
+                            actualise = TRUE;
+                        }
+                    }
+                }
+            }
+        }
         if(grab == TRUE)
         {
             oldscroll = scroll;
