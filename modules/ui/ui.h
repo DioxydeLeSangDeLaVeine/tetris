@@ -156,7 +156,7 @@ typedef struct {
 
 typedef struct {
     unsigned short id; /* Equal to his component ID */
-    char path[64];
+    char path[320];
 } image_component;
 
 typedef struct {

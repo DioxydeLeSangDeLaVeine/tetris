@@ -125,6 +125,7 @@ void saveGame(game g)
     }
     
     fflush(file);
+    fclose(file);
 }
 
 void loadGame(game *g, char path[320])
@@ -139,7 +140,11 @@ void loadGame(game *g, char path[320])
     }
 
     byte = fgetc(file);
-    if(byte == EOF)return;
+    if(byte == EOF)
+    {
+        fclose(file);
+        return;
+    }
     switch(byte)
     {
         case 1:
@@ -154,43 +159,75 @@ void loadGame(game *g, char path[320])
     for(i = 7; i>=0; i--)
     {
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)
+        {
+            fclose(file);
+            return;
+        }
         g->time|=byte<<(8*i);
     }
     for(i = 3; i>=0; i--)
     {
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)
+        {
+            fclose(file);
+            return;
+        }
         g->score|=byte<<(8*i);
     }
     for(i = 3; i>=0; i--)
     {
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)
+        {
+            fclose(file);
+            return;
+        }
         g->lines|=byte<<(8*i);
     }
     byte = fgetc(file);
-    if(byte == EOF)return;
+    if(byte == EOF)
+    {
+        fclose(file);
+        return;
+    }
     g->rotation = byte;
 
     for(i = 3; i>=0; i--)
     {
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)
+        {
+            fclose(file);
+            return;
+        }
         g->pos_y|=byte<<(8*i);
     }
     for(i = 3; i>=0; i--)
     {
         byte = fgetc(file);
-        if(byte == EOF)return;
+        if(byte == EOF)
+        {
+            fclose(file);
+            return;
+        }
         g->pos_x|=byte<<(8*i);
     }
 
     byte = fgetc(file);
-    if(byte == EOF)return;
+    if(byte == EOF)
+    {
+        fclose(file);
+        return;
+    }
     size = byte<<8;
     byte = fgetc(file);
-    if(byte == EOF)return;
+    if(byte == EOF)
+    {
+        fclose(file);
+        return;
+    }
     size|=byte;
 
     for(i = 0; i<size; i++)
@@ -211,16 +248,32 @@ void loadGame(game *g, char path[320])
         for(j = 0; j<GAME_WIDTH; j++)
         {
             byte = fgetc(file);
-            if(byte == EOF)return;
+            if(byte == EOF)
+            {
+                fclose(file);
+                return;
+            }
             g->grid[i][j].r = byte;
             byte = fgetc(file);
-            if(byte == EOF)return;
+            if(byte == EOF)
+            {
+                fclose(file);
+                return;
+            }
             g->grid[i][j].g = byte;
             byte = fgetc(file);
-            if(byte == EOF)return;
+            if(byte == EOF)
+            {
+                fclose(file);
+                return;
+            }
             g->grid[i][j].b = byte;
             byte = fgetc(file);
-            if(byte == EOF)return;
+            if(byte == EOF)
+            {
+                fclose(file);
+                return;
+            }
             g->grid[i][j].a = byte;
         }
     }

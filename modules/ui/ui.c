@@ -570,30 +570,32 @@ void drawComponent(settings set, component cmp, style stylesheet, game g, text_c
     } else if(cmp.type == COMPONENT_IMAGE)
     {
         img_cmp = componentToImageComponent(cmp, images, images_size);
-        mlv_img = MLV_load_image(img_cmp.path);
-        if(mlv_img != NULL)
+        if(MLV_path_exists(img_cmp.path))
         {
-            /* Resizing calculations to fit max width and max height */
-
-            MLV_get_image_size(mlv_img, &image_width, &image_height);
-            image_ratio = ((float)image_width)/image_height;
-            if(image_width > stylesheet.width || image_height > stylesheet.height)
+            mlv_img = MLV_load_image(img_cmp.path);
+            if(mlv_img != NULL)
             {
-                if(image_height > stylesheet.height)
+                /* Resizing calculations to fit max width and max height */
+                MLV_get_image_size(mlv_img, &image_width, &image_height);
+                image_ratio = ((float)image_width)/image_height;
+                if(image_width > stylesheet.width || image_height > stylesheet.height)
                 {
-                    image_height = stylesheet.height;
-                    image_width = (int)(stylesheet.height * image_ratio);
+                    if(image_height > stylesheet.height)
+                    {
+                        image_height = stylesheet.height;
+                        image_width = (int)(stylesheet.height * image_ratio);
+                    }
+                    if(image_width > stylesheet.width)
+                    {
+                        image_width = stylesheet.width;
+                        image_height = (int)(stylesheet.width / image_ratio);
+                    }
                 }
-                if(image_width > stylesheet.width)
-                {
-                    image_width = stylesheet.width;
-                    image_height = (int)(stylesheet.width / image_ratio);
-                }
-            }
-            MLV_resize_image(mlv_img, image_width, image_height);
-            MLV_draw_image(mlv_img, stylesheet.left+stylesheet.width/2-image_width/2, stylesheet.top+stylesheet.height/2-image_height/2);
+                MLV_resize_image(mlv_img, image_width, image_height);
+                MLV_draw_image(mlv_img, stylesheet.left+stylesheet.width/2-image_width/2, stylesheet.top+stylesheet.height/2-image_height/2);
 
-            MLV_free_image(mlv_img);
+                MLV_free_image(mlv_img);
+            }
         }
     } else {
         /* Not drawing frame if not visible */
