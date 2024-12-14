@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <time.h>
+#include <string.h>
 #include "./game.h"
 #include "../ui/ui.h"
 #include "../util/util.h"
@@ -39,6 +41,90 @@ void newGame(game *g)
     g->drop = 0;
     g->garbage_spawn = 0;
     g->fastdrop = FALSE;
+}
+
+void saveGame(game g)
+{
+    FILE *file;
+    char path[320];
+    time_t now;
+    struct tm *localTime;
+    int i, j, size;
+    unsigned char value;
+
+    now = time(NULL);
+    localTime = localtime(&now);
+
+    snprintf(path, sizeof(path), "./data/saves/%d-%02d-%02d %02d:%02d:%02d.save", localTime->tm_year+1900, localTime->tm_mon+1, localTime->tm_mday, localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
+    file = fopen(path, "wb");
+
+    if(file == NULL)
+    {
+        return;
+    }
+
+    value = 0;
+    if(g.mode == GAMEMODE_MARATHON) value = 1;
+    if(g.mode == GAMEMODE_ULTRA) value = 2;
+    fwrite(&value, sizeof(unsigned char), 1, file);
+
+    for(i = 7; i>=0; i--)
+    {
+        value = g.time>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+    for(i = 3; i>=0; i--)
+    {
+        value = g.score>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+    for(i = 3; i>=0; i--)
+    {
+        value = g.lines>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+    value = g.rotation;
+    fwrite(&value, sizeof(unsigned char), 1, file);
+
+    for(i = 3; i>=0; i--)
+    {
+        value = g.pos_y>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+    for(i = 3; i>=0; i--)
+    {
+        value = g.pos_x>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+
+    size = strlen(g.actual_tetr.path);
+    for(i = 1; i>=0; i--)
+    {
+        value = size>>(8*i)&0xFF;
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+    for(i = 0; i<size; i++)
+    {
+        value = g.actual_tetr.path[i];
+        fwrite(&value, sizeof(unsigned char), 1, file);
+    }
+
+    for(i = 0; i<GAME_HEIGHT; i++)
+    {
+        for(j = 0; j<GAME_WIDTH; j++)
+        {
+            value = g.grid[i][j].r;
+            fwrite(&value, sizeof(unsigned char), 1, file);
+            value = g.grid[i][j].g;
+            fwrite(&value, sizeof(unsigned char), 1, file);
+            value = g.grid[i][j].b;
+            fwrite(&value, sizeof(unsigned char), 1, file);
+            value = g.grid[i][j].a;
+            fwrite(&value, sizeof(unsigned char), 1, file);
+        }
+    }
+    
+    fflush(file);
 }
 
 void loadGame(game *g, char path[320])
@@ -86,10 +172,6 @@ void loadGame(game *g, char path[320])
     byte = fgetc(file);
     if(byte == EOF)return;
     g->rotation = byte;
-    for(i = 0; i<g->rotation; i++)
-    {
-        turnRight(g);
-    }
 
     for(i = 3; i>=0; i--)
     {
@@ -119,6 +201,10 @@ void loadGame(game *g, char path[320])
     }
     g->actual_tetr.path[i] = '\0';
     g->actual_tetr = loadTetrimino(g->actual_tetr.path);
+    for(i = 0; i<g->rotation; i++)
+    {
+        turnRight(g, FALSE);
+    }
 
     for(i = 0; i<GAME_HEIGHT; i++)
     {
@@ -137,6 +223,23 @@ void loadGame(game *g, char path[320])
             if(byte == EOF)return;
             g->grid[i][j].a = byte;
         }
+    }
+}
+
+void sortGamesByName(load tab[64], int32_t size) {
+    int32_t i, j;
+    load tmp;
+
+    for (i = 1; i < size; i++) {
+        tmp = tab[i];
+        j = i - 1;
+
+        while (j >= 0 && strcmp(tab[j].name, tmp.name) < 0) {
+            tab[j + 1] = tab[j];
+            j--;
+        }
+
+        tab[j + 1] = tmp;
     }
 }
 
@@ -179,7 +282,7 @@ uint32_t loadGames(load tab[64])
         }
     }
     closedir(folder);
-
+    sortGamesByName(tab, i);
     return i;
 }
 
@@ -307,7 +410,7 @@ void moveLeft(game *g)
         g->pos_x--;
     }
 }
-void turnRight(game *g)
+void turnRight(game *g, boolean modify_rotation)
 {
     int32_t i, j, left_move = 0, right_move = 0;
     rgba newmap[16];
@@ -373,7 +476,10 @@ void turnRight(game *g)
             g->pos_x--;
         }
     } else {
-        g->rotation = (g->rotation+1)%4;
+        if(modify_rotation == TRUE)
+        {
+            g->rotation = (g->rotation+1)%4;
+        }
     }
 } 
 
@@ -580,6 +686,7 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
 
     if(g->actual_tetr.idbox == 0)
     {
+        g->rotation = 0;
         g->actual_tetr = tab[rand()%tab_size];
         if(g->mode==GAMEMODE_SURVIVAL)
         {

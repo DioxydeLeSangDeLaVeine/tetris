@@ -8,7 +8,7 @@
 
 typedef struct {
     int32_t id;
-    char name[24];
+    char name[32];
     int64_t time;
     uint32_t score;
     uint32_t lines;
@@ -32,6 +32,7 @@ typedef struct {
 
 void newGrid(game *g);
 void newGame(game *g);
+void saveGame(game g);
 void loadGame(game *g, char path[320]);
 uint32_t loadGames(load tab[64]);
 int32_t LeftFromMap(tetrimino actual_tetr);
@@ -43,7 +44,7 @@ boolean verifyRight(game *g);
 boolean verifyBottom(game *g);
 void moveRight(game *g);
 void moveLeft(game *g);
-void turnRight(game *g);
+void turnRight(game *g, boolean modify_rotation);
 void turnLeft(game *g);
 void fastDrop(game *g);
 void instantDrop(game *g, boolean *recreate);

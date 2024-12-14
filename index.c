@@ -126,6 +126,25 @@ void buttonAction(button_action_type action_type, char path[320], game *g, tetri
                     *scroll = 0;
                 }
                 break;
+            case BUTTON_ACTION_SAVE_GAME:
+                if(*page != MENU_COMPONENTS)
+                {
+                    saveGame(*g);
+                    *page = MENU_COMPONENTS;
+                    *game_started = FALSE;
+                    *lastPage = BUTTON_ACTION_CREATE_MENU_COMPONENTS;
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                    *scrollable = FALSE;
+                    *scroll = 0;
+                }
+                break;
+            case BUTTON_ACTION_DELETE_SAVE:
+                if(remove(path) == 0) {
+                    *recreate = TRUE;
+                    *actualise = TRUE;
+                }
+                break;
             case BUTTON_ACTION_CREATE_PLAY_COMPONENTS:
                 if(*page != PLAY_COMPONENTS)
                 {
@@ -520,14 +539,14 @@ int main()
                 }
                 if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_right))
                 {
-                    if(g.time >= move_time+2000)
+                    if(g.time >= move_time+1000)
                     {
                         move_time = g.time;
                         moveRight(&g);
                         actualise = TRUE;
                     }
                 } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_move_left)) {
-                    if(g.time >= move_time+2000)
+                    if(g.time >= move_time+1000)
                     {
                         move_time = g.time;
                         moveLeft(&g);
@@ -539,7 +558,7 @@ int main()
                     if(g.time >= turn_time+2000)
                     {
                         turn_time = g.time;
-                        turnRight(&g);
+                        turnRight(&g, TRUE);
                         actualise = TRUE;
                     }
                 } else if(is_pressed(pressed_keys, pressed_keys_size, set.keyboard_turn_left)) {
