@@ -37,6 +37,7 @@ void newGame(game *g)
     g->pos_y = 0;
     g->pos_x = 0;
     g->drop = 0;
+    g->garbage_spawn = 0;
     g->fastdrop = FALSE;
 }
 
@@ -202,6 +203,18 @@ int32_t RightFromMap(tetrimino actual_tetr)
         for(j = 0; j<actual_tetr.idbox; j++)
         {
             if(actual_tetr.map[j*actual_tetr.idbox+i].a != 0)return (actual_tetr.idbox-1)-i;
+        }
+    }
+    return 0;
+}
+int32_t TopFromMap(tetrimino actual_tetr)
+{
+    int32_t i, j;
+    for(i = 0; i<actual_tetr.idbox; i++)
+    {
+        for(j = 0; j<actual_tetr.idbox; j++)
+        {
+            if(actual_tetr.map[i*actual_tetr.idbox+j].a != 0)return i;
         }
     }
     return 0;
@@ -442,7 +455,6 @@ void fastDrop(game *g)
 void instantDrop(game *g, boolean *recreate)
 {
     int32_t i, j;
-    boolean vactualise;
     while(!(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr) || verifyBottom(g)))
     {
         g->pos_y++;
@@ -459,8 +471,45 @@ void instantDrop(game *g, boolean *recreate)
         }
     }
     g->actual_tetr.idbox = 0;
-    recalculateScore(g, &vactualise, recreate);
-    (void)vactualise;
+    recalculateScore(g, NULL, recreate);
+}
+
+void addGarbage(game *g)
+{
+    int32_t i, j, level, rand_holes;
+
+    level = g->lines/10;
+
+    for(i = 1; i<GAME_HEIGHT; i++)
+    {
+        for(j = 0; j<GAME_WIDTH; j++)
+        {
+            g->grid[i-1][j] = g->grid[i][j];
+        }
+    }
+
+    for(i = 0; i<GAME_WIDTH; i++)
+    {
+        g->grid[GAME_HEIGHT-1][i].r = 255;
+        g->grid[GAME_HEIGHT-1][i].g = 255;
+        g->grid[GAME_HEIGHT-1][i].b = 255;
+        g->grid[GAME_HEIGHT-1][i].a = 255;
+    }
+    if(level >= 15)
+    {
+        rand_holes = rand()%3+3;
+    } else if(level >= 10) {
+        rand_holes = rand()%3+2;
+    } else if(level >= 5) {
+        rand_holes = rand()%3+1;
+    } else {
+        rand_holes = rand()%2+1;
+    }
+
+    for(i = 0; i<rand_holes; i++)
+    {
+        g->grid[GAME_HEIGHT-1][rand()%GAME_WIDTH].a = 0;
+    }
 }
 
 void recalculateScore(game *g, boolean *actualise, boolean *recreate)
@@ -502,8 +551,8 @@ void recalculateScore(game *g, boolean *actualise, boolean *recreate)
     if(lines>=4) g->score+=1200;
     if(lines>=0)
     {
-        *recreate = TRUE;
-        *actualise = TRUE;
+        if(recreate!=NULL)*recreate = TRUE;
+        if(actualise!=NULL)*actualise = TRUE;
     }
 }
 
@@ -527,6 +576,8 @@ boolean verifyLose(game *g)
 boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise, boolean *recreate)
 {
     int32_t i, j, level;
+    boolean is_on_top;
+
     if(g->actual_tetr.idbox == 0)
     {
         g->actual_tetr = tab[rand()%tab_size];
@@ -537,7 +588,7 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             g->pos_x = ((GAME_WIDTH/2)-1)-((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))/2)+g->actual_tetr.idbox-LeftFromMap(g->actual_tetr);
             if((g->actual_tetr.idbox-RightFromMap(g->actual_tetr)-LeftFromMap(g->actual_tetr))%2 == 1) g->pos_x--;
         }
-        g->pos_y = g->actual_tetr.idbox;
+        g->pos_y = g->actual_tetr.idbox-TopFromMap(g->actual_tetr);
 
         if(verifyLose(g))
         {
@@ -545,7 +596,44 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             return TRUE;
         }
     } else {
-        if(g->drop >= 100) {
+        /* Ajout débrits */
+
+        level = g->lines/10;
+        if(g->mode == GAMEMODE_SURVIVAL)
+        {
+            if(!(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr) || verifyBottom(g)))
+            {
+                if(g->garbage_spawn >= 100)
+                {
+                    g->garbage_spawn-=100.;
+                    is_on_top = FALSE;
+                    for(i = 0; i<GAME_WIDTH; i++)
+                    {
+                        if(g->grid[0][i].a != 0)
+                        {
+                            is_on_top = TRUE;
+                            break;
+                        }
+                    }
+                    if(is_on_top == TRUE)return TRUE;
+
+                    addGarbage(g);
+                } else {
+                    if(level >= 15)
+                    {
+                        g->garbage_spawn += (framerate/7500.)*100;
+                    } else if(level >= 10) {
+                        g->garbage_spawn += (framerate/15000.)*100;
+                    } else if(level >= 5) {
+                        g->garbage_spawn += (framerate/30000.)*100;
+                    } else {
+                        g->garbage_spawn += (framerate/60000.)*100;
+                    }
+                }
+            }
+        }
+        if(g->drop >= 100)
+        {
             /* Drop d'une case + vérifications */
 
             if(g->pos_y >= GAME_HEIGHT-1+BottomFromMap(g->actual_tetr) || verifyBottom(g))
@@ -569,7 +657,6 @@ boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, 
             }
             *actualise = TRUE;
         } else {
-            level = g->lines/10;
             if(g->fastdrop == TRUE)
             {
                 g->drop += 50;

@@ -26,6 +26,7 @@ typedef struct {
     uint64_t time;
     char rotation;
     double drop;
+    double garbage_spawn;
     boolean fastdrop;
 } game;
 
@@ -35,6 +36,7 @@ void loadGame(game *g, char path[320]);
 uint32_t loadGames(load tab[64]);
 int32_t LeftFromMap(tetrimino actual_tetr);
 int32_t RightFromMap(tetrimino actual_tetr);
+int32_t TopFromMap(tetrimino actual_tetr);
 int32_t BottomFromMap(tetrimino actual_tetr);
 boolean verifyLeft(game *g);
 boolean verifyRight(game *g);
@@ -45,6 +47,7 @@ void turnRight(game *g);
 void turnLeft(game *g);
 void fastDrop(game *g);
 void instantDrop(game *g, boolean *recreate);
+void addGarbage(game *g);
 void recalculateScore(game *g, boolean *actualise, boolean *recreate);
 boolean verifyLose(game *g);
 boolean tick(game *g, tetrimino tab[64], uint32_t tab_size, uint64_t framerate, boolean *actualise, boolean *recreate);
