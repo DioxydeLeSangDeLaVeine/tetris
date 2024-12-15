@@ -1502,7 +1502,7 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
     createText(components, components_size, texts, texts_size, 4, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Retour"); /* id = 8 */
     createText(components, components_size, texts, texts_size, 5, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Clavier & Souris"); /* id = 9 */
     createText(components, components_size, texts, texts_size, 6, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 10 */
-    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 11 */
+    createText(components, components_size, texts, texts_size, 7, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphiques"); /* id = 11 */
 
     switch(page) {
         case SETTINGS_KEYBOARD_COMPONENTS:
@@ -1629,7 +1629,7 @@ void createSettingsGraphicsComponents(component components[], uint32_t *componen
     int font_height = 0;
 
     text_stylesheet = STYLESHEET_TITLE();
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 12 */
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphiques"); /* id = 12 */
 
     text_stylesheet = STYLESHEET_MINI_TITLE();
     if(MLV_path_exists(text_stylesheet.font_family))
