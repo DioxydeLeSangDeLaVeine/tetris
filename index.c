@@ -611,6 +611,9 @@ int main()
                                                         choice->choices[i].selected = TRUE;
                                                         switch(choice->choices[i].action_type)
                                                         {
+                                                            case CHOICE_SET_DALTONISM_NONE:
+                                                                set.graphics_daltonism = DALTONISM_NONE;
+                                                                break;
                                                             case CHOICE_SET_DALTONISM_PROTANOPIA:
                                                                 set.graphics_daltonism = DALTONISM_PROTANOPIA;
                                                                 break;
@@ -623,8 +626,27 @@ int main()
                                                             case CHOICE_SET_DALTONISM_ACHROMATOPSIA:
                                                                 set.graphics_daltonism = DALTONISM_ACHROMATOPSIA;
                                                                 break;
-                                                            default:
-                                                                set.graphics_daltonism = DALTONISM_NONE;
+                                                            case CHOICE_SET_10FPS:
+                                                                set.video_fps = 10;
+                                                                break;
+                                                            case CHOICE_SET_20FPS:
+                                                                set.video_fps = 20;
+                                                                break;
+                                                            case CHOICE_SET_30FPS:
+                                                                set.video_fps = 30;
+                                                                break;
+                                                            case CHOICE_SET_40FPS:
+                                                                set.video_fps = 40;
+                                                                break;
+                                                            case CHOICE_SET_50FPS:
+                                                                set.video_fps = 50;
+                                                                break;
+                                                            case CHOICE_SET_60FPS:
+                                                                set.video_fps = 60;
+                                                                break;
+                                                            case CHOICE_SET_120FPS:
+                                                                set.video_fps = 120;
+                                                                break;
                                                         }
                                                         writeSettings(set);
                                                         actualise = TRUE;

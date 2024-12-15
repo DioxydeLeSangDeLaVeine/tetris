@@ -1509,7 +1509,7 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
             createSettingsKeyboardComponents(components, components_size, texts, texts_size, keys, keys_size, set);
             break;
         case SETTINGS_VIDEO_COMPONENTS:
-            createSettingsVideoComponents(components, components_size, texts, texts_size);
+            createSettingsVideoComponents(components, components_size, texts, texts_size, choices, choices_size, set);
             break;
         case SETTINGS_GRAPHICS_COMPONENTS:
             createSettingsGraphicsComponents(components, components_size, texts, texts_size, choices, choices_size, set);
@@ -1614,12 +1614,66 @@ void createSettingsKeyboardComponents(component components[], uint32_t *componen
     getKeyFromMLV(set.keyboard_scroll_down, key);
     createKey(components, components_size, keys, keys_size, 39, stylesheet, TRUE, FALSE, hover_stylesheet, 100, KEY_TAKE_SCROLL_DOWN, key); /* id = 43 */
 }
-void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
+void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, choice_component choices[], uint32_t *choices_size, settings set)
 {
-    style text_stylesheet;
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    choice choices_inside[16];
+    MLV_Font *font_family;
+    int font_height = 0;
 
     text_stylesheet = STYLESHEET_TITLE();
     createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 12 */
+
+    text_stylesheet = STYLESHEET_MINI_TITLE();
+    if(MLV_path_exists(text_stylesheet.font_family))
+    {
+        font_family = MLV_load_font(text_stylesheet.font_family, text_stylesheet.font_size);
+        MLV_get_size_of_text_with_font("Scroll", NULL, &font_height, font_family);
+        MLV_free_font(font_family);
+    }
+    text_stylesheet.height = font_height;
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Images par seconde"); /* id = 13 */
+
+    stylesheet = STYLESHEET_KEY();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    stylesheet.gap = 10;
+    stylesheet.component_justify = JUSTIFY_START;
+
+    hover_stylesheet = stylesheet;
+    hover_stylesheet.background_color = ROOT_PRIMARY_COLOR();
+
+    choices_inside[0].id = 1;
+    choices_inside[0].action_type = CHOICE_SET_10FPS;
+    strcpy(choices_inside[0].content, "10FPS");
+    choices_inside[0].selected = set.video_fps == 10 ? TRUE : FALSE;
+    choices_inside[1].id = 2;
+    choices_inside[1].action_type = CHOICE_SET_20FPS;
+    strcpy(choices_inside[1].content, "20FPS");
+    choices_inside[1].selected = set.video_fps == 20 ? TRUE : FALSE;
+    choices_inside[2].id = 3;
+    choices_inside[2].action_type = CHOICE_SET_30FPS;
+    strcpy(choices_inside[2].content, "30FPS");
+    choices_inside[2].selected = set.video_fps == 30 ? TRUE : FALSE;
+    choices_inside[3].id = 4;
+    choices_inside[3].action_type = CHOICE_SET_40FPS;
+    strcpy(choices_inside[3].content, "40FPS");
+    choices_inside[3].selected = set.video_fps == 40 ? TRUE : FALSE;
+    choices_inside[4].id = 5;
+    choices_inside[4].action_type = CHOICE_SET_50FPS;
+    strcpy(choices_inside[4].content, "50FPS");
+    choices_inside[4].selected = set.video_fps == 50 ? TRUE : FALSE;
+    choices_inside[5].id = 6;
+    choices_inside[5].action_type = CHOICE_SET_60FPS;
+    strcpy(choices_inside[5].content, "60FPS");
+    choices_inside[5].selected = set.video_fps == 60 ? TRUE : FALSE;
+    choices_inside[6].id = 7;
+    choices_inside[6].action_type = CHOICE_SET_120FPS;
+    strcpy(choices_inside[6].content, "120FPS");
+    choices_inside[6].selected = set.video_fps == 120 ? TRUE : FALSE;
+
+    createChoice(components, components_size, choices, choices_size, 3, stylesheet, TRUE, FALSE, hover_stylesheet, 100, CHOICE_UNIQUE, choices_inside, 7); /* id = 14 */
 }
 void createSettingsGraphicsComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, choice_component choices[], uint32_t *choices_size, settings set)
 {
@@ -1639,7 +1693,7 @@ void createSettingsGraphicsComponents(component components[], uint32_t *componen
         MLV_free_font(font_family);
     }
     text_stylesheet.height = font_height;
-    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode daltonien"); /* id = 37 */
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode daltonien"); /* id = 13 */
 
     stylesheet = STYLESHEET_KEY();
     stylesheet.color = ROOT_WHITE_COLOR();
@@ -1672,5 +1726,5 @@ void createSettingsGraphicsComponents(component components[], uint32_t *componen
     strcpy(choices_inside[4].content, "Achromatopsie");
     choices_inside[4].selected = set.graphics_daltonism == DALTONISM_ACHROMATOPSIA ? TRUE : FALSE;
 
-    createChoice(components, components_size, choices, choices_size, 3, stylesheet, TRUE, FALSE, hover_stylesheet, 100, CHOICE_UNIQUE, choices_inside, 5); /* id = 12 */
+    createChoice(components, components_size, choices, choices_size, 3, stylesheet, TRUE, FALSE, hover_stylesheet, 100, CHOICE_UNIQUE, choices_inside, 5); /* id = 14 */
 }

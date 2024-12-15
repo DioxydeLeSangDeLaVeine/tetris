@@ -63,7 +63,7 @@ void createGameEndComponents(int32_t top, int32_t left, int32_t height, int32_t 
 void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, image_component images[], uint32_t *images_size);
 void createSettingsComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, choice_component choices[], uint32_t *choices_size, settings set);
 void createSettingsKeyboardComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set);
-void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size);
+void createSettingsVideoComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, choice_component choices[], uint32_t *choices_size, settings set);
 void createSettingsGraphicsComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, choice_component choices[], uint32_t *choices_size, settings set);
 
 #endif
