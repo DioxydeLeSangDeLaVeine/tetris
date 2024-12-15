@@ -31,10 +31,16 @@ typedef enum {
     COMPONENT_BUTTON,
     COMPONENT_TEXT,
     COMPONENT_KEY,
+    COMPONENT_CHOICE,
     COMPONENT_IMAGE,
     COMPONENT_GRAB,
     COMPONENT_GAME
 } component_type;
+
+typedef enum {
+    CHOICE_UNIQUE,
+    CHOICE_MULTIPLE
+} choice_type;
 
 typedef enum {
     HORIZONTAL_LEFT,
@@ -79,6 +85,14 @@ typedef enum {
     BUTTON_ACTION_CREATE_SETTINGS_VIDEO_COMPONENTS,
     BUTTON_ACTION_CREATE_SETTINGS_GRAPHICS_COMPONENTS
 } button_action_type;
+
+typedef enum {
+    CHOICE_SET_DALTONISM_NONE,
+    CHOICE_SET_DALTONISM_PROTANOPIA,
+    CHOICE_SET_DALTONISM_DEUTERANOPIA,
+    CHOICE_SET_DALTONISM_TRITANOPIA,
+    CHOICE_SET_DALTONISM_ACHROMATOPSIA
+} choice_action_type;
 
 typedef enum {
     KEY_TAKE_UNDEFINED,
@@ -160,6 +174,21 @@ typedef struct {
 } image_component;
 
 typedef struct {
+    unsigned short id;
+    choice_action_type action_type;
+    char content[32];
+    boolean selected;
+    float __transition;
+} choice;
+
+typedef struct {
+    unsigned short id; /* Equal to his component ID */
+    choice choices[16];
+    uint32_t choices_size;
+    choice_type type;
+} choice_component;
+
+typedef struct {
     int32_t top_offset;
     int32_t left_offset;
     int32_t bottom_offset;
@@ -174,6 +203,8 @@ typedef struct {
 button_component componentToButtonComponent(component component, button_component buttons[], uint32_t buttons_size);
 text_component componentToTextComponent(component component, text_component texts[], uint32_t texts_size);
 key_component componentToKeyComponent(component component, key_component keys[], uint32_t keys_size);
+choice_component componentToChoiceComponent(component cmp, choice_component choices[], uint32_t choices_size);
+void componentToChoiceComponentPointer(component cmp, choice_component choices[], uint32_t choices_size, choice_component **choice);
 image_component componentToImageComponent(component cmp, image_component images[], uint32_t images_size);
 
 style styleTransition(component cmp);
@@ -183,8 +214,8 @@ style autoLayout(int32_t top, int32_t left, int32_t height, int32_t width, compo
 
 boolean idboxComponent(style stylesheet, int32_t x, int32_t y);
 
-void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
-void drawComponent(settings set, component cmp, style stylesheet, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size);
+void drawComponents(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size, choice_component choices[], uint32_t choices_size);
+void drawComponent(settings set, component cmp, style stylesheet, game g, text_component texts[], uint32_t texts_size, key_component keys[], uint32_t keys_size, image_component images[], uint32_t images_size, choice_component choices[], uint32_t choices_size);
 
 component initComponent(uint32_t id, component_type type, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
 
@@ -192,6 +223,7 @@ void createFrame(component components[], uint32_t *components_size, uint32_t par
 void createButton(component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, button_action_type action_type, char path[]);
 void createText(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char content[]);
 void createKey(component components[], uint32_t *components_size, key_component keys[], uint32_t *keys_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, key_take_type take_type, char content[]);
+void createChoice(component components[], uint32_t *components_size, choice_component choices[], uint32_t *choices_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, choice_type type, choice choices_inside[], uint32_t choices_inside_size);
 void createImage(component components[], uint32_t *components_size, image_component images[], uint32_t *images_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration, char path[]);
 void createGrab(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet, boolean is_hoverable, boolean ignore_hover, style hover_stylesheet, uint32_t transition_duration);
 void createGame(component components[], uint32_t *components_size, uint32_t parent_id, style stylesheet);

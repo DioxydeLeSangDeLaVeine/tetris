@@ -33,6 +33,39 @@ int32_t __max(int32_t a, int32_t b)
     return a>=b?a:b;
 }
 
+rgba adjustColorForDaltonism(rgba color, daltonismType type)
+{
+    rgba new_color;
+
+    switch(type)
+    {
+        case DALTONISM_PROTANOPIA:
+            new_color.r = (int32_t)(color.r*0.56667+color.g*0.43333);
+            new_color.g = (int32_t)(color.r*0.55833+color.g*0.44167);
+            new_color.b = (int32_t)(color.g*0.24167+color.b*0.75833);
+            break;
+        case DALTONISM_DEUTERANOPIA:
+            new_color.r = (int32_t)(color.r*0.62500+color.g*0.37500);
+            new_color.g = (int32_t)(color.r*0.70000+color.g*0.30000);
+            new_color.b = (int32_t)(color.g*0.30000+color.b*0.70000);
+            break;
+        case DALTONISM_TRITANOPIA:
+            new_color.r = (int32_t)(color.r*0.95000+color.g*0.05000);
+            new_color.g = (int32_t)(color.g*0.43333+color.b*0.56667);
+            new_color.b = (int32_t)(color.g*0.47500+color.b*0.52500);
+            break;
+        case DALTONISM_ACHROMATOPSIA:
+            new_color.r = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            new_color.g = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            new_color.b = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            break;
+        default:
+            return color;
+    }
+    new_color.a = color.a;
+    return new_color;
+}
+
 void getMonth(char unsigned month, char result[32])
 {
     switch(month%12)
@@ -315,6 +348,7 @@ settings defaultSettings()
     set.video_fps = 30;
     set.video_animations = TRUE;
     set.graphics_border_radius = TRUE;
+    set.graphics_daltonism = DALTONISM_NONE;
     return set;
 }
 
@@ -353,9 +387,25 @@ void writeSettings(settings set)
     if(set.video_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
     else fprintf(file, "ANIMATIONS=FALSE\n\n");
     fprintf(file, "### GRAPHICS ###\n");
-    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n\n");
-    else fprintf(file, "BORDER_RADIUS=FALSE\n\n");
-    fprintf(file, "### AUDIO ###\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n");
+    switch(set.graphics_daltonism)
+    {
+        case DALTONISM_PROTANOPIA:
+            fprintf(file, "DALTONISM=PROTANOPIA\n");
+            break;
+        case DALTONISM_DEUTERANOPIA:
+            fprintf(file, "DALTONISM=DEUTERANOPIA\n");
+            break;
+        case DALTONISM_TRITANOPIA:
+            fprintf(file, "DALTONISM=TRITANOPIA\n");
+            break;
+        case DALTONISM_ACHROMATOPSIA:
+            fprintf(file, "DALTONISM=ACHROMATOPSIA\n");
+            break;
+        default:
+            fprintf(file, "DALTONISM=NONE\n");
+    }
 
     fclose(file);
 }
@@ -472,6 +522,13 @@ settings readSettings()
             {
                 if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
                 else set.graphics_border_radius = FALSE;
+            } else if(strcmp(setting_name, "DALTONISM") == 0)
+            {
+                if(strcmp(setting_value, "PROTANOPIA") == 0) set.graphics_daltonism = DALTONISM_PROTANOPIA;
+                else if(strcmp(setting_value, "DEUTERANOPIA") == 0) set.graphics_daltonism = DALTONISM_DEUTERANOPIA;
+                else if(strcmp(setting_value, "TRITANOPIA") == 0) set.graphics_daltonism = DALTONISM_TRITANOPIA;
+                else if(strcmp(setting_value, "ACHROMATOPSIA") == 0) set.graphics_daltonism = DALTONISM_ACHROMATOPSIA;
+                else set.graphics_daltonism = DALTONISM_NONE;
             }
         }
     }

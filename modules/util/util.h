@@ -11,6 +11,14 @@ typedef enum {
     TRUE
 } boolean;
 
+typedef enum {
+    DALTONISM_NONE,
+    DALTONISM_PROTANOPIA,
+    DALTONISM_DEUTERANOPIA,
+    DALTONISM_TRITANOPIA,
+    DALTONISM_ACHROMATOPSIA
+} daltonismType;
+
 typedef struct {
     MLV_Keyboard_button keyboard_move_left;
     MLV_Keyboard_button keyboard_move_right;
@@ -24,6 +32,7 @@ typedef struct {
     uint32_t video_fps;
     boolean video_animations;
     boolean graphics_border_radius;
+    daltonismType graphics_daltonism;
 } settings;
 
 typedef struct {
@@ -58,6 +67,7 @@ typedef enum {
 
 int32_t __min(int32_t a, int32_t b);
 int32_t __max(int32_t a, int32_t b);
+rgba adjustColorForDaltonism(rgba color, daltonismType type);
 void getMonth(char unsigned month, char result[32]);
 date getDate();
 

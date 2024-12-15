@@ -49,13 +49,54 @@ component lastHovered(int32_t top, int32_t left, int32_t height, int32_t width, 
     return cmp;
 }
 
-boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], int components_size, int x, int y, int fps)
+uint32_t lastChoiceHovered(int32_t top, int32_t left, int32_t height, int32_t width, component cmp, component components[], uint32_t components_size, choice_component choice_cmp, int x, int y)
 {
-    int i;
+    int32_t tmp_gap = 0;
+    uint32_t ui;
+    style stylesheet_edit, stylesheet;
+    
+    stylesheet = autoLayout(top, left, height, width, components, components_size, cmp);
+
+    for(ui = 0; ui<choice_cmp.choices_size; ui++)
+    {
+        if(choice_cmp.choices[ui].selected) cmp.__transition = 1;
+        else cmp.__transition = choice_cmp.choices[ui].__transition;
+        stylesheet_edit = styleTransition(cmp);
+        stylesheet_edit.unit_height = UNIT_PX;
+        stylesheet_edit.height = stylesheet.height;
+        stylesheet_edit.unit_width = UNIT_PX;
+        stylesheet_edit.width = (stylesheet.width-cmp.stylesheet.gap*(choice_cmp.choices_size-1))/choice_cmp.choices_size;
+        stylesheet_edit.unit_top = UNIT_PX;
+        stylesheet_edit.top=stylesheet.top;
+        stylesheet_edit.unit_left = UNIT_PX;
+        stylesheet_edit.left=stylesheet.left+tmp_gap;
+
+        if(ui!=0)
+        {
+            stylesheet_edit.border_radius_top_left = 0;
+            stylesheet_edit.border_radius_bottom_left = 0;
+        }
+        if(ui!=choice_cmp.choices_size-1)
+        {
+            stylesheet_edit.border_radius_top_right = 0;
+            stylesheet_edit.border_radius_bottom_right = 0;
+        }
+        if(idboxComponent(stylesheet_edit, x, y))return ui+1;
+        
+        tmp_gap+=cmp.stylesheet.gap+stylesheet_edit.width;
+    }
+    return 0;
+}
+
+boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t components_size, choice_component choices[], uint32_t choices_size, int x, int y, int fps)
+{
+    uint32_t i, j;
     component cmp;
+    choice_component *choice;
+    uint32_t choice_hovered;
+
     boolean change = FALSE;
     cmp = lastHovered(top, left, height, width, components, components_size, x, y);
-
     for(i = 0; i<components_size; i++)
     {
         if(components[i].id != cmp.id)
@@ -67,15 +108,33 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
                     change = TRUE;
                     components[i].is_hovered = FALSE;
                 }
-                if(components[i].__transition != 0)
+                if(components[i].type == COMPONENT_CHOICE)
                 {
-                    change = TRUE;
-                    if(set.video_animations == FALSE) components[i].__transition = 0;
-                    else {
-                        if(components[i].transition_duration==0) components[i].__transition = 0;
+                    componentToChoiceComponentPointer(components[i], choices, choices_size, &choice);
+                    choice_hovered = lastChoiceHovered(top, left, height, width, components[i], components, components_size, *choice, x, y);
+                    for(j = 0; j<choice->choices_size; j++)
+                    {
+                        if(choice->choices[j].__transition != 0)
+                        {
+                            change = TRUE;
+                            if(set.video_animations == FALSE) choice->choices[j].__transition = 0;
+                            else {
+                                if(choice->choices[j].__transition-(float)fps/components[i].transition_duration < 0) choice->choices[j].__transition = 0;
+                                else choice->choices[j].__transition-=(float)fps/components[i].transition_duration;
+                            }
+                        }
+                    }
+                } else {
+                    if(components[i].__transition != 0)
+                    {
+                        change = TRUE;
+                        if(set.video_animations == FALSE) components[i].__transition = 0;
                         else {
-                            if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
-                            else components[i].__transition-=(float)fps/components[i].transition_duration;
+                            if(components[i].transition_duration==0) components[i].__transition = 0;
+                            else {
+                                if(components[i].__transition-(float)fps/components[i].transition_duration < 0) components[i].__transition = 0;
+                                else components[i].__transition-=(float)fps/components[i].transition_duration;
+                            }
                         }
                     }
                 }
@@ -88,15 +147,46 @@ boolean hover(settings set, int32_t top, int32_t left, int32_t height, int32_t w
                     change = TRUE;
                     components[i].is_hovered = TRUE;
                 }
-                if(components[i].__transition != 1)
+                if(components[i].type == COMPONENT_CHOICE)
                 {
-                    change = TRUE;
-                    if(set.video_animations == FALSE) components[i].__transition = 1;
-                    else {
-                        if(components[i].transition_duration==0) components[i].__transition = 1;
+                    componentToChoiceComponentPointer(components[i], choices, choices_size, &choice);
+                    choice_hovered = lastChoiceHovered(top, left, height, width, components[i], components, components_size, *choice, x, y);
+                    for(j = 0; j<choice->choices_size; j++)
+                    {
+                        if(j+1 == choice_hovered)
+                        {
+                            if(choice->choices[j].__transition != 1)
+                            {
+                                change = TRUE;
+                                if(set.video_animations == FALSE) choice->choices[j].__transition = 1;
+                                else {
+                                    if(choice->choices[j].__transition+(float)fps/components[i].transition_duration > 1) choice->choices[j].__transition = 1;
+                                    else choice->choices[j].__transition+=(float)fps/components[i].transition_duration;
+                                }
+                            }
+                        } else {
+                            if(choice->choices[j].__transition != 0)
+                            {
+                                change = TRUE;
+                                if(set.video_animations == FALSE) choice->choices[j].__transition = 0;
+                                else {
+                                    if(choice->choices[j].__transition-(float)fps/components[i].transition_duration < 0) choice->choices[j].__transition = 0;
+                                    else choice->choices[j].__transition-=(float)fps/components[i].transition_duration;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if(components[i].__transition != 1)
+                    {
+                        change = TRUE;
+                        if(set.video_animations == FALSE) components[i].__transition = 1;
                         else {
-                            if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
-                            else components[i].__transition+=(float)fps/components[i].transition_duration;
+                            if(components[i].transition_duration==0) components[i].__transition = 1;
+                            else {
+                                if(components[i].__transition+(float)fps/components[i].transition_duration > 1) components[i].__transition = 1;
+                                else components[i].__transition+=(float)fps/components[i].transition_duration;
+                            }
                         }
                     }
                 }
@@ -325,7 +415,7 @@ int main()
 
     boolean game_started = FALSE, game_paused = FALSE, recreate = FALSE, actualise = FALSE, quit = FALSE, listen = FALSE, error = FALSE, grab = FALSE, scrollable = FALSE;
     int32_t x = 0, y = 0, oldy = 0, width, height;
-    uint32_t i = 0, tab_size = 0, games_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, tmp_top, pressed_keys_size = 0;
+    uint32_t i = 0, clicked_choice_id = 0, tab_size = 0, games_size = 0, components_size = 0, buttons_size = 0, texts_size = 0, keys_size = 0, images_size = 0, choices_size = 0, tmp_top, pressed_keys_size = 0;
     uint64_t tmp_time = 0, move_time = 0, turn_time = 0;
     double scroll = 0, oldscroll = 0;
     page_components page = MENU_COMPONENTS;
@@ -340,9 +430,11 @@ int main()
     text_component texts[COMPONENTS_MAX_SIZE];
     key_component keys[COMPONENTS_MAX_SIZE];
     image_component images[COMPONENTS_MAX_SIZE];
+    choice_component choices[COMPONENTS_MAX_SIZE];
     component cmp, clicked_cmp;
     button_component button;
     key_component key;
+    choice_component *choice;
     style stylesheet, grab_stylesheet;
     tetrimino tab[64];
     load games[64];
@@ -357,8 +449,8 @@ int main()
     grab_stylesheet = STYLESHEET_BODY(0, 0, height, width);
 
     MLV_create_full_screen_window("Tetris", "tetris", width, height);
-    createComponents(page, lastPage, games, games_size, scroll, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
-    drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
+    createComponents(page, lastPage, games, games_size, scroll, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, choices, &choices_size, set);
+    drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size, choices, choices_size);
     MLV_actualise_window();
 
     while(quit != TRUE)
@@ -480,7 +572,11 @@ int main()
                     if(state == MLV_PRESSED && mouse == MLV_BUTTON_LEFT)
                     {
                         clicked_cmp = lastHovered(0, 0, height, width, components, components_size, x, y);
-                        if(clicked_cmp.type == COMPONENT_GRAB)
+                        if(clicked_cmp.type == COMPONENT_CHOICE)
+                        {
+                            componentToChoiceComponentPointer(clicked_cmp, choices, choices_size, &choice);
+                            clicked_choice_id = lastChoiceHovered(0, 0, height, width, clicked_cmp, components, components_size, *choice, x, y);
+                        } else if(clicked_cmp.type == COMPONENT_GRAB)
                         {
                             tmp_top = clicked_cmp.stylesheet.top;
                             clicked_cmp.stylesheet.top = 0;
@@ -502,6 +598,53 @@ int main()
                             if(cmp.id == clicked_cmp.id) {
                                 switch(cmp.type)
                                 {
+                                    case COMPONENT_CHOICE:
+                                        componentToChoiceComponentPointer(clicked_cmp, choices, choices_size, &choice);
+                                        if(clicked_choice_id == lastChoiceHovered(0, 0, height, width, clicked_cmp, components, components_size, *choice, x, y))
+                                        {
+                                            for(i = 0; i<=choice->choices_size; i++)
+                                            {
+                                                if(i+1 == clicked_choice_id)
+                                                {
+                                                    if(choice->choices[i].selected == FALSE)
+                                                    {
+                                                        choice->choices[i].selected = TRUE;
+                                                        switch(choice->choices[i].action_type)
+                                                        {
+                                                            case CHOICE_SET_DALTONISM_PROTANOPIA:
+                                                                set.graphics_daltonism = DALTONISM_PROTANOPIA;
+                                                                break;
+                                                            case CHOICE_SET_DALTONISM_DEUTERANOPIA:
+                                                                set.graphics_daltonism = DALTONISM_DEUTERANOPIA;
+                                                                break;
+                                                            case CHOICE_SET_DALTONISM_TRITANOPIA:
+                                                                set.graphics_daltonism = DALTONISM_TRITANOPIA;
+                                                                break;
+                                                            case CHOICE_SET_DALTONISM_ACHROMATOPSIA:
+                                                                set.graphics_daltonism = DALTONISM_ACHROMATOPSIA;
+                                                                break;
+                                                            default:
+                                                                set.graphics_daltonism = DALTONISM_NONE;
+                                                        }
+                                                        writeSettings(set);
+                                                        actualise = TRUE;
+                                                    } else {
+                                                        if(choice->type == CHOICE_MULTIPLE)
+                                                        {
+                                                            choice->choices[i].selected = FALSE;
+                                                            actualise = TRUE;
+                                                        }
+                                                    }
+                                                } else {
+                                                    if(choice->type == CHOICE_UNIQUE)
+                                                    {
+                                                        if(choice->choices[i].selected != FALSE) actualise = TRUE;
+                                                        choice->choices[i].selected = FALSE;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        break;
                                     case COMPONENT_BUTTON:
                                         button = componentToButtonComponent(cmp, buttons, buttons_size);
                                         buttonAction(button.action_type, button.path, &g, games, &games_size, tab, &tab_size, &scroll, &scrollable, &game_started, &game_paused, &quit, &page, &lastPage, &actualise, &recreate);
@@ -652,15 +795,15 @@ int main()
             }
         }
 
-        actualise |= hover(set, 0, 0, height, width, components, components_size, x, y, 1000/set.video_fps);
+        actualise |= hover(set, 0, 0, height, width, components, components_size, choices, choices_size, x, y, 1000/set.video_fps);
         if(recreate == TRUE) {
-            createComponents(page, lastPage, games, games_size, scroll, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, set);
+            createComponents(page, lastPage, games, games_size, scroll, 0, 0, height, width, g, components, &components_size, buttons, &buttons_size, texts, &texts_size, keys, &keys_size, images, &images_size, choices, &choices_size, set);
             MLV_flush_event_queue();
             recreate = FALSE;
         }
         if(actualise == TRUE)
         {
-            drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size);
+            drawComponents(set, 0, 0, height, width, components, components_size, g, texts, texts_size, keys, keys_size, images, images_size, choices, choices_size);
             MLV_actualise_window();
             actualise = FALSE;
         }

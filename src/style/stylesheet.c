@@ -710,7 +710,7 @@ style STYLESHEET_KEY() {
     stylesheet.border_radius_bottom_left = 8;
     stylesheet.border_radius_bottom_right = 8;
     stylesheet.childs_direction = DIRECTION_ROW;
-    stylesheet.padding = 30;
+    stylesheet.padding = 0;
     stylesheet.gap = 0;
     stylesheet.unit_top = UNIT_PX;
     stylesheet.top = 0;
@@ -895,13 +895,14 @@ style STYLESHEET_VOID() {
     return stylesheet;
 }
 
-void createComponents(page_components page, button_action_type lastPage, load games[64], uint32_t games_size, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponents(page_components page, button_action_type lastPage, load games[64], uint32_t games_size, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, game g, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, choice_component choices[], uint32_t *choices_size, settings set) {
     style stylesheet;
     (*components_size) = 0;
     (*buttons_size) = 0;
     (*texts_size) = 0;
     (*keys_size) = 0;
     (*images_size) = 0;
+    (*choices_size) = 0;
 
     stylesheet = STYLESHEET_BODY(top, left, height, width);
     MLV_clear_window(MLV_COLOR_BLACK);
@@ -920,14 +921,14 @@ void createComponents(page_components page, button_action_type lastPage, load ga
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
-            createComponentsWithSidebar(page, lastPage, games, games_size, scroll, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, set);
+            createComponentsWithSidebar(page, lastPage, games, games_size, scroll, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, images, images_size, choices, choices_size, set);
             break;
         default:
             break;
     }
 }
 
-void createComponentsWithSidebar(page_components page, button_action_type lastPage, load games[64], uint32_t games_size, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, settings set) {
+void createComponentsWithSidebar(page_components page, button_action_type lastPage, load games[64], uint32_t games_size, double scroll, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, image_component images[], uint32_t *images_size, choice_component choices[], uint32_t *choices_size, settings set) {
     style stylesheet;
     stylesheet = STYLESHEET_SIDEBAR();
     if(page == SCOREBOARD_COMPONENTS)
@@ -956,7 +957,7 @@ void createComponentsWithSidebar(page_components page, button_action_type lastPa
         case SETTINGS_KEYBOARD_COMPONENTS:
         case SETTINGS_VIDEO_COMPONENTS:
         case SETTINGS_GRAPHICS_COMPONENTS:
-            createSettingsComponents(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, set);
+            createSettingsComponents(page, lastPage, top, left, height, width, components, components_size, buttons, buttons_size, texts, texts_size, keys, keys_size, choices, choices_size, set);
             break;
         default:
             break;
@@ -1480,7 +1481,7 @@ void createScoreboardComponents(button_action_type lastPage, int32_t top, int32_
     }
 }
 
-void createSettingsComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, settings set)
+void createSettingsComponents(page_components page, button_action_type lastPage, int32_t top, int32_t left, int32_t height, int32_t width, component components[], uint32_t *components_size, button_component buttons[], uint32_t *buttons_size, text_component texts[], uint32_t *texts_size, key_component keys[], uint32_t *keys_size, choice_component choices[], uint32_t *choices_size, settings set)
 {
     style stylesheet, hover_stylesheet, text_stylesheet;
 
@@ -1511,7 +1512,7 @@ void createSettingsComponents(page_components page, button_action_type lastPage,
             createSettingsVideoComponents(components, components_size, texts, texts_size);
             break;
         case SETTINGS_GRAPHICS_COMPONENTS:
-            createSettingsGraphicsComponents(components, components_size, texts, texts_size);
+            createSettingsGraphicsComponents(components, components_size, texts, texts_size, choices, choices_size, set);
             break;
         default:
             break;
@@ -1620,10 +1621,56 @@ void createSettingsVideoComponents(component components[], uint32_t *components_
     text_stylesheet = STYLESHEET_TITLE();
     createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres vidéo"); /* id = 12 */
 }
-void createSettingsGraphicsComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size)
+void createSettingsGraphicsComponents(component components[], uint32_t *components_size, text_component texts[], uint32_t *texts_size, choice_component choices[], uint32_t *choices_size, settings set)
 {
-    style text_stylesheet;
+    style stylesheet, hover_stylesheet, text_stylesheet;
+    choice choices_inside[16];
+    MLV_Font *font_family;
+    int font_height = 0;
 
     text_stylesheet = STYLESHEET_TITLE();
     createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Paramètres graphique"); /* id = 12 */
+
+    text_stylesheet = STYLESHEET_MINI_TITLE();
+    if(MLV_path_exists(text_stylesheet.font_family))
+    {
+        font_family = MLV_load_font(text_stylesheet.font_family, text_stylesheet.font_size);
+        MLV_get_size_of_text_with_font("Scroll", NULL, &font_height, font_family);
+        MLV_free_font(font_family);
+    }
+    text_stylesheet.height = font_height;
+    createText(components, components_size, texts, texts_size, 3, text_stylesheet, FALSE, TRUE, text_stylesheet, 0, "Mode daltonien"); /* id = 37 */
+
+    stylesheet = STYLESHEET_KEY();
+    stylesheet.color = ROOT_WHITE_COLOR();
+    stylesheet.unit_width = UNIT_PERCENTAGE;
+    stylesheet.width = 100;
+    stylesheet.gap = 10;
+    stylesheet.component_justify = JUSTIFY_START;
+
+    hover_stylesheet = stylesheet;
+    hover_stylesheet.background_color = ROOT_PRIMARY_COLOR();
+
+    choices_inside[0].id = 1;
+    choices_inside[0].action_type = CHOICE_SET_DALTONISM_NONE;
+    strcpy(choices_inside[0].content, "Non");
+    choices_inside[0].selected = set.graphics_daltonism == DALTONISM_NONE ? TRUE : FALSE;
+    choices_inside[1].id = 2;
+    choices_inside[1].action_type = CHOICE_SET_DALTONISM_PROTANOPIA;
+    strcpy(choices_inside[1].content, "Protanopie");
+    choices_inside[1].selected = set.graphics_daltonism == DALTONISM_PROTANOPIA ? TRUE : FALSE;
+    choices_inside[2].id = 3;
+    choices_inside[2].action_type = CHOICE_SET_DALTONISM_DEUTERANOPIA;
+    strcpy(choices_inside[2].content, "Deutéranopie");
+    choices_inside[2].selected = set.graphics_daltonism == DALTONISM_DEUTERANOPIA ? TRUE : FALSE;
+    choices_inside[3].id = 4;
+    choices_inside[3].action_type = CHOICE_SET_DALTONISM_TRITANOPIA;
+    strcpy(choices_inside[3].content, "Tritanopie");
+    choices_inside[3].selected = set.graphics_daltonism == DALTONISM_TRITANOPIA ? TRUE : FALSE;
+    choices_inside[4].id = 5;
+    choices_inside[4].action_type = CHOICE_SET_DALTONISM_ACHROMATOPSIA;
+    strcpy(choices_inside[4].content, "Achromatopsie");
+    choices_inside[4].selected = set.graphics_daltonism == DALTONISM_ACHROMATOPSIA ? TRUE : FALSE;
+
+    createChoice(components, components_size, choices, choices_size, 3, stylesheet, TRUE, FALSE, hover_stylesheet, 100, CHOICE_UNIQUE, choices_inside, 5); /* id = 12 */
 }
