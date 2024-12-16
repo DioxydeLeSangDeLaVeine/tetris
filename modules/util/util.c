@@ -33,6 +33,38 @@ int32_t __max(int32_t a, int32_t b)
     return a>=b?a:b;
 }
 
+rgba adjustColorForDaltonism(rgba color, daltonismType type)
+{
+    rgba new_color;
+
+    switch(type)
+    {
+        case DALTONISM_PROTANOPIA:
+            new_color.r = (int32_t)(color.r*0.56667+color.g*0.43333);
+            new_color.g = (int32_t)(color.r*0.55833+color.g*0.44167);
+            new_color.b = (int32_t)(color.g*0.24167+color.b*0.75833);
+            break;
+        case DALTONISM_DEUTERANOPIA:
+            new_color.r = (int32_t)(color.r*0.62500+color.g*0.37500);
+            new_color.g = (int32_t)(color.r*0.70000+color.g*0.30000);
+            new_color.b = (int32_t)(color.g*0.30000+color.b*0.70000);
+            break;
+        case DALTONISM_TRITANOPIA:
+            new_color.r = (int32_t)(color.r*0.95000+color.g*0.05000);
+            new_color.g = (int32_t)(color.g*0.43333+color.b*0.56667);
+            new_color.b = (int32_t)(color.g*0.47500+color.b*0.52500);
+            break;
+        case DALTONISM_ACHROMATOPSIA:
+            new_color.r = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            new_color.g = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            new_color.b = (int32_t)(color.r*0.299+color.g*0.587+color.b*0.114);
+            break;
+        default:
+            return color;
+    }
+    new_color.a = color.a;
+    return new_color;
+}
 
 void getMonth(char unsigned month, char result[32])
 {
@@ -308,11 +340,15 @@ settings defaultSettings()
     set.keyboard_move_right = MLV_KEYBOARD_d;
     set.keyboard_turn_left = MLV_KEYBOARD_a;
     set.keyboard_turn_right = MLV_KEYBOARD_e;
-    set.keyboard_fast_drop = MLV_KEYBOARD_SPACE;
+    set.keyboard_fast_drop = MLV_KEYBOARD_s;
+    set.keyboard_instant_drop = MLV_KEYBOARD_SPACE;
     set.keyboard_pause = MLV_KEYBOARD_ESCAPE;
+    set.keyboard_scroll_up = MLV_KEYBOARD_UP;
+    set.keyboard_scroll_down = MLV_KEYBOARD_DOWN;
     set.video_fps = 30;
     set.video_animations = TRUE;
     set.graphics_border_radius = TRUE;
+    set.graphics_daltonism = DALTONISM_NONE;
     return set;
 }
 
@@ -337,17 +373,39 @@ void writeSettings(settings set)
     fprintf(file, "KEY_TURN_RIGHT=%s\n", response);
     getKeyFromMLV(set.keyboard_fast_drop, response);
     fprintf(file, "KEY_FAST_DROP=%s\n", response);
+    getKeyFromMLV(set.keyboard_instant_drop, response);
+    fprintf(file, "KEY_INSTANT_DROP=%s\n", response);
     getKeyFromMLV(set.keyboard_pause, response);
     fprintf(file, "KEY_PAUSE=%s\n\n", response);
+    getKeyFromMLV(set.keyboard_scroll_up, response);
+    fprintf(file, "KEY_SCROLL_UP=%s\n\n", response);
+    getKeyFromMLV(set.keyboard_scroll_down, response);
+    fprintf(file, "KEY_SCROLL_DOWN=%s\n\n", response);
 
     fprintf(file, "### VIDEO ###\n");
     fprintf(file, "FPS=%u\n", set.video_fps);
     if(set.video_animations == TRUE) fprintf(file, "ANIMATIONS=TRUE\n\n");
     else fprintf(file, "ANIMATIONS=FALSE\n\n");
     fprintf(file, "### GRAPHICS ###\n");
-    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n\n");
-    else fprintf(file, "BORDER_RADIUS=FALSE\n\n");
-    fprintf(file, "### AUDIO ###\n");
+    if(set.graphics_border_radius == TRUE) fprintf(file, "BORDER_RADIUS=TRUE\n");
+    else fprintf(file, "BORDER_RADIUS=FALSE\n");
+    switch(set.graphics_daltonism)
+    {
+        case DALTONISM_PROTANOPIA:
+            fprintf(file, "DALTONISM=PROTANOPIA\n");
+            break;
+        case DALTONISM_DEUTERANOPIA:
+            fprintf(file, "DALTONISM=DEUTERANOPIA\n");
+            break;
+        case DALTONISM_TRITANOPIA:
+            fprintf(file, "DALTONISM=TRITANOPIA\n");
+            break;
+        case DALTONISM_ACHROMATOPSIA:
+            fprintf(file, "DALTONISM=ACHROMATOPSIA\n");
+            break;
+        default:
+            fprintf(file, "DALTONISM=NONE\n");
+    }
 
     fclose(file);
 }
@@ -427,11 +485,29 @@ settings readSettings()
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_fast_drop = key;
                 }
+            } else if(strcmp(setting_name, "KEY_INSTANT_DROP") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_instant_drop = key;
+                }
             } else if(strcmp(setting_name, "KEY_PAUSE") == 0)
             {
                 key = getMLVFromKey(setting_value);
                 if(key != MLV_KEYBOARD_UNKNOWN) {
                     set.keyboard_pause = key;
+                }
+            } else if(strcmp(setting_name, "KEY_SCROLL_UP") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_scroll_up = key;
+                }
+            } else if(strcmp(setting_name, "KEY_SCROLL_DOWN") == 0)
+            {
+                key = getMLVFromKey(setting_value);
+                if(key != MLV_KEYBOARD_UNKNOWN) {
+                    set.keyboard_scroll_down = key;
                 }
             } else if(strcmp(setting_name, "FPS") == 0)
             {
@@ -446,6 +522,13 @@ settings readSettings()
             {
                 if(strcmp(setting_value, "TRUE") == 0) set.graphics_border_radius = TRUE;
                 else set.graphics_border_radius = FALSE;
+            } else if(strcmp(setting_name, "DALTONISM") == 0)
+            {
+                if(strcmp(setting_value, "PROTANOPIA") == 0) set.graphics_daltonism = DALTONISM_PROTANOPIA;
+                else if(strcmp(setting_value, "DEUTERANOPIA") == 0) set.graphics_daltonism = DALTONISM_DEUTERANOPIA;
+                else if(strcmp(setting_value, "TRITANOPIA") == 0) set.graphics_daltonism = DALTONISM_TRITANOPIA;
+                else if(strcmp(setting_value, "ACHROMATOPSIA") == 0) set.graphics_daltonism = DALTONISM_ACHROMATOPSIA;
+                else set.graphics_daltonism = DALTONISM_NONE;
             }
         }
     }
@@ -598,17 +681,60 @@ void writeScoreboard(score s)
         value = (tab[i].when.year)&0xFF;
         fwrite(&value, sizeof(char), 1, file);
     }
-
     fclose(file);
 }
 
-uint32_t loadTetrimino(tetrimino tab[64])
+tetrimino loadTetrimino(char path[320])
+{
+    FILE *file = fopen(path, "rb");
+    tetrimino tetr;
+    int byte, j;
+
+    strcpy(tetr.path, path);
+    tetr.idbox = 0;
+    if(file == NULL) {
+        return tetr;
+    }
+    byte = fgetc(file);
+    j = 0;
+    while(byte != EOF && j<16)
+    {
+        tetr.map[j].r = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].g = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].b = byte;
+        byte = fgetc(file);
+        if(byte == EOF)break;
+        tetr.map[j].a = byte;
+        j++;
+        if(j == 16) tetr.idbox = 4;
+        else
+        {
+            if(j >= 9) tetr.idbox = 3;
+            else
+            {
+                if(j >= 4) tetr.idbox = 2;
+                else
+                {
+                    if(j >= 1) tetr.idbox = 1;
+                }
+            }
+        }
+        byte = fgetc(file);
+    }
+    fclose(file);
+
+    return tetr;
+}
+
+uint32_t loadTetriminos(tetrimino tab[64])
 {
     DIR *folder = opendir("./data/tetrimino");
-    FILE *file;
     struct dirent *entry;
-    char file_path[300];
-    int byte, i, j;
+    int i;
 
     if(folder == NULL) {
         return 0;
@@ -624,53 +750,14 @@ uint32_t loadTetrimino(tetrimino tab[64])
     {
         if(entry->d_type == DT_REG)
         {
-            j = 0;
-            snprintf(file_path, sizeof(file_path), "./data/tetrimino/%s", entry->d_name);
-
-            file = fopen(file_path, "rb");
-            if(file == NULL) {
-                continue;
-            }
-            byte = fgetc(file);
-            j = 0;
-            tab[i].idbox = 0;
-            while(byte != EOF && j<16)
-            {
-                tab[i].map[j].r = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].g = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].b = byte;
-                byte = fgetc(file);
-                if(byte == EOF)break;
-                tab[i].map[j].a = byte;
-                j++;
-                if(j == 16) tab[i].idbox = 4;
-                else
-                {
-                    if(j >= 9) tab[i].idbox = 3;
-                    else
-                    {
-                        if(j >= 4) tab[i].idbox = 2;
-                        else
-                        {
-                            if(j >= 1) tab[i].idbox = 1;
-                        }
-                    }
-                }
-                byte = fgetc(file);
-            }
+            snprintf(tab[i].path, sizeof(tab[i].path), "./data/tetrimino/%s", entry->d_name);
+            tab[i] = loadTetrimino(tab[i].path);
             if(tab[i].idbox != 0)
             {
-                strcpy(tab[i].path, file_path);
                 i++;
             }
-            fclose(file);
         }
     }
     closedir(folder);
-
     return i;
 }

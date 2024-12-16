@@ -11,16 +11,28 @@ typedef enum {
     TRUE
 } boolean;
 
+typedef enum {
+    DALTONISM_NONE,
+    DALTONISM_PROTANOPIA,
+    DALTONISM_DEUTERANOPIA,
+    DALTONISM_TRITANOPIA,
+    DALTONISM_ACHROMATOPSIA
+} daltonismType;
+
 typedef struct {
     MLV_Keyboard_button keyboard_move_left;
     MLV_Keyboard_button keyboard_move_right;
     MLV_Keyboard_button keyboard_turn_left;
     MLV_Keyboard_button keyboard_turn_right;
     MLV_Keyboard_button keyboard_fast_drop;
+    MLV_Keyboard_button keyboard_instant_drop;
     MLV_Keyboard_button keyboard_pause;
+    MLV_Keyboard_button keyboard_scroll_up;
+    MLV_Keyboard_button keyboard_scroll_down;
     uint32_t video_fps;
     boolean video_animations;
     boolean graphics_border_radius;
+    daltonismType graphics_daltonism;
 } settings;
 
 typedef struct {
@@ -44,7 +56,7 @@ typedef struct {
 typedef struct {
     rgba map[16];
     char idbox; /* 1x1, 2x2, 3x3, 4x4 */
-    char path[300];
+    char path[320];
 } tetrimino;
 
 typedef enum {
@@ -55,6 +67,7 @@ typedef enum {
 
 int32_t __min(int32_t a, int32_t b);
 int32_t __max(int32_t a, int32_t b);
+rgba adjustColorForDaltonism(rgba color, daltonismType type);
 void getMonth(char unsigned month, char result[32]);
 date getDate();
 
@@ -67,6 +80,6 @@ settings readSettings();
 void readScoreboard(score tab[10]);
 void writeScoreboard(score s);
 
-uint32_t loadTetrimino(tetrimino tab[64]);
-
+tetrimino loadTetrimino(char path[320]);
+uint32_t loadTetriminos(tetrimino tab[64]);
 #endif
