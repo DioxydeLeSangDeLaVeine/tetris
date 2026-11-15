@@ -25,5 +25,6 @@ Most of the code was written by me. My classmate's contributions are visible in 
 ## Credits and notes
 
 - The "T" in the Tetris logo is the [top.gg](https://top.gg) logo. I used it back then because it looked nice for the T of Tetris. It belongs to top.gg, it's not mine and I don't claim any right over it. Please don't sue me. If top.gg (or anyone) wants it removed, just ask and I'll take it out.
+- Don't blame me if my commit messages aren't professional, I never thought I would make this public.
 
 I used Valgrind to track down memory errors.
